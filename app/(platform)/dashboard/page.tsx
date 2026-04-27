@@ -6,6 +6,7 @@ import { SectionCard } from "@/app/components/ui/section-card";
 import { StatusPill } from "@/app/components/ui/status-pill";
 import { ActionButton } from "@/app/components/ui/action-button";
 import { EmptyState } from "@/app/components/ui/empty-state";
+import { TendersRssWidget } from "./_components/tenders-rss-widget";
 
 type Card = {
   href: string;
@@ -298,6 +299,8 @@ export default async function DashboardPage() {
           <MetricTile title="Pipeline Value" value={formatCurrency(pipelineValueTotal)} href="/bidding/pipeline" />
         </div>
       </SectionCard>
+
+      <TendersRssWidget />
 
       <SectionCard
         title="Quick Access"
