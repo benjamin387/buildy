@@ -7,7 +7,7 @@
     "build": "prisma generate && next build --webpack",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint",
+    "lint": "eslint .",
     "postinstall": "prisma generate"
   },
   "dependencies": {
