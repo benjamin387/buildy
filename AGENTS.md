@@ -1,5 +1,23 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# Buildy Codex Rules
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+Project: Buildy interior design / construction SaaS platform.
+
+Stack:
+- Next.js App Router
+- TypeScript
+- Tailwind
+- Prisma
+- PostgreSQL
+- Vercel
+
+Rules:
+- Never push directly to main.
+- Always create a feature branch.
+- Always open a pull request.
+- Do not remove existing modules.
+- Preserve luxury enterprise admin UI.
+- Use mobile responsive layouts.
+- Reuse existing patterns in app, lib, prisma, and components.
+- Run npm run build before finalizing.
+- If database changes are needed, update prisma/schema.prisma and include migration notes.
+- Never expose secrets in frontend code.
