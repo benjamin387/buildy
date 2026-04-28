@@ -3056,6 +3056,40 @@ enum TenderGeneratedDocumentStatus {
   APPROVED
 }
 
+enum BizsafeLevel {
+  NONE
+  LEVEL_1
+  LEVEL_2
+  LEVEL_3
+  LEVEL_4
+  STAR
+}
+
+enum BizsafeApplicationStatus {
+  NOT_STARTED
+  PREPARING
+  COURSE_BOOKED
+  COURSE_COMPLETED
+  RM_PLAN_PREPARING
+  AUDIT_BOOKED
+  AUDIT_COMPLETED
+  SUBMITTED
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum BizsafeDocumentType {
+  CERTIFICATE
+  RM_AUDIT_REPORT
+  COURSE_CERTIFICATE
+  TRAINING_RECORD
+  APPLICATION_FORM
+  RISK_MANAGEMENT_PLAN
+  WSH_POLICY
+  OTHER
+}
+
 enum TenderSubmissionPackStatus {
   DRAFT
   APPROVAL_REQUIRED
@@ -3637,6 +3671,105 @@ model CompanyComplianceProfile {
 
   @@index([companyName])
   @@index([uen])
+}
+
+model BizsafeProfile {
+  id                           String                   @id @default(cuid())
+  companyName                  String
+  uen                          String?
+  currentLevel                 BizsafeLevel             @default(NONE)
+  certificateNumber            String?
+  approvalDate                 DateTime?
+  issueDate                    DateTime?
+  expiryDate                   DateTime?
+  status                       BizsafeApplicationStatus @default(NOT_STARTED)
+  seniorManagementName         String?
+  seniorManagementEmail        String?
+  seniorManagementPhone        String?
+  rmChampionName               String?
+  rmChampionEmail              String?
+  rmChampionPhone              String?
+  auditorName                  String?
+  auditCompany                 String?
+  auditDate                    DateTime?
+  auditReportExpiryDate        DateTime?
+  remarks                      String?
+  createdAt                    DateTime                 @default(now())
+  updatedAt                    DateTime                 @updatedAt
+
+  documents                    BizsafeDocument[]
+  tasks                        BizsafeTask[]
+  trainingRecords              BizsafeTrainingRecord[]
+
+  @@index([companyName])
+  @@index([uen])
+  @@index([currentLevel])
+  @@index([status])
+  @@index([expiryDate])
+  @@index([auditReportExpiryDate])
+}
+
+model BizsafeDocument {
+  id               String             @id @default(cuid())
+  bizsafeProfileId String
+  documentType     BizsafeDocumentType
+  title            String
+  fileUrl          String?
+  fileName         String?
+  uploadedAt       DateTime           @default(now())
+  uploadedBy       String?
+  remarks          String?
+
+  bizsafeProfile   BizsafeProfile     @relation(fields: [bizsafeProfileId], references: [id], onDelete: Cascade)
+
+  @@index([bizsafeProfileId])
+  @@index([documentType])
+  @@index([uploadedAt])
+}
+
+model BizsafeTask {
+  id               String         @id @default(cuid())
+  bizsafeProfileId String
+  title            String
+  description      String?
+  dueDate          DateTime?
+  completedAt      DateTime?
+  isCompleted      Boolean        @default(false)
+  priority         TaskPriority   @default(MEDIUM)
+  assignedTo       String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  bizsafeProfile   BizsafeProfile @relation(fields: [bizsafeProfileId], references: [id], onDelete: Cascade)
+
+  @@index([bizsafeProfileId])
+  @@index([isCompleted])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([createdAt])
+}
+
+model BizsafeTrainingRecord {
+  id               String         @id @default(cuid())
+  bizsafeProfileId String
+  courseName       String
+  courseLevel      BizsafeLevel?
+  attendeeName     String
+  attendeeRole     String?
+  providerName     String?
+  courseDate       DateTime?
+  completionDate   DateTime?
+  certificateUrl   String?
+  remarks          String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  bizsafeProfile   BizsafeProfile @relation(fields: [bizsafeProfileId], references: [id], onDelete: Cascade)
+
+  @@index([bizsafeProfileId])
+  @@index([courseLevel])
+  @@index([completionDate])
+  @@index([createdAt])
 }
 
 model ComplianceDocument {
