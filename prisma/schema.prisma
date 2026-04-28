@@ -3881,6 +3881,27 @@ model GebizImportedItem {
   @@index([createdAt])
 }
 
+model GebizOpportunity {
+  id                String   @id @default(cuid())
+  sourceId          String   @unique
+  title             String
+  agency            String?
+  category          String?
+  procurementMethod String?
+  publishedAt       DateTime?
+  closingAt         DateTime?
+  detailUrl         String?  @unique
+  status            String   @default("OPEN")
+  rawJson           Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([publishedAt])
+  @@index([closingAt])
+  @@index([status])
+  @@index([createdAt])
+}
+
 model PermissionRule {
   id        String              @id @default(cuid())
   roleKey   String

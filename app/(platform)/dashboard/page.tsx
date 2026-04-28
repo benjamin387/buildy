@@ -1,4 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import {
+  GebizOpportunitiesWidget,
+  GebizOpportunitiesWidgetSkeleton,
+} from "@/app/components/dashboard/gebiz-opportunities-widget";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth/session";
 import { PageHeader } from "@/app/components/ui/page-header";
@@ -298,6 +303,10 @@ export default async function DashboardPage() {
           <MetricTile title="Pipeline Value" value={formatCurrency(pipelineValueTotal)} href="/bidding/pipeline" />
         </div>
       </SectionCard>
+
+      <Suspense fallback={<GebizOpportunitiesWidgetSkeleton />}>
+        <GebizOpportunitiesWidget />
+      </Suspense>
 
       <SectionCard
         title="Quick Access"
