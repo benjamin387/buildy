@@ -31,6 +31,7 @@ import {
   ScrollText,
   Settings,
   Shield,
+  ShieldCheck,
   Users,
   Library,
   History,
@@ -99,6 +100,9 @@ export function PlatformSidebar(props: {
 }) {
   const pathname = usePathname();
   const isExec = props.user.isAdmin || props.user.roleKeys.includes("DIRECTOR");
+  const canViewBizsafe = props.user.roleKeys.some((roleKey) =>
+    ["ADMIN", "DIRECTOR", "PROJECT_MANAGER", "QS", "FINANCE"].includes(roleKey),
+  );
 
   const groups: NavGroup[] = useMemo(() => {
     const projectContextHint = "Open a project";
@@ -174,6 +178,14 @@ export function PlatformSidebar(props: {
         ],
       },
       {
+        key: "compliance",
+        label: "Compliance",
+        defaultOpen: false,
+        items: canViewBizsafe
+          ? [{ key: "bizsafe", label: "BizSAFE", href: "/compliance/bizsafe", icon: ShieldCheck }]
+          : [],
+      },
+      {
         key: "system",
         label: "System",
         defaultOpen: false,
@@ -189,7 +201,7 @@ export function PlatformSidebar(props: {
         ],
       },
     ];
-  }, [props.user.isAdmin, props.user.roleKeys]);
+  }, [canViewBizsafe]);
 
   const [groupOpen, setGroupOpen] = useState<Record<string, boolean>>({});
 
@@ -388,6 +400,8 @@ function navKeyToModule(navKey: string): PermissionModuleKey | null {
       return "VARIATIONS";
     case "documents":
       return "DOCUMENTS";
+    case "bizsafe":
+      return null;
     case "command-center":
       return "AI_ACTIONS";
     case "ai-actions":
