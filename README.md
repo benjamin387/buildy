@@ -1,33 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Buildy
+
+Buildy is a Next.js App Router SaaS platform for interior design, renovation, and construction operations.
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies, configure environment variables, then run the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Required for the GeBIZ RSS auto-import:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+GEBIZ_RSS_URL="https://example.com/gebiz/rss.xml"
+CRON_SECRET="replace-with-a-long-random-secret"
+```
 
-## Learn More
+`GEBIZ_RSS_URL`
+- Public GeBIZ RSS feed URL to import opportunities from.
 
-To learn more about Next.js, take a look at the following resources:
+`CRON_SECRET`
+- Shared bearer token used by manual imports and the Vercel cron endpoint.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## GeBIZ RSS Import
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Manual import endpoint:
+
+```bash
+curl -X POST https://app.buildy.sg/api/gebiz/import \
+  -H "Authorization: Bearer YOUR_CRON_SECRET"
+```
+
+Scheduled import endpoint:
+
+- `GET /api/cron/gebiz`
+- Intended for Vercel Cron every 6 hours
+
+## Build Checks
+
+```bash
+npx prisma generate
+npm run build
+```
+
+## Migration Notes
+
+- The GeBIZ RSS auto-feed change adds a new additive table: `GebizOpportunity`.
+- The migration is non-destructive and does not modify existing project, lead, or bidding records.
 
 ## Deploy on Vercel
 
