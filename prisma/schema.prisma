@@ -550,6 +550,41 @@ enum AIActionStatus {
   CANCELLED
 }
 
+enum AIChannel {
+  TELEGRAM
+  WHATSAPP
+}
+
+enum AiTool {
+  WEB_SEARCH
+  GMAIL_READ
+  GMAIL_DRAFT
+  GMAIL_SEND
+  CALENDAR_READ
+  CALENDAR_WRITE
+}
+
+enum AiMessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+  TOOL
+}
+
+enum AiActionRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXECUTED
+  FAILED
+}
+
+enum AiRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 enum AIOutcomeType {
   LEAD_CONVERSION
   QUOTATION_ACCEPTANCE
@@ -1624,6 +1659,129 @@ model AISalesMessageDraft {
   @@index([createdAt])
 }
 
+model AiUserChannel {
+  id               String    @id @default(cuid())
+  userId           String
+  channel          AIChannel
+  externalUserId   String
+  displayName      String?
+  phoneNumber      String?
+  username         String?
+  isVerified       Boolean   @default(false)
+  pairingCodeHash  String?
+  pairingCodeExpiresAt DateTime?
+  pairedAt         DateTime?
+  lastSeenAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channel])
+  @@index([channel])
+  @@index([externalUserId])
+  @@index([isVerified])
+  @@index([pairingCodeExpiresAt])
+}
+
+model AiToolPermission {
+  id               String      @id @default(cuid())
+  userId           String
+  tool             AiTool
+  isEnabled        Boolean     @default(false)
+  requiresApproval Boolean     @default(true)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tool])
+  @@index([userId])
+  @@index([tool])
+  @@index([isEnabled])
+}
+
+model AiConversation {
+  id               String      @id @default(cuid())
+  userId           String
+  channel          AIChannel
+  externalThreadId  String
+  title            String
+  lastMessageAt     DateTime    @default(now())
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     AiMessage[]
+  actionRequests AiActionRequest[]
+
+  @@unique([userId, channel, externalThreadId])
+  @@index([userId])
+  @@index([channel])
+  @@index([externalThreadId])
+  @@index([lastMessageAt])
+}
+
+model AiMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  role           AiMessageRole
+  content        String
+  metadata       Json?
+  createdAt      DateTime       @default(now())
+
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([createdAt])
+}
+
+model AiActionRequest {
+  id             String         @id @default(cuid())
+  userId         String
+  conversationId String
+  tool           AiTool
+  actionType     String
+  status         AiActionRequestStatus @default(PENDING)
+  input          Json
+  result         Json?
+  riskLevel      AiRiskLevel     @default(MEDIUM)
+  approvalToken  String?
+  expiresAt      DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([conversationId])
+  @@index([tool])
+  @@index([status])
+  @@index([approvalToken])
+}
+
+model AiAuditLog {
+  id          String      @id @default(cuid())
+  userId      String
+  channel     AIChannel
+  tool        AiTool
+  action      String
+  inputSummary String
+  status      String
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([channel])
+  @@index([tool])
+  @@index([action])
+  @@index([createdAt])
+}
+
 model AIActionLog {
   id               String         @id @default(cuid())
   action           String
@@ -2333,6 +2491,11 @@ model User {
   assignedLeads      Lead[]           @relation("LeadAssignedTo")
   leadBotSessions    LeadBotSession[] @relation("LeadBotSessionSubmittedBy")
   gebizFeedSourcesDefaultOwner GebizFeedSource[] @relation("GebizFeedSourceDefaultOwner")
+  aiUserChannels     AiUserChannel[]  @relation
+  aiConversations    AiConversation[] @relation
+  aiToolPermissions  AiToolPermission[] @relation
+  aiActionRequests   AiActionRequest[] @relation
+  aiAuditLogs        AiAuditLog[] @relation
 
   @@index([email])
   @@index([status])

@@ -15,6 +15,8 @@ import { SectionCard } from "@/app/components/ui/section-card";
 import { EmptyState } from "@/app/components/ui/empty-state";
 import { ActionButton } from "@/app/components/ui/action-button";
 import { StatusPill } from "@/app/components/ui/status-pill";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 function formatDate(value: Date | null | undefined): string {
   if (!value) return "-";
@@ -43,11 +45,13 @@ export default async function LeadsIndexPage(props: {
     ? "ALL"
     : (rptParam as ResidentialPropertyType)) as ResidentialPropertyType | "ALL";
 
+  const { page, pageSize, skip, take } = parsePagination(params);
+
   const isExec = session.user.isAdmin || session.user.roleKeys.includes("DIRECTOR");
   const canProjectWrite = session.user.permissions.includes("PROJECT_WRITE");
   const canQuoteWrite = session.user.permissions.includes("QUOTE_WRITE");
 
-  const [summary, leads, assignableUsers] = await Promise.all([
+  const [summary, leadsPage, assignableUsers] = await Promise.all([
     computeLeadPipelineSummary(session.user),
     listLeadsForViewer({
       viewer: session.user,
@@ -57,6 +61,8 @@ export default async function LeadsIndexPage(props: {
         assignedSalesEmail: assignedSalesEmail || undefined,
         residentialPropertyType,
       },
+      skip,
+      take,
     }),
     isExec
       ? prisma.user.findMany({
@@ -67,6 +73,15 @@ export default async function LeadsIndexPage(props: {
         })
       : Promise.resolve([] as Array<{ id: string; name: string | null; email: string }>),
   ]);
+  const leads = leadsPage.items;
+  const total = leadsPage.total;
+
+  const baseParams = new URLSearchParams();
+  if (q) baseParams.set("q", q);
+  if (statusParam !== "ALL") baseParams.set("status", statusParam);
+  if (assignedSalesEmail) baseParams.set("sales", assignedSalesEmail);
+  if (rptParam !== "ALL") baseParams.set("rpt", rptParam);
+  const hrefForPage = (n: number) => buildPageHref("/leads", baseParams, n, pageSize);
 
   return (
     <main className="space-y-8">
@@ -155,6 +170,7 @@ export default async function LeadsIndexPage(props: {
       </section>
 
       <SectionCard title="Lead Register" description="Update status, assign owners, and convert leads into projects and quotations.">
+        <div className="space-y-4">
         {leads.length === 0 ? (
           <EmptyState
             title="No leads found"
@@ -331,6 +347,8 @@ export default async function LeadsIndexPage(props: {
             </div>
           </>
         )}
+        <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </SectionCard>
     </main>
   );
@@ -353,7 +371,7 @@ function SummaryCard(props: {
 }
 
 function LeadCard(props: {
-  lead: Awaited<ReturnType<typeof listLeadsForViewer>>[number];
+  lead: Awaited<ReturnType<typeof listLeadsForViewer>>["items"][number];
   isExec: boolean;
   assignableUsers: Array<{ id: string; name: string | null; email: string }>;
   canProjectWrite: boolean;

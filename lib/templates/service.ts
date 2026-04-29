@@ -215,11 +215,12 @@ export async function listTemplateLibraryItems(params: {
   category?: TemplateCategory | null;
   q?: string | null;
   isActive?: boolean | null;
+  skip?: number;
   take?: number;
 }) {
   await ensureDefaultTemplateLibraryItems();
 
-  const take = params.take ?? 200;
+  const take = params.take ?? 50;
   const q = params.q?.trim() || null;
 
   const where: any = {};
@@ -234,11 +235,16 @@ export async function listTemplateLibraryItems(params: {
     ];
   }
 
-  return prisma.templateLibraryItem.findMany({
-    where,
-    orderBy: [{ category: "asc" }, { title: "asc" }],
-    take,
-  });
+  const [items, total] = await Promise.all([
+    prisma.templateLibraryItem.findMany({
+      where,
+      orderBy: [{ category: "asc" }, { title: "asc" }],
+      skip: params.skip ?? 0,
+      take,
+    }),
+    prisma.templateLibraryItem.count({ where }),
+  ]);
+  return { items, total };
 }
 
 export async function upsertTemplateLibraryItem(input: {

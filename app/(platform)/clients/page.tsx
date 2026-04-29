@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Permission } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/rbac";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 export const dynamic = "force-dynamic";
 
@@ -25,20 +27,32 @@ export default async function ClientsIndexPage({
   const qParam = params.q;
   const q = typeof qParam === "string" ? qParam.trim() : "";
 
-  const clients = await prisma.client.findMany({
-    where: q
-      ? {
-          OR: [
-            { clientCode: { contains: q, mode: "insensitive" } },
-            { name: { contains: q, mode: "insensitive" } },
-            { email: { contains: q, mode: "insensitive" } },
-            { phone: { contains: q, mode: "insensitive" } },
-          ],
-        }
-      : undefined,
-    orderBy: [{ createdAt: "desc" }],
-    take: 200,
-  });
+  const { page, pageSize, skip, take } = parsePagination(params);
+
+  const where = q
+    ? {
+        OR: [
+          { clientCode: { contains: q, mode: "insensitive" as const } },
+          { name: { contains: q, mode: "insensitive" as const } },
+          { email: { contains: q, mode: "insensitive" as const } },
+          { phone: { contains: q, mode: "insensitive" as const } },
+        ],
+      }
+    : undefined;
+
+  const [clients, total] = await Promise.all([
+    prisma.client.findMany({
+      where,
+      orderBy: [{ createdAt: "desc" }],
+      skip,
+      take,
+    }),
+    prisma.client.count({ where }),
+  ]);
+
+  const baseParams = new URLSearchParams();
+  if (q) baseParams.set("q", q);
+  const hrefForPage = (n: number) => buildPageHref("/clients", baseParams, n, pageSize);
 
   return (
     <main className="space-y-8">
@@ -123,6 +137,9 @@ export default async function ClientsIndexPage({
             </table>
           </div>
         )}
+        <div className="border-t border-neutral-200 px-4 py-4">
+          <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </section>
     </main>
   );

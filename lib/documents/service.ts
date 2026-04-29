@@ -76,11 +76,15 @@ function isSignedStatus(status: string | null | undefined): boolean {
   return status === "SIGNED";
 }
 
+export type DocumentRegisterPage = { items: DocumentRegisterRow[]; total: number };
+
 export async function listDocumentRegister(params: {
   user: SessionUser;
   filters?: RegisterFilters;
   take?: number;
-}): Promise<DocumentRegisterRow[]> {
+  skip?: number;
+  pageSize?: number;
+}): Promise<DocumentRegisterPage> {
   const take = Math.min(300, Math.max(20, params.take ?? 200));
   const allowed = getAllowedDocumentKinds(params.user);
   const filters = params.filters ?? {};
@@ -513,5 +517,11 @@ export async function listDocumentRegister(params: {
     return true;
   });
 
-  return fullyFiltered;
+  // Document register aggregates across heterogeneous Prisma models; per-source
+  // queries are capped by `take` for DB load, then we slice the merged list.
+  const total = fullyFiltered.length;
+  const skip = params.skip ?? 0;
+  const pageSize = params.pageSize;
+  const items = pageSize ? fullyFiltered.slice(skip, skip + pageSize) : fullyFiltered;
+  return { items, total };
 }

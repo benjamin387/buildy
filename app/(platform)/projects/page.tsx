@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { Permission, ProjectStatus } from "@prisma/client";
+import { Permission } from "@prisma/client";
 import { getGlobalPermissions, requireUserId } from "@/lib/rbac";
-import { listProjectsForUser } from "@/lib/projects/service";
+import { countProjectStatusesForUser, listProjectsForUser } from "@/lib/projects/service";
 import { EmptyState } from "@/app/components/ui/empty-state";
 import { ProjectStatusBadge } from "@/app/(platform)/projects/components/project-status-badge";
 import { PageHeader } from "@/app/components/ui/page-header";
 import { SectionCard } from "@/app/components/ui/section-card";
 import { ActionButton } from "@/app/components/ui/action-button";
 import { StatusPill } from "@/app/components/ui/status-pill";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-SG", {
@@ -26,24 +28,6 @@ function formatDate(value: Date | null): string {
   }).format(value);
 }
 
-function countByStatus(projects: { status: ProjectStatus }[]) {
-  const counts: Record<ProjectStatus, number> = {
-    LEAD: 0,
-    QUOTING: 0,
-    CONTRACTED: 0,
-    IN_PROGRESS: 0,
-    ON_HOLD: 0,
-    COMPLETED: 0,
-    CANCELLED: 0,
-  };
-
-  for (const project of projects) {
-    counts[project.status] = (counts[project.status] ?? 0) + 1;
-  }
-
-  return counts;
-}
-
 export default async function ProjectsIndexPage({
   searchParams,
 }: {
@@ -57,8 +41,18 @@ export default async function ProjectsIndexPage({
   const qParam = params.q;
   const q = typeof qParam === "string" ? qParam : "";
 
-  const projects = await listProjectsForUser({ userId, canReadAll, search: q });
-  const counts = countByStatus(projects);
+  const { page, pageSize, skip, take } = parsePagination(params);
+
+  const [projectsPage, counts] = await Promise.all([
+    listProjectsForUser({ userId, canReadAll, search: q, skip, take }),
+    countProjectStatusesForUser({ userId, canReadAll, search: q }),
+  ]);
+  const projects = projectsPage.items;
+  const total = projectsPage.total;
+
+  const baseParams = new URLSearchParams();
+  if (q) baseParams.set("q", q);
+  const hrefForPage = (n: number) => buildPageHref("/projects", baseParams, n, pageSize);
 
   return (
     <main className="space-y-8">
@@ -100,13 +94,14 @@ export default async function ProjectsIndexPage({
       </SectionCard>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <SummaryCard title="Total" value={`${projects.length}`} tone="info" />
+        <SummaryCard title="Total" value={`${total}`} tone="info" />
         <SummaryCard title="Lead" value={`${counts.LEAD}`} />
         <SummaryCard title="In Progress" value={`${counts.IN_PROGRESS}`} tone="warning" />
         <SummaryCard title="Completed" value={`${counts.COMPLETED}`} tone="success" />
       </section>
 
       <SectionCard title="Project Register" description="Open a project to access quotations, contracts, billing, suppliers, and profitability.">
+        <div className="space-y-4">
         {projects.length === 0 ? (
           <EmptyState
             title="No projects found"
@@ -190,6 +185,8 @@ export default async function ProjectsIndexPage({
             </div>
           </>
         )}
+        <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </SectionCard>
     </main>
   );
@@ -207,7 +204,7 @@ function SummaryCard(props: { title: string; value: string; tone?: Parameters<ty
   );
 }
 
-function ProjectCard(props: { project: Awaited<ReturnType<typeof listProjectsForUser>>[number] }) {
+function ProjectCard(props: { project: Awaited<ReturnType<typeof listProjectsForUser>>["items"][number] }) {
   const project = props.project;
   const contractValue = Number(
     project.revisedContractValue && Number(project.revisedContractValue) > 0 ? project.revisedContractValue : project.contractValue,

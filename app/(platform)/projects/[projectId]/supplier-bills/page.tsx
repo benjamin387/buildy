@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/rbac";
 import { SupplierBillCreateFormClient } from "@/app/(platform)/projects/[projectId]/supplier-bills/components/bill-create-form-client";
 import { createSupplierBillAction } from "@/app/(platform)/projects/[projectId]/supplier-bills/actions";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-SG", {
@@ -25,11 +27,16 @@ function formatDate(value: Date | null | undefined): string {
 
 export default async function ProjectSupplierBillsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ projectId: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { projectId } = await params;
   await requirePermission({ permission: Permission.SUPPLIER_READ, projectId });
+
+  const sp = (await searchParams) ?? {};
+  const { page, pageSize, skip, take } = parsePagination(sp);
 
   const project = await prisma.project.findUnique({ where: { id: projectId } });
   if (!project) notFound();
@@ -54,12 +61,19 @@ export default async function ProjectSupplierBillsPage({
     take: 50,
   });
 
-  const bills = await prisma.supplierBill.findMany({
-    where: { projectId },
-    include: { supplier: true, purchaseOrder: true, subcontract: true },
-    orderBy: [{ billDate: "desc" }, { createdAt: "desc" }],
-    take: 100,
-  });
+  const [bills, total] = await Promise.all([
+    prisma.supplierBill.findMany({
+      where: { projectId },
+      include: { supplier: true, purchaseOrder: true, subcontract: true },
+      orderBy: [{ billDate: "desc" }, { createdAt: "desc" }],
+      skip,
+      take,
+    }),
+    prisma.supplierBill.count({ where: { projectId } }),
+  ]);
+
+  const hrefForPage = (n: number) =>
+    buildPageHref(`/projects/${projectId}/supplier-bills`, new URLSearchParams(), n, pageSize);
 
   return (
     <main className="space-y-8">
@@ -153,6 +167,9 @@ export default async function ProjectSupplierBillsPage({
             </table>
           </div>
         )}
+        <div className="border-t border-neutral-200 px-6 py-4">
+          <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </section>
     </main>
   );

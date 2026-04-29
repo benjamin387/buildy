@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 export const dynamic = "force-dynamic";
 
@@ -19,21 +21,33 @@ function formatDate(value: Date): string {
   }).format(value);
 }
 
-export default async function QuotationsPage() {
-  const quotations = await prisma.quotation.findMany({
-    include: {
-      client: true,
-      project: true,
-      sections: {
-        include: {
-          lineItems: true,
+export default async function QuotationsPage(props: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = (await props.searchParams) ?? {};
+  const { page, pageSize, skip, take } = parsePagination(sp);
+
+  const [quotations, total] = await Promise.all([
+    prisma.quotation.findMany({
+      include: {
+        client: true,
+        project: true,
+        sections: {
+          include: {
+            lineItems: true,
+          },
         },
       },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take,
+    }),
+    prisma.quotation.count(),
+  ]);
+
+  const hrefForPage = (n: number) => buildPageHref("/quotation", new URLSearchParams(), n, pageSize);
 
   return (
     <main className="space-y-8">
@@ -153,6 +167,9 @@ export default async function QuotationsPage() {
             </table>
           </div>
         )}
+        <div className="border-t border-neutral-200 px-4 py-4">
+          <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </section>
     </main>
   );

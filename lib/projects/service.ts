@@ -89,6 +89,8 @@ export async function listProjectsForUser(input: {
   userId: string;
   canReadAll: boolean;
   search?: string;
+  skip?: number;
+  take?: number;
 }) {
   const search = input.search?.trim();
   const searchWhere = search && search.length > 0 ? projectSearchWhere(search) : undefined;
@@ -102,11 +104,53 @@ export async function listProjectsForUser(input: {
         ],
       };
 
-  return await prisma.project.findMany({
+  const [items, total] = await Promise.all([
+    prisma.project.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      select: projectListSelect,
+      skip: input.skip ?? 0,
+      take: input.take ?? 50,
+    }),
+    prisma.project.count({ where }),
+  ]);
+  return { items, total };
+}
+
+export async function countProjectStatusesForUser(input: {
+  userId: string;
+  canReadAll: boolean;
+  search?: string;
+}): Promise<Record<ProjectStatus, number>> {
+  const search = input.search?.trim();
+  const searchWhere = search && search.length > 0 ? projectSearchWhere(search) : undefined;
+
+  const where: Prisma.ProjectWhereInput | undefined = input.canReadAll
+    ? searchWhere
+    : {
+        AND: [
+          { members: { some: { userId: input.userId } } },
+          ...(searchWhere ? [searchWhere] : []),
+        ],
+      };
+
+  const rows = await prisma.project.groupBy({
+    by: ["status"],
     where,
-    orderBy: { createdAt: "desc" },
-    select: projectListSelect,
+    _count: { _all: true },
   });
+
+  const counts: Record<ProjectStatus, number> = {
+    LEAD: 0,
+    QUOTING: 0,
+    CONTRACTED: 0,
+    IN_PROGRESS: 0,
+    ON_HOLD: 0,
+    COMPLETED: 0,
+    CANCELLED: 0,
+  };
+  for (const row of rows) counts[row.status] = row._count._all;
+  return counts;
 }
 
 export async function getProjectById(projectId: string) {

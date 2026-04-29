@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { Permission } from "@prisma/client";
 import { requirePermission } from "@/lib/rbac";
 import { listVariationsByProject } from "@/lib/variation-orders/service";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-SG", {
@@ -29,9 +31,18 @@ function statusBadge(status: string): string {
   return "border-neutral-300 bg-neutral-50 text-neutral-700";
 }
 
-export default async function VariationsPage({ params }: { params: Promise<{ projectId: string }> }) {
+export default async function VariationsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ projectId: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { projectId } = await params;
   await requirePermission({ permission: Permission.QUOTE_READ, projectId });
+
+  const sp = (await searchParams) ?? {};
+  const { page, pageSize, skip, take } = parsePagination(sp);
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
@@ -39,14 +50,19 @@ export default async function VariationsPage({ params }: { params: Promise<{ pro
   });
   if (!project) notFound();
 
-  const rows = await listVariationsByProject(projectId);
+  const [{ items: rows, total }, approvedAgg] = await Promise.all([
+    listVariationsByProject(projectId, { skip, take }),
+    prisma.variationOrder.aggregate({
+      where: { projectId, status: { in: ["APPROVED", "INVOICED"] } },
+      _sum: { subtotal: true, costSubtotal: true },
+    }),
+  ]);
 
-  const approvedRevenue = rows
-    .filter((r) => r.status === "APPROVED" || r.status === "INVOICED")
-    .reduce((sum, r) => sum + Number(r.subtotal), 0);
-  const approvedCost = rows
-    .filter((r) => r.status === "APPROVED" || r.status === "INVOICED")
-    .reduce((sum, r) => sum + Number(r.costSubtotal), 0);
+  const approvedRevenue = Number(approvedAgg._sum.subtotal ?? 0);
+  const approvedCost = Number(approvedAgg._sum.costSubtotal ?? 0);
+
+  const hrefForPage = (n: number) =>
+    buildPageHref(`/projects/${projectId}/variations`, new URLSearchParams(), n, pageSize);
 
   return (
     <main className="space-y-8">
@@ -81,7 +97,7 @@ export default async function VariationsPage({ params }: { params: Promise<{ pro
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <SummaryCard label="Total VOs" value={`${rows.length}`} />
+        <SummaryCard label="Total VOs" value={`${total}`} />
         <SummaryCard label="Approved Variation Revenue (net)" value={formatCurrency(approvedRevenue)} />
         <SummaryCard label="Approved Variation Cost (est)" value={formatCurrency(approvedCost)} />
       </section>
@@ -146,6 +162,9 @@ export default async function VariationsPage({ params }: { params: Promise<{ pro
             </table>
           </div>
         )}
+        <div className="border-t border-neutral-200 px-6 py-4">
+          <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </section>
     </main>
   );

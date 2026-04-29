@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { Permission } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/rbac";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-SG", {
@@ -14,21 +16,33 @@ function formatCurrency(value: number): string {
 
 export default async function ProjectSubcontractsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ projectId: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { projectId } = await params;
   await requirePermission({ permission: Permission.SUBCONTRACT_READ, projectId });
 
+  const sp = (await searchParams) ?? {};
+  const { page, pageSize, skip, take } = parsePagination(sp);
+
   const project = await prisma.project.findUnique({ where: { id: projectId } });
   if (!project) notFound();
 
-  const subcontracts = await prisma.subcontract.findMany({
-    where: { projectId },
-    include: { supplier: true },
-    orderBy: [{ createdAt: "desc" }],
-    take: 100,
-  });
+  const [subcontracts, total] = await Promise.all([
+    prisma.subcontract.findMany({
+      where: { projectId },
+      include: { supplier: true },
+      orderBy: [{ createdAt: "desc" }],
+      skip,
+      take,
+    }),
+    prisma.subcontract.count({ where: { projectId } }),
+  ]);
+
+  const hrefForPage = (n: number) =>
+    buildPageHref(`/projects/${projectId}/subcontracts`, new URLSearchParams(), n, pageSize);
 
   return (
     <main className="space-y-8">
@@ -97,6 +111,9 @@ export default async function ProjectSubcontractsPage({
             </table>
           </div>
         )}
+        <div className="border-t border-neutral-200 px-6 py-4">
+          <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </section>
     </main>
   );
