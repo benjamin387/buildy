@@ -23,6 +23,7 @@ export function proxy(request: NextRequest) {
 
   const protectedPrefixes = [
     "/dashboard",
+    "/compliance",
     "/projects",
     "/quotation",
     "/quotations",
@@ -56,6 +57,7 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/compliance/:path*",
     "/projects/:path*",
     "/dashboard/:path*",
     "/quotation/:path*",
