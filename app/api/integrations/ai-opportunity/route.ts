@@ -33,12 +33,7 @@ export async function POST(req: NextRequest) {
 
     const existing = await prisma.project.findFirst({
       where: {
-        OR: [
-          { name: title },
-          ...(sourceUrl
-            ? [{ description: { contains: sourceUrl } }]
-            : []),
-        ],
+        name: title,
       },
     });
 
