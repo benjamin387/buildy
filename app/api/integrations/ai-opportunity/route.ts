@@ -59,18 +59,13 @@ export async function POST(req: NextRequest) {
         clientName,
         propertyType: "COMMERCIAL",
         addressLine1: "Auto-generated from AI opportunity",
-        client: {
-          connectOrCreate: {
-            where: {
-              name: clientName,
-            },
-            create: {
-              name: clientName,
-              email: "ai-opportunity@buildy.sg",
-              phone: "N/A",
-            },
-          },
+       client: {
+        create: {
+          name: clientName,
+          email: "ai-opportunity@buildy.sg",
+          phone: "N/A",
         },
+      },
       } as any,
     });
 
