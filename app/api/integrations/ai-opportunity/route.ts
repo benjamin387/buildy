@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
         }\nAI Score: ${score ?? "N/A"}\nCategory: ${category ?? "General"}\nClosing: ${
           closingDate ?? "N/A"
         }`,
-        status: "NEW",
+        status: "LEAD",
         clientName,
         category: category ?? "General",
         propertyType: "COMMERCIAL",
