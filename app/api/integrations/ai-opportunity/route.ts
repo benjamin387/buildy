@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
       status: "NEW",
       clientName: agency ?? "Unknown",
       category: category ?? "General",
+      propertyType: "COMMERCIAL",
 
       // ✅ REQUIRED FIELD FIX
       addressLine1: "Auto-generated from AI opportunity",
