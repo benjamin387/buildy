@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     const project = await prisma.project.create({
       data: {
         name: title,
-        description: `${description ?? ""}\n\nSource: ${
+        notes: `${description ?? ""}\n\nSource: ${
           sourceUrl ?? "N/A"
         }\nAI Score: ${score ?? "N/A"}\nCategory: ${category ?? "General"}\nClosing: ${
           closingDate ?? "N/A"
