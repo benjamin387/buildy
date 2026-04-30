@@ -41,16 +41,18 @@ export async function POST(req: NextRequest) {
     }
 
     // 🚀 Create project
-    const project = await prisma.project.create({
-      data: {
-        name: title,
-        description: `${description}\n\nSource: ${sourceUrl}\nAI Score: ${score}`,
-        status: "NEW", // adjust if your enum differs
-        // Optional fields (safe fallback)
-        clientName: agency ?? "Unknown",
-        category: category ?? "General",
-      } as any, // safe cast for flexibility
-    });
+   const project = await prisma.project.create({
+    data: {
+      name: title,
+      description: `${description ?? ""}\n\nSource: ${sourceUrl}\nAI Score: ${score}`,
+      status: "NEW",
+      clientName: agency ?? "Unknown",
+      category: category ?? "General",
+
+      // ✅ REQUIRED FIELD FIX
+      addressLine1: "Auto-generated from AI opportunity",
+    } as any,
+  });
 
     console.log("AI opportunity converted to project:", project.id);
 
