@@ -57,7 +57,6 @@ export async function POST(req: NextRequest) {
         }`,
         status: "LEAD",
         clientName,
-        category: category ?? "General",
         propertyType: "COMMERCIAL",
         addressLine1: "Auto-generated from AI opportunity",
         client: {
