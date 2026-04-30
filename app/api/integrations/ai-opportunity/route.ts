@@ -6,7 +6,10 @@ export async function POST(req: NextRequest) {
     const token = req.headers.get("authorization");
 
     if (token !== `Bearer ${process.env.AI_OPS_TOKEN}`) {
-      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { ok: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const body = await req.json();
@@ -19,15 +22,22 @@ export async function POST(req: NextRequest) {
       sourceUrl,
       description,
       score,
-      opportunityId,
     } = body;
 
-    // 🔁 Dedup check (VERY IMPORTANT)
+    if (!title) {
+      return NextResponse.json(
+        { ok: false, error: "Missing title" },
+        { status: 400 },
+      );
+    }
+
     const existing = await prisma.project.findFirst({
       where: {
         OR: [
           { name: title },
-          { notes: { contains: sourceUrl } },
+          ...(sourceUrl
+            ? [{ description: { contains: sourceUrl } }]
+            : []),
         ],
       },
     });
@@ -40,20 +50,35 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 🚀 Create project
-   const project = await prisma.project.create({
-    data: {
-      name: title,
-      description: `${description ?? ""}\n\nSource: ${sourceUrl}\nAI Score: ${score}`,
-      status: "NEW",
-      clientName: agency ?? "Unknown",
-      category: category ?? "General",
-      propertyType: "COMMERCIAL",
+    const clientName = agency ?? "Unknown AI Opportunity Client";
 
-      // ✅ REQUIRED FIELD FIX
-      addressLine1: "Auto-generated from AI opportunity",
-    } as any,
-  });
+    const project = await prisma.project.create({
+      data: {
+        name: title,
+        description: `${description ?? ""}\n\nSource: ${
+          sourceUrl ?? "N/A"
+        }\nAI Score: ${score ?? "N/A"}\nCategory: ${category ?? "General"}\nClosing: ${
+          closingDate ?? "N/A"
+        }`,
+        status: "NEW",
+        clientName,
+        category: category ?? "General",
+        propertyType: "COMMERCIAL",
+        addressLine1: "Auto-generated from AI opportunity",
+        client: {
+          connectOrCreate: {
+            where: {
+              name: clientName,
+            },
+            create: {
+              name: clientName,
+              email: "ai-opportunity@buildy.sg",
+              phone: "N/A",
+            },
+          },
+        },
+      } as any,
+    });
 
     console.log("AI opportunity converted to project:", project.id);
 
@@ -62,13 +87,15 @@ export async function POST(req: NextRequest) {
       created: true,
       projectId: project.id,
     });
-
   } catch (err: any) {
     console.error("AI opportunity error:", err);
 
-    return NextResponse.json({
-      ok: false,
-      error: err.message,
-    });
+    return NextResponse.json(
+      {
+        ok: false,
+        error: err?.message ?? "Unknown error",
+      },
+      { status: 500 },
+    );
   }
 }
