@@ -86,7 +86,7 @@ export default async function QuotationsPage(props: {
         </div>
       </div>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         {quotations.length === 0 ? (
           <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 px-6 text-center">
             <p className="text-lg font-semibold text-neutral-900">No quotations found</p>
@@ -101,7 +101,7 @@ export default async function QuotationsPage(props: {
             </Link>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl">
+          <div className="overflow-hidden rounded-xl">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>

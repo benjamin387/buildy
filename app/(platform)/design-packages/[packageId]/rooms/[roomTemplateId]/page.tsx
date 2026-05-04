@@ -61,7 +61,7 @@ export default async function RoomTemplateDetailPage({
       </div>
 
       <section className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
             Room Type
           </p>
@@ -69,7 +69,7 @@ export default async function RoomTemplateDetailPage({
             {room.roomType}
           </p>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
             Active
           </p>
@@ -77,7 +77,7 @@ export default async function RoomTemplateDetailPage({
             {room.isActive ? "Yes" : "No"}
           </p>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
             BOQ Items
           </p>
@@ -87,7 +87,7 @@ export default async function RoomTemplateDetailPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">BOQ Template Items</h2>
           <p className="mt-1 text-sm text-neutral-600">
@@ -100,7 +100,7 @@ export default async function RoomTemplateDetailPage({
             No items yet. Use “Edit” to add template items.
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl">
+          <div className="overflow-hidden rounded-xl">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>

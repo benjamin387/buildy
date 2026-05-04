@@ -284,7 +284,7 @@ export default async function DashboardPage() {
                 <Link
                   key={p.id}
                   href={`/projects/${p.id}`}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:bg-stone-50"
+                  className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:bg-stone-50"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-neutral-950">
@@ -319,7 +319,7 @@ export default async function DashboardPage() {
                 <Link
                   key={l.id}
                   href={`/leads/${l.id}`}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:bg-stone-50"
+                  className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:bg-stone-50"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-neutral-950">{l.customerName}</p>
@@ -343,7 +343,7 @@ function DashboardCard({ card }: { card: Card }) {
   return (
     <Link
       href={card.href}
-      className="group rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition hover:bg-stone-50"
+      className="group rounded-xl border border-slate-200/80 bg-white p-6 shadow-sm transition hover:bg-stone-50"
     >
       <div className="flex items-start justify-between gap-3">
         <p className="text-base font-semibold tracking-tight text-neutral-950">{card.title}</p>
@@ -363,7 +363,7 @@ function MetricTile(props: { title: string; value: string; href: string }) {
   return (
     <Link
       href={props.href}
-      className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition hover:bg-stone-50"
+      className="rounded-xl border border-slate-200/80 bg-white p-6 shadow-sm transition hover:bg-stone-50"
     >
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-500">{props.title}</p>
       <p className="mt-3 text-2xl font-semibold tracking-tight text-neutral-950 tabular-nums">{props.value}</p>

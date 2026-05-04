@@ -46,7 +46,7 @@ export default async function NewRoomTemplatePage({
         </div>
       </div>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <form action={createRoomTemplateAction} className="grid gap-5 lg:grid-cols-2">
           <input type="hidden" name="designPackageId" value={pkg.id} />
 

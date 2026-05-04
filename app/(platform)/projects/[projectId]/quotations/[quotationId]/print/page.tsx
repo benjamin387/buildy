@@ -84,7 +84,7 @@ export default async function PrintQuotationPage({
                   className="h-10 w-auto max-w-[180px] object-contain"
                 />
               ) : (
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-neutral-950 text-xs font-bold text-white">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-950 text-xs font-bold text-white">
                   {branding.companyName.slice(0, 1).toUpperCase()}
                 </div>
               )}

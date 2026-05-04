@@ -236,7 +236,7 @@ export function ProjectQuotationBuilder(props: {
           </div>
         </div>
 
-        <section className="grid gap-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm lg:grid-cols-3">
+        <section className="grid gap-6 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm lg:grid-cols-3">
           <label className="grid gap-2 text-sm">
             <span className="font-medium text-neutral-800">Issue Date</span>
             <input
@@ -294,7 +294,7 @@ export function ProjectQuotationBuilder(props: {
             return (
               <section
                 key={`${section.category}-${sectionIndex}`}
-                className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
+                className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">

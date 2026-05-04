@@ -107,7 +107,7 @@ export async function GebizOpportunitiesWidget() {
       }
     >
       {opportunities === null ? (
-        <div className="rounded-2xl border border-dashed border-slate-200 bg-stone-50 px-4 py-6 text-sm text-neutral-600">
+        <div className="rounded-xl border border-dashed border-slate-200 bg-stone-50 px-4 py-6 text-sm text-neutral-600">
           GeBIZ opportunities are temporarily unavailable. Dashboard rendering remains safe while the feed is unavailable.
         </div>
       ) : opportunities.length === 0 ? (
@@ -128,7 +128,7 @@ export async function GebizOpportunitiesWidget() {
             return (
               <div
                 key={o.id}
-                className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-white to-stone-50 p-4 shadow-sm transition hover:bg-stone-50"
+                className="rounded-xl border border-slate-200/80 bg-gradient-to-br from-white via-white to-stone-50 p-4 shadow-sm transition hover:bg-stone-50"
               >
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
@@ -195,7 +195,7 @@ export function GebizOpportunitiesWidgetSkeleton() {
         {Array.from({ length: 3 }).map((_, index) => (
           <div
             key={index}
-            className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm"
+            className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm"
           >
             <div className="animate-pulse space-y-3">
               <div className="flex gap-2">

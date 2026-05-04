@@ -58,7 +58,7 @@ export default async function BotLeadsSettingsPage() {
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
           Settings / Bot Lead Intake
         </p>
@@ -72,7 +72,7 @@ export default async function BotLeadsSettingsPage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Webhook URLs</p>
           <div className="mt-4 grid gap-3 text-sm">
             <div>
@@ -90,7 +90,7 @@ export default async function BotLeadsSettingsPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Env Checklist</p>
           <div className="mt-4 grid gap-2">
             {checks.map((c) => (
@@ -108,12 +108,12 @@ export default async function BotLeadsSettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-xl font-semibold text-neutral-950">Latest Bot Sessions</h2>
           <p className="mt-1 text-sm text-neutral-600">Most recent 20 bot intake sessions across WhatsApp and Telegram.</p>
         </div>
-        <div className="overflow-hidden rounded-2xl">
+        <div className="overflow-hidden rounded-xl">
           <table className="min-w-full text-sm">
             <thead className="bg-neutral-100 text-neutral-800">
               <tr>

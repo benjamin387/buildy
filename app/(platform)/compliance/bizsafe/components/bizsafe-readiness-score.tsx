@@ -69,7 +69,7 @@ export function BizsafeReadinessScore(props: {
               Score is reduced by missing certificate, RM audit gaps, missing appointed personnel, expiring validity, and incomplete actions.
             </p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-sm font-semibold text-neutral-950">Current blockers</p>
             {missingRequirements.length === 0 ? (
               <p className="mt-2 text-sm text-emerald-700">No major readiness blockers detected.</p>

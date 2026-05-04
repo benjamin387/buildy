@@ -140,7 +140,7 @@ export function VariationBuilder(props: {
   }
 
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
       <div className="border-b border-neutral-200 px-6 py-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>

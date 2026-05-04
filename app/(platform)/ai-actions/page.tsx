@@ -90,7 +90,7 @@ export default async function AIActionsPage({
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -142,7 +142,7 @@ export default async function AIActionsPage({
         })}
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
         <table className="min-w-full text-sm">
           <thead className="bg-neutral-100 text-neutral-800">
             <tr>

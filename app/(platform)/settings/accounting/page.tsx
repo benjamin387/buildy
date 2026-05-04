@@ -65,7 +65,7 @@ export default async function AccountingSettingsPage() {
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -89,7 +89,7 @@ export default async function AccountingSettingsPage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Provider</p>
           <p className="mt-3 text-2xl font-semibold tracking-tight text-neutral-950">Xero</p>
           <p className="mt-2 text-sm text-neutral-600">
@@ -102,7 +102,7 @@ export default async function AccountingSettingsPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Connection</p>
           <div className="mt-3 flex items-center gap-2">
             <span
@@ -136,7 +136,7 @@ export default async function AccountingSettingsPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Sync Tools</p>
           <p className="mt-3 text-sm text-neutral-700">
             Trigger safe payload preparation and write sync logs.
@@ -176,7 +176,7 @@ export default async function AccountingSettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Connection Stub (for testing)</h2>
           <p className="mt-1 text-sm text-neutral-600">
@@ -208,7 +208,7 @@ export default async function AccountingSettingsPage() {
         </form>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Tax Codes</h2>
           <p className="mt-1 text-sm text-neutral-600">
@@ -246,7 +246,7 @@ export default async function AccountingSettingsPage() {
         )}
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Account Mappings</h2>
           <p className="mt-1 text-sm text-neutral-600">
@@ -336,7 +336,7 @@ export default async function AccountingSettingsPage() {
         )}
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Sync Logs</h2>
           <p className="mt-1 text-sm text-neutral-600">

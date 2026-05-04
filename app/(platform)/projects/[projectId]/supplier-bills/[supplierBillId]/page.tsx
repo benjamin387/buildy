@@ -137,9 +137,9 @@ export default async function SupplierBillDetailPage({
         description="Drafting, approvals, accounting sync and delivery history."
       />
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Lines</h2>
-        <div className="mt-5 overflow-hidden rounded-2xl border border-neutral-200">
+        <div className="mt-5 overflow-hidden rounded-xl border border-neutral-200">
           <table className="min-w-full text-sm">
             <thead className="bg-neutral-100 text-neutral-800">
               <tr>
@@ -173,7 +173,7 @@ export default async function SupplierBillDetailPage({
       </section>
 
       {canSyncAccounting ? (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Accounting Sync</h2>
           <p className="mt-1 text-sm text-neutral-600">
             Xero-ready foundation. Sync runs in dry-run mode until Xero env and OAuth are implemented.

@@ -83,7 +83,7 @@ export default async function AIOrchestratorPage() {
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -115,7 +115,7 @@ export default async function AIOrchestratorPage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Mode</p>
           <p className="mt-3 text-2xl font-semibold tracking-tight text-neutral-950">{setting.automationMode}</p>
           <p className="mt-2 text-sm text-neutral-600">
@@ -128,7 +128,7 @@ export default async function AIOrchestratorPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Last Run</p>
           <p className="mt-3 text-sm text-neutral-700">
             Last run at: <span className="font-semibold text-neutral-950">{formatDateTime(setting.lastRunAt)}</span>
@@ -153,7 +153,7 @@ export default async function AIOrchestratorPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Run Now</p>
           <p className="mt-3 text-sm text-neutral-700">
             Run orchestrator manually to generate recommendations and (depending on mode) execute low-risk internal/draft actions.
@@ -168,7 +168,7 @@ export default async function AIOrchestratorPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Automation Settings</h2>
           <p className="mt-1 text-sm text-neutral-600">
@@ -207,7 +207,7 @@ export default async function AIOrchestratorPage() {
         </form>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Recent Generated Actions</h2>
           <p className="mt-1 text-sm text-neutral-600">

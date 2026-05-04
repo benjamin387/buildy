@@ -92,7 +92,7 @@ export default async function TenderDocumentGeneratorPage(props: { params: Promi
             {DOC_TYPES.map((d) => {
               const last = latestByType.get(String(d.type));
               return (
-                <div key={d.type} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div key={d.type} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-neutral-950">{d.label}</p>
@@ -135,7 +135,7 @@ export default async function TenderDocumentGeneratorPage(props: { params: Promi
                 <Link
                   key={doc.id}
                   href={`/bidding/${opportunityId}/documents/generator/${doc.id}`}
-                  className="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50"
+                  className="block rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">

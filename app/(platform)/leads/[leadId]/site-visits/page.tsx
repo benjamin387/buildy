@@ -79,7 +79,7 @@ export default async function LeadSiteVisitsPage({
         </div>
       </div>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         {visits.length === 0 ? (
           <div className="p-6">
             <EmptyState
@@ -90,7 +90,7 @@ export default async function LeadSiteVisitsPage({
             />
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl">
+          <div className="overflow-hidden rounded-xl">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>

@@ -78,7 +78,7 @@ export default async function DesignPackageDetailPage({
       </div>
 
       <section className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
             Property Type
           </p>
@@ -86,7 +86,7 @@ export default async function DesignPackageDetailPage({
             {pkg.propertyType}
           </p>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
             Design Style
           </p>
@@ -94,7 +94,7 @@ export default async function DesignPackageDetailPage({
             {pkg.designStyle ?? "-"}
           </p>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
             Budget Range
           </p>
@@ -106,7 +106,7 @@ export default async function DesignPackageDetailPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="flex items-start justify-between gap-4 border-b border-neutral-200 px-6 py-4">
           <div>
             <h2 className="text-lg font-semibold text-neutral-950">Room Templates</h2>
@@ -126,7 +126,7 @@ export default async function DesignPackageDetailPage({
             />
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl">
+          <div className="overflow-hidden rounded-xl">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>

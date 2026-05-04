@@ -95,7 +95,7 @@ export default async function BillingDashboardPage({
         <Metric title="Outstanding (Net)" value={formatCurrency(outstanding)} />
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-lg font-semibold text-neutral-950">Payment Schedules</h3>
@@ -177,7 +177,7 @@ export default async function BillingDashboardPage({
 
 function Metric(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">{props.value}</p>
     </div>

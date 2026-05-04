@@ -86,7 +86,7 @@ export function SupplierBillLinesEditor(props: {
     <div className="space-y-4">
       <input type="hidden" name={props.name} value={payload} />
 
-      <div className="overflow-x-auto rounded-2xl border border-neutral-200">
+      <div className="overflow-x-auto rounded-xl border border-neutral-200">
         <table className="min-w-full text-sm">
           <thead className="bg-neutral-100 text-neutral-800">
             <tr>
@@ -159,7 +159,7 @@ export function SupplierBillLinesEditor(props: {
           Add Line
         </button>
 
-        <div className="grid w-full max-w-xl gap-2 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm sm:w-auto">
+        <div className="grid w-full max-w-xl gap-2 rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm sm:w-auto">
           <div className="flex items-center justify-between gap-10">
             <span className="text-neutral-600">Subtotal</span>
             <span className="font-medium text-neutral-900">{formatCurrency(subtotal)}</span>

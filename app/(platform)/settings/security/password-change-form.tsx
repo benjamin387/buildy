@@ -22,7 +22,7 @@ export function PasswordChangeForm() {
   return (
     <form
       action={formAction}
-      className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
+      className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm"
     >
       <div className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">

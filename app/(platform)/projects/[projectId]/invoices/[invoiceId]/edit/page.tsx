@@ -42,7 +42,7 @@ export default async function EditInvoicePage({
         </Link>
       </div>
 
-      <form action={updateInvoiceDraftAction} className="grid gap-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <form action={updateInvoiceDraftAction} className="grid gap-6 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <input type="hidden" name="projectId" value={projectId} />
         <input type="hidden" name="invoiceId" value={invoiceId} />
 
@@ -77,7 +77,7 @@ export default async function EditInvoicePage({
           />
         </label>
 
-        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
             Line Items
           </p>

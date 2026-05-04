@@ -57,7 +57,7 @@ export default async function ProjectSuppliersPage({
         </Link>
       </div>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-neutral-950">Create Subcontract</h3>
         <p className="mt-1 text-sm text-neutral-600">
           Create a subcontract draft linked to this project.
@@ -116,14 +116,14 @@ export default async function ProjectSuppliersPage({
         )}
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h3 className="text-lg font-semibold text-neutral-950">Subcontracts</h3>
         </div>
         {subcontracts.length === 0 ? (
           <div className="px-6 py-6 text-sm text-neutral-600">No subcontracts yet.</div>
         ) : (
-          <div className="overflow-hidden rounded-2xl">
+          <div className="overflow-hidden rounded-xl">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>

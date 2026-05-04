@@ -124,7 +124,7 @@ export default async function ProjectDocumentsPage({
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -147,7 +147,7 @@ export default async function ProjectDocumentsPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Filters</h2>
         <form className="mt-5 grid gap-4 md:grid-cols-6">
           <label className="grid gap-2 text-sm md:col-span-2">
@@ -218,7 +218,7 @@ export default async function ProjectDocumentsPage({
         </form>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Documents</h2>
           <p className="mt-1 text-sm text-neutral-600">{total} records.</p>

@@ -54,7 +54,7 @@ export default async function ProjectManagementPage({
         </p>
       </div>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-neutral-950">New Update</h3>
         <form action={createProjectUpdate} className="mt-5 grid gap-3">
           <input type="hidden" name="projectId" value={projectId} />
@@ -102,7 +102,7 @@ export default async function ProjectManagementPage({
         </form>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h3 className="text-lg font-semibold text-neutral-950">Recent Updates</h3>
         </div>

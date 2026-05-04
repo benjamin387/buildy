@@ -45,7 +45,7 @@ export default async function TenderPackPrintPage(props: { params: Promise<{ id:
       `}</style>
 
       <div className="print-hide mx-auto max-w-4xl px-6 py-6">
-        <div className="rounded-2xl border border-slate-200 bg-stone-50 p-5 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-stone-50 p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Tender Submission Pack</p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">{pack.title}</h1>
           <p className="mt-2 text-sm text-neutral-700">
@@ -80,11 +80,11 @@ export default async function TenderPackPrintPage(props: { params: Promise<{ id:
               </div>
 
               {generatedHtml ? (
-                <div className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="mt-6 rounded-xl border border-slate-200 bg-white shadow-sm">
                   <div className="p-0" dangerouslySetInnerHTML={{ __html: generatedHtml }} />
                 </div>
               ) : item.complianceDocument?.fileUrl ? (
-                <div className="mt-6 rounded-2xl border border-slate-200 bg-stone-50 p-5">
+                <div className="mt-6 rounded-xl border border-slate-200 bg-stone-50 p-5">
                   <p className="text-sm text-neutral-700">
                     External document link:{" "}
                     <a className="font-semibold text-neutral-900 underline" href={item.complianceDocument.fileUrl} target="_blank" rel="noreferrer">
@@ -93,7 +93,7 @@ export default async function TenderPackPrintPage(props: { params: Promise<{ id:
                   </p>
                 </div>
               ) : item.manualUrl ? (
-                <div className="mt-6 rounded-2xl border border-slate-200 bg-stone-50 p-5">
+                <div className="mt-6 rounded-xl border border-slate-200 bg-stone-50 p-5">
                   <p className="text-sm text-neutral-700">
                     External link:{" "}
                     <a className="font-semibold text-neutral-900 underline" href={item.manualUrl} target="_blank" rel="noreferrer">
@@ -102,7 +102,7 @@ export default async function TenderPackPrintPage(props: { params: Promise<{ id:
                   </p>
                 </div>
               ) : (
-                <div className="mt-6 rounded-2xl border border-slate-200 bg-stone-50 p-5">
+                <div className="mt-6 rounded-xl border border-slate-200 bg-stone-50 p-5">
                   <p className="text-sm text-neutral-700">No preview available for this item.</p>
                 </div>
               )}

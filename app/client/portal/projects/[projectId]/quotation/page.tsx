@@ -79,7 +79,7 @@ export default async function ClientPortalQuotationPage({
         </div>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
-          <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+          <div className="rounded-xl border border-neutral-200 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Payment Terms</p>
             {quotation.paymentTermsV2.length === 0 ? (
               <p className="mt-2 text-sm text-neutral-700">No staged payment terms provided.</p>
@@ -107,7 +107,7 @@ export default async function ClientPortalQuotationPage({
             )}
           </div>
 
-          <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+          <div className="rounded-xl border border-neutral-200 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Your Response</p>
             {canRespond ? (
               <div className="mt-3 space-y-3">

@@ -160,7 +160,7 @@ export default async function ProjectFinalAccountPage(props: { params: Promise<{
           {fa?.approvals?.length ? (
             <div className="space-y-3">
               {fa.approvals.map((a: any) => (
-                <div key={a.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div key={a.id} className="rounded-xl border border-slate-200 bg-white p-4">
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusPill tone={a.status === "APPROVED" ? "success" : a.status === "REJECTED" ? "danger" : "neutral"}>
                       {String(a.status)}
@@ -184,7 +184,7 @@ export default async function ProjectFinalAccountPage(props: { params: Promise<{
 
 function Metric(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-2 text-2xl font-semibold tabular-nums text-neutral-950">{props.value}</p>
     </div>

@@ -66,7 +66,7 @@ export default async function VariationsPage({
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -102,7 +102,7 @@ export default async function VariationsPage({
         <SummaryCard label="Approved Variation Cost (est)" value={formatCurrency(approvedCost)} />
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Register</h2>
           <p className="mt-1 text-sm text-neutral-600">
@@ -172,7 +172,7 @@ export default async function VariationsPage({
 
 function SummaryCard(props: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.label}</p>
       <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">{props.value}</p>
     </div>

@@ -118,7 +118,7 @@ export default async function PurchaseOrderDetailPage({
         defaultChannel="EMAIL"
       />
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Lines</h2>
         <p className="mt-1 text-sm text-neutral-600">
           {canEdit
@@ -185,7 +185,7 @@ export default async function PurchaseOrderDetailPage({
             </div>
           </form>
         ) : (
-          <div className="mt-5 overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="mt-5 overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>

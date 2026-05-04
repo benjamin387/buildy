@@ -243,7 +243,7 @@ export default async function LeadDetailPage({
         </Card>
       </section>
 
-      <section id="ai" className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm scroll-mt-24">
+      <section id="ai" className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm scroll-mt-24">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">AI Sales Assistant</p>
@@ -271,7 +271,7 @@ export default async function LeadDetailPage({
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Lead Quality</p>
             {leadQuality ? (
               <>
@@ -301,7 +301,7 @@ export default async function LeadDetailPage({
             )}
           </div>
 
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Requirement Summary</p>
             {requirementSummary ? (
               <>
@@ -313,7 +313,7 @@ export default async function LeadDetailPage({
             )}
           </div>
 
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Next Action</p>
             {nextAction ? (
               <>
@@ -324,7 +324,7 @@ export default async function LeadDetailPage({
               <p className="mt-2 text-sm text-neutral-700">No AI next action yet.</p>
             )}
 
-            <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-3">
+            <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-3">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Objection handling</p>
               <form action={generateLeadObjectionReplyDraftAction} className="mt-3 grid gap-2">
                 <input type="hidden" name="leadId" value={leadId} />
@@ -357,7 +357,7 @@ export default async function LeadDetailPage({
           </div>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-2xl border border-neutral-200">
+        <div className="mt-6 overflow-hidden rounded-xl border border-neutral-200">
           <div className="border-b border-neutral-200 bg-neutral-100 px-4 py-3">
             <p className="text-sm font-semibold text-neutral-900">AI Message Drafts</p>
             <p className="mt-1 text-sm text-neutral-600">Approve first, then send via Email/WhatsApp.</p>
@@ -418,7 +418,7 @@ export default async function LeadDetailPage({
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Requirements / Notes</h2>
           <div className="mt-4 space-y-4 text-sm">
             <Block title="Requirement Summary" value={lead.requirementSummary} />
@@ -426,7 +426,7 @@ export default async function LeadDetailPage({
           </div>
         </section>
 
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Log Activity</h2>
           <p className="mt-1 text-sm text-neutral-600">
             Add call, WhatsApp, email, site visit notes and follow-up reminders.
@@ -438,7 +438,7 @@ export default async function LeadDetailPage({
             <QuickActivity leadId={leadId} activityType="EMAIL" channel="EMAIL" label="Email note" placeholder="Summary of email" />
             <QuickActivity leadId={leadId} activityType="SITE_VISIT" channel="MEETING" label="Site visit note" placeholder="Site visit summary" />
 
-            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
                 Follow-up Reminder
               </p>
@@ -507,7 +507,7 @@ export default async function LeadDetailPage({
         </section>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Activity Timeline</h2>
         </div>
@@ -553,7 +553,7 @@ export default async function LeadDetailPage({
 
 function Card(props: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-neutral-950">{props.title}</h2>
       <div className="mt-4">{props.children}</div>
     </section>
@@ -588,7 +588,7 @@ function QuickActivity(props: {
   placeholder: string;
 }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
         {props.label}
       </p>

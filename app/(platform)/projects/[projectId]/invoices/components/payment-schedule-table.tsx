@@ -46,7 +46,7 @@ export function PaymentScheduleTable(props: {
   renderAction: (scheduleId: string, status: PaymentScheduleStatus) => React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-neutral-200">
+    <div className="overflow-hidden rounded-xl border border-neutral-200">
       <table className="min-w-full text-sm">
         <thead className="bg-neutral-100 text-neutral-800">
           <tr>

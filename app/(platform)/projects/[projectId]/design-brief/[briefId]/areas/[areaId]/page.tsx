@@ -26,7 +26,7 @@ import { buildInteriorVisualPrompt } from "@/lib/ai/visual-generator";
 
 function Card(props: { title: string; children: ReactNode; description?: string }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold text-neutral-950">{props.title}</h2>
         {props.description ? <p className="text-sm text-neutral-600">{props.description}</p> : null}
@@ -227,7 +227,7 @@ export default async function DesignAreaDetailPage({
       <Card title="AI Design Suggestions" description="Auto-generate design concept suggestions and Option A/B/C visuals from the brief, area requirements, and budget context.">
         <div id="options" className="scroll-mt-24" />
 
-        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
           <form action={generateDesignOptionsAction} className="grid gap-3 sm:grid-cols-6">
             <input type="hidden" name="projectId" value={projectId} />
             <input type="hidden" name="briefId" value={briefId} />
@@ -253,19 +253,19 @@ export default async function DesignAreaDetailPage({
 
         {(area.aiLayoutSuggestion || area.aiMaterialSuggestion || area.aiFurnitureSuggestion || area.aiLightingSuggestion) ? (
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Layout</p>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-800">{area.aiLayoutSuggestion ?? "-"}</p>
             </div>
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Materials</p>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-800">{area.aiMaterialSuggestion ?? "-"}</p>
             </div>
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Furniture</p>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-800">{area.aiFurnitureSuggestion ?? "-"}</p>
             </div>
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Lighting</p>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-800">{area.aiLightingSuggestion ?? "-"}</p>
             </div>
@@ -281,7 +281,7 @@ export default async function DesignAreaDetailPage({
       >
         <div id="ai-layout" className="scroll-mt-24" />
 
-        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
           <form action={generateLayoutPlanAction} className="grid gap-3 sm:grid-cols-6">
             <input type="hidden" name="projectId" value={projectId} />
             <input type="hidden" name="briefId" value={briefId} />
@@ -353,7 +353,7 @@ export default async function DesignAreaDetailPage({
         </div>
 
         {selectedGeneratedLayoutPlan ? (
-          <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-4">
+          <div className="mt-6 rounded-xl border border-neutral-200 bg-white p-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-neutral-950">{selectedGeneratedLayoutPlan.title}</p>
@@ -369,25 +369,25 @@ export default async function DesignAreaDetailPage({
             </div>
 
             <div className="mt-4 grid gap-3 lg:grid-cols-2">
-              <div className="rounded-2xl border border-neutral-200 p-4">
+              <div className="rounded-xl border border-neutral-200 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Layout Summary</p>
                 <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-700">
                   {selectedGeneratedLayoutPlan.layoutSummary}
                 </p>
               </div>
-              <div className="rounded-2xl border border-neutral-200 p-4">
+              <div className="rounded-xl border border-neutral-200 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Furniture Placement</p>
                 <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-700">
                   {selectedGeneratedLayoutPlan.furniturePlacementPlan}
                 </p>
               </div>
-              <div className="rounded-2xl border border-neutral-200 p-4">
+              <div className="rounded-xl border border-neutral-200 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Circulation Notes</p>
                 <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-700">
                   {selectedGeneratedLayoutPlan.circulationNotes}
                 </p>
               </div>
-              <div className="rounded-2xl border border-neutral-200 p-4">
+              <div className="rounded-xl border border-neutral-200 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Prompt For 3D Visual</p>
                 <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-700">
                   {selectedGeneratedLayoutPlan.promptFor3DVisual}
@@ -402,13 +402,13 @@ export default async function DesignAreaDetailPage({
         )}
 
         {area.generatedLayoutPlans.length > 1 ? (
-          <details className="mt-6 rounded-2xl border border-neutral-200 bg-white p-4">
+          <details className="mt-6 rounded-xl border border-neutral-200 bg-white p-4">
             <summary className="cursor-pointer select-none text-sm font-semibold text-neutral-900">
               View all generated layout plans ({area.generatedLayoutPlans.length})
             </summary>
             <div className="mt-4 space-y-3">
               {area.generatedLayoutPlans.map((p) => (
-                <div key={p.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <div key={p.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p className="text-sm font-semibold text-neutral-950">{p.title}</p>
@@ -479,7 +479,7 @@ export default async function DesignAreaDetailPage({
               <p className="text-sm text-neutral-600">No layout plans yet.</p>
             ) : (
               area.layoutPlans.map((p) => (
-                <div key={p.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <div key={p.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <p className="text-sm font-semibold text-neutral-950">{p.title}</p>
                   <p className="mt-1 text-sm text-neutral-600">{p.description ?? "-"}</p>
                   {p.fileUrl ? (
@@ -500,7 +500,7 @@ export default async function DesignAreaDetailPage({
           <div id="renders" className="scroll-mt-24" />
 
           {latestOptionSetId && (latestOptions.A || latestOptions.B || latestOptions.C) ? (
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
                 Latest Design Options (A/B/C)
               </p>
@@ -508,7 +508,7 @@ export default async function DesignAreaDetailPage({
                 {(["A", "B", "C"] as const).map((key) => {
                   const r = latestOptions[key];
                   return (
-                    <div key={key} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                    <div key={key} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold text-neutral-950">Option {key}</p>
@@ -531,7 +531,7 @@ export default async function DesignAreaDetailPage({
                           />
                         </div>
                       ) : (
-                        <div className="mt-3 rounded-2xl border border-neutral-200 bg-white p-4 text-sm text-neutral-600">
+                        <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-4 text-sm text-neutral-600">
                           No image yet.
                         </div>
                       )}
@@ -582,7 +582,7 @@ export default async function DesignAreaDetailPage({
             </div>
           ) : null}
 
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               AI Visual Generator
             </p>
@@ -620,7 +620,7 @@ export default async function DesignAreaDetailPage({
             </form>
           </div>
 
-          <details className="mt-6 rounded-2xl border border-neutral-200 bg-white p-4">
+          <details className="mt-6 rounded-xl border border-neutral-200 bg-white p-4">
             <summary className="cursor-pointer select-none text-sm font-semibold text-neutral-900">
               Add external render manually
             </summary>
@@ -683,7 +683,7 @@ export default async function DesignAreaDetailPage({
               <p className="text-sm text-neutral-600">No renders yet.</p>
             ) : (
               area.visualRenders.map((r) => (
-                <div key={r.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <div key={r.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p className="text-sm font-semibold text-neutral-950">{r.title}</p>
@@ -703,7 +703,7 @@ export default async function DesignAreaDetailPage({
 
                   {(r.generatedImageUrl || r.fileUrl) ? (
                     <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                      <div className="rounded-2xl border border-neutral-200 bg-white p-3">
+                      <div className="rounded-xl border border-neutral-200 bg-white p-3">
                         <img
                           src={(r.generatedImageUrl || r.fileUrl) ?? ""}
                           alt={r.title}
@@ -712,7 +712,7 @@ export default async function DesignAreaDetailPage({
                         />
                       </div>
                       <div className="space-y-3">
-                        <div className="rounded-2xl border border-neutral-200 bg-white p-3">
+                        <div className="rounded-xl border border-neutral-200 bg-white p-3">
                           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Prompt</p>
                           <pre className="mt-2 whitespace-pre-wrap text-xs leading-5 text-neutral-800">
                             {r.promptText || r.generatedPrompt || "-"}
@@ -726,7 +726,7 @@ export default async function DesignAreaDetailPage({
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-3">
+                    <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-3">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Prompt</p>
                       <pre className="mt-2 whitespace-pre-wrap text-xs leading-5 text-neutral-800">
                         {r.promptText || r.generatedPrompt || "-"}
@@ -737,7 +737,7 @@ export default async function DesignAreaDetailPage({
                     </div>
                   )}
 
-                  <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-4">
+                  <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Regenerate</p>
                     <form action={generateVisualRenderAction} className="mt-3 grid gap-3">
                       <input type="hidden" name="projectId" value={projectId} />
@@ -958,7 +958,7 @@ export default async function DesignAreaDetailPage({
           ) : null}
 
           {area.qsBoqDraftItems.length > 0 ? (
-            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
                 Delete QS Row (Server)
               </p>

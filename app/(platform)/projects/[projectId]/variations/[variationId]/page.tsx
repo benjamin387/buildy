@@ -70,7 +70,7 @@ export default async function VariationDetailPage({
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -121,7 +121,7 @@ export default async function VariationDetailPage({
         <MetricCard label="VO Margin" value={`${margin.toFixed(1)}%`} />
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Header</h2>
         <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
           <Row label="Project" value={`${vo.project.projectCode ?? vo.project.id.slice(0, 8)} · ${vo.project.name}`} />
@@ -139,7 +139,7 @@ export default async function VariationDetailPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Items</h2>
         </div>
@@ -188,7 +188,7 @@ export default async function VariationDetailPage({
       </section>
 
       {canSubmit ? (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Submit For Approval</h2>
           <p className="mt-1 text-sm text-neutral-600">
             Submitting locks the draft. Use secure link delivery to obtain client approval before execution or invoicing.
@@ -231,7 +231,7 @@ export default async function VariationDetailPage({
       ) : null}
 
       {canApprove ? (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Internal Approval</h2>
           <p className="mt-1 text-sm text-neutral-600">
             Internal approval sets the VO as approved for contract value and billing. Client approval can still be captured via secure link.
@@ -261,7 +261,7 @@ export default async function VariationDetailPage({
       ) : null}
 
       {canInvoice ? (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Invoice</h2>
           <p className="mt-1 text-sm text-neutral-600">
             Create a draft VARIATION invoice from the approved VO items.
@@ -277,7 +277,7 @@ export default async function VariationDetailPage({
       ) : null}
 
       {canReviseRejected ? (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Revise Rejected VO</h2>
           <p className="mt-1 text-sm text-neutral-600">
             Create a new draft VO based on this rejected version. The rejected version remains viewable for audit.
@@ -323,7 +323,7 @@ export default async function VariationDetailPage({
         description="Draft changes, approvals/rejections, delivery and invoicing."
       />
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Approvals</h2>
         </div>
@@ -359,7 +359,7 @@ export default async function VariationDetailPage({
         )}
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Invoices Linked</h2>
         </div>
@@ -410,7 +410,7 @@ function Row(props: { label: string; value: string; align?: "left" | "right"; st
 
 function MetricCard(props: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.label}</p>
       <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">{props.value}</p>
     </div>

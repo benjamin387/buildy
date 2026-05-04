@@ -485,7 +485,7 @@ export function QuotationBuilder(props: {
           </div>
         ) : null}
 
-        <section className="grid gap-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm lg:grid-cols-4">
+        <section className="grid gap-6 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm lg:grid-cols-4">
           <label className="grid gap-2 text-sm">
             <span className="font-medium text-neutral-800">Issue Date</span>
             <input
@@ -555,7 +555,7 @@ export function QuotationBuilder(props: {
           </label>
         </section>
 
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-neutral-950">Payment Terms</p>
@@ -718,7 +718,7 @@ export function QuotationBuilder(props: {
           </div>
 
           {templateOpen ? (
-            <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-neutral-950">Insert Room Template</h3>
@@ -819,7 +819,7 @@ export function QuotationBuilder(props: {
             return (
               <section
                 key={`${section.title}-${sectionIndex}`}
-                className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
+                className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm"
               >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="flex-1 space-y-3">
@@ -1081,7 +1081,7 @@ export function QuotationBuilder(props: {
           })}
         </section>
 
-        <section className="grid gap-2 rounded-2xl border border-neutral-200 bg-white p-6 text-sm shadow-sm">
+        <section className="grid gap-2 rounded-xl border border-neutral-200 bg-white p-6 text-sm shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-neutral-600">Subtotal</span>
             <span className="font-medium text-neutral-900">{formatCurrency(summary.subtotal)}</span>

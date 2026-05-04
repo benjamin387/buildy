@@ -218,7 +218,7 @@ export default async function BidExecutionPage(props: {
                 </div>
                 <div className="mt-4 space-y-3">
                   {(procurementPlan.items ?? []).slice(0, 12).map((it: any) => (
-                    <div key={it.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <div key={it.id} className="rounded-xl border border-slate-200 bg-white p-4">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="font-semibold text-neutral-950">{tradeLabel(String(it.tradeKey))}</p>
                         <StatusPill tone={it.status === "COMPLETED" ? "success" : it.status === "CANCELLED" ? "danger" : "neutral"}>
@@ -253,7 +253,7 @@ export default async function BidExecutionPage(props: {
 
 function Metric(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+    <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-2 text-lg font-semibold tabular-nums text-neutral-950">{props.value}</p>
     </div>

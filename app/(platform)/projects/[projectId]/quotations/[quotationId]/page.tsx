@@ -215,7 +215,7 @@ export default async function ProjectQuotationDetailPage({
         description="Quotation edits, delivery actions, approvals and AI recommendations."
       />
 
-      <section id="upsell" className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section id="upsell" className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-neutral-950">Upsell Engine</h2>
@@ -233,7 +233,7 @@ export default async function ProjectQuotationDetailPage({
         {upsells.length === 0 ? (
           <p className="mt-4 text-sm text-neutral-700">No upsell recommendations yet.</p>
         ) : (
-          <div className="mt-5 overflow-x-auto rounded-2xl border border-neutral-200">
+          <div className="mt-5 overflow-x-auto rounded-xl border border-neutral-200">
             <table className="min-w-[980px] w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -301,7 +301,7 @@ export default async function ProjectQuotationDetailPage({
         )}
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Payment Terms</h2>
         <p className="mt-1 text-sm text-neutral-600">
           Staged payments captured on the quotation.
@@ -347,7 +347,7 @@ export default async function ProjectQuotationDetailPage({
         {quotation.sections.map((section) => (
           <section
             key={section.id}
-            className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
+            className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm"
           >
             <div className="flex items-start justify-between gap-4">
               <div>

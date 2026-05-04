@@ -57,7 +57,7 @@ export default async function NewContractPage({
       </div>
 
       {quotations.length === 0 ? (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-6 text-center">
             <p className="text-lg font-semibold text-neutral-900">No approved quotations</p>
             <p className="mt-2 max-w-md text-sm leading-6 text-neutral-600">
@@ -75,7 +75,7 @@ export default async function NewContractPage({
       ) : (
         <form
           action={createContract}
-          className="grid gap-6 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
+          className="grid gap-6 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm"
         >
           <input type="hidden" name="projectId" value={projectId} />
 

@@ -64,7 +64,7 @@ export default async function ClientPortalContractPage({
         ) : (
           <div className="mt-4 space-y-4">
             {signatureRequests.map((req) => (
-              <div key={req.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+              <div key={req.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                 <p className="text-sm font-semibold text-neutral-950">
                   Request {req.id.slice(0, 8)} · {req.status}
                 </p>
@@ -102,7 +102,7 @@ export default async function ClientPortalContractPage({
         {contract.milestones.length === 0 ? (
           <p className="mt-3 text-sm text-neutral-700">No milestones defined.</p>
         ) : (
-          <div className="mt-4 overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="mt-4 overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -151,7 +151,7 @@ export default async function ClientPortalContractPage({
         </div>
         <div className="mt-6 space-y-4">
           {contract.clauses.slice(0, 10).map((c) => (
-            <div key={c.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+            <div key={c.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p className="text-sm font-semibold text-neutral-950">{c.title}</p>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-700">{c.content}</p>
             </div>

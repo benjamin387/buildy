@@ -72,7 +72,7 @@ export default async function ClientsIndexPage({
         </Link>
       </div>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
         <form className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex-1">
             <label className="block text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -99,7 +99,7 @@ export default async function ClientsIndexPage({
         </form>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         {clients.length === 0 ? (
           <div className="p-6 text-sm text-neutral-600">No clients found.</div>
         ) : (

@@ -59,7 +59,7 @@ export default async function ProjectSiteVisitsPage({
         <SummaryCard title="Cancelled" value={`${cancelled}`} />
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         {visits.length === 0 ? (
           <div className="p-6">
             <EmptyState
@@ -70,7 +70,7 @@ export default async function ProjectSiteVisitsPage({
             />
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl">
+          <div className="overflow-hidden rounded-xl">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -131,7 +131,7 @@ export default async function ProjectSiteVisitsPage({
 
 function SummaryCard(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
         {props.title}
       </p>

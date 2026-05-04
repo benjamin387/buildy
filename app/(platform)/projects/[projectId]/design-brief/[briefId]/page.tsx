@@ -35,7 +35,7 @@ function formatDate(value: Date | null | undefined): string {
 
 function Card(props: { title: string; children: ReactNode; description?: string }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold text-neutral-950">{props.title}</h2>
         {props.description ? <p className="text-sm text-neutral-600">{props.description}</p> : null}
@@ -162,7 +162,7 @@ export default async function DesignBriefDashboardPage({
       <Card title="Role Workload" description="Quick view of task load per role (open vs completed).">
         <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
           {roleStats.map((s) => (
-            <div key={s.role} className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <div key={s.role} className="rounded-xl border border-neutral-200 bg-white p-4">
               <div className="flex items-start justify-between gap-2">
                 <RoleBadge role={s.role} />
                 <span className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
@@ -278,7 +278,7 @@ export default async function DesignBriefDashboardPage({
         ) : (
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             {upsells.map((u) => (
-              <div key={u.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+              <div key={u.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                 <p className="text-sm font-semibold text-neutral-950">{u.title}</p>
                 <p className="mt-1 text-xs text-neutral-500">{u.category} · {u.priority} · {u.status}</p>
                 <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-neutral-700">{u.pitchText}</p>
@@ -313,7 +313,7 @@ export default async function DesignBriefDashboardPage({
       </Card>
 
       <Card title="Design Tasks" description="Role-based task tracking. Update status as work progresses.">
-        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Add Task</p>
           <form action={addDesignTaskAction} className="mt-4 grid gap-3 lg:grid-cols-12">
             <input type="hidden" name="projectId" value={projectId} />
@@ -379,7 +379,7 @@ export default async function DesignBriefDashboardPage({
           </form>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-2xl border border-neutral-200">
+        <div className="mt-6 overflow-hidden rounded-xl border border-neutral-200">
           <table className="min-w-full text-sm">
             <thead className="bg-neutral-100 text-neutral-800">
               <tr>
@@ -478,7 +478,7 @@ export default async function DesignBriefDashboardPage({
 
 function MetricCard(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-3 text-base font-semibold text-neutral-950">{props.value}</p>
     </div>

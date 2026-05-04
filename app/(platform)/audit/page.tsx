@@ -216,13 +216,13 @@ export default async function AuditPage(props: {
 
       <SectionCard title={`Results (${rows.length}${hasMore ? "+" : ""})`} description="Expand a row to see diffs and metadata.">
         {rows.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-stone-50 p-6 text-sm text-neutral-700">
+          <div className="rounded-xl border border-slate-200 bg-stone-50 p-6 text-sm text-neutral-700">
             No audit logs found for the current filters.
           </div>
         ) : (
           <div className="space-y-3">
             {rows.map((r) => (
-              <details key={r.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <details key={r.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                 <summary className="flex cursor-pointer list-none flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -281,7 +281,7 @@ function withCursor(
 
 function Block(props: { title: string; value: unknown }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+    <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-500">{props.title}</p>
       <pre className="mt-3 whitespace-pre-wrap break-words text-xs leading-6 text-neutral-800">
         {safeStringify(props.value)}

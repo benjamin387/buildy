@@ -80,7 +80,7 @@ export default async function AILearningPage() {
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -122,7 +122,7 @@ export default async function AILearningPage() {
               AI Learning tables are not available yet. (Fresh database) Run migrations / Prisma schema sync, then refresh.
             </p>
           ) : (
-          <div className="overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -165,7 +165,7 @@ export default async function AILearningPage() {
 
         <Panel title="Recommendation Scores" subtitle="Best and weakest actions (overall).">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
                 Best Performing
               </p>
@@ -186,7 +186,7 @@ export default async function AILearningPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
                 Weak Recommendations
               </p>
@@ -212,7 +212,7 @@ export default async function AILearningPage() {
 
       <section className="grid gap-6 lg:grid-cols-2">
         <Panel title="Segment Metrics" subtitle="Top segments by sample size (lead/design/invoice only).">
-          <div className="overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -254,7 +254,7 @@ export default async function AILearningPage() {
               <p className="text-sm text-neutral-600">No outcomes yet.</p>
             ) : (
               outcomesRecent.map((o) => (
-                <div key={o.id} className="rounded-2xl border border-neutral-200 bg-white p-4">
+                <div key={o.id} className="rounded-xl border border-neutral-200 bg-white p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
@@ -286,7 +286,7 @@ export default async function AILearningPage() {
 
 function Panel(props: { title: string; subtitle?: string; children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="flex items-baseline justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold tracking-tight text-neutral-950">{props.title}</h2>
@@ -300,7 +300,7 @@ function Panel(props: { title: string; subtitle?: string; children: ReactNode })
 
 function SummaryCard(props: { title: string; value: string; subtitle?: string; emphasis?: boolean }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className={`mt-2 text-2xl font-semibold tracking-tight ${props.emphasis ? "text-neutral-950" : "text-neutral-900"}`}>{props.value}</p>
       {props.subtitle ? <p className="mt-1 text-sm text-neutral-600">{props.subtitle}</p> : null}

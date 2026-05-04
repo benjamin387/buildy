@@ -49,7 +49,7 @@ function scoreFromTitle(title: string): number {
 
 function MetricCard(props: { title: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
         {props.title}
       </p>
@@ -72,7 +72,7 @@ export default async function SalesAssistantPage() {
   if (!hasAISales) {
     return (
       <main className="space-y-6">
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-neutral-500">Sales</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-neutral-950">
             AI Sales Assistant
@@ -266,7 +266,7 @@ export default async function SalesAssistantPage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-neutral-950">Hot Leads</h2>
             <p className="mt-1 text-sm text-neutral-600">Prioritize high-quality leads for follow-up.</p>
@@ -299,7 +299,7 @@ export default async function SalesAssistantPage() {
           )}
         </section>
 
-        <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-neutral-950">Follow-ups</h2>
             <p className="mt-1 text-sm text-neutral-600">Leads with follow-up dates due today or earlier.</p>
@@ -334,7 +334,7 @@ export default async function SalesAssistantPage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-neutral-950">AI Insights Queue</h2>
             <p className="mt-1 text-sm text-neutral-600">Latest insights needing review.</p>
@@ -399,7 +399,7 @@ export default async function SalesAssistantPage() {
           )}
         </section>
 
-        <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-neutral-950">Message Drafts Pending Approval</h2>
             <p className="mt-1 text-sm text-neutral-600">AI drafts only; sending happens via Messaging.</p>
@@ -470,7 +470,7 @@ export default async function SalesAssistantPage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-neutral-950">Quotation Follow-up Needed</h2>
             <p className="mt-1 text-sm text-neutral-600">
@@ -513,7 +513,7 @@ export default async function SalesAssistantPage() {
           )}
         </section>
 
-        <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-neutral-950">Upsell Opportunities</h2>
             <p className="mt-1 text-sm text-neutral-600">Suggested upsells created in the last 7 days.</p>

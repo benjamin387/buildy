@@ -70,7 +70,7 @@ function checklistText(items: ChecklistItems | null, group: keyof ChecklistItems
 
 function Card(props: { title: string; children: ReactNode; description?: string }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold text-neutral-950">{props.title}</h2>
         {props.description ? <p className="text-sm text-neutral-600">{props.description}</p> : null}
@@ -233,7 +233,7 @@ export default async function LeadSiteVisitDetailPage({
               <p className="text-sm text-neutral-600">No areas created yet.</p>
             ) : (
               visit.areas.map((area) => (
-                <div key={area.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <div key={area.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <p className="text-sm font-semibold text-neutral-950">{area.title}</p>
                   <p className="mt-1 text-sm text-neutral-600">{area.notes ?? "No notes."}</p>
                 </div>
@@ -312,7 +312,7 @@ export default async function LeadSiteVisitDetailPage({
             {visit.measurements.length === 0 ? (
               <p className="text-sm text-neutral-600">No measurements recorded yet.</p>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-neutral-200">
+              <div className="overflow-hidden rounded-xl border border-neutral-200">
                 <table className="min-w-full text-sm">
                   <thead className="bg-neutral-100">
                     <tr>
@@ -478,7 +478,7 @@ export default async function LeadSiteVisitDetailPage({
               </ChecklistBox>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Preferences</p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 text-sm">
@@ -631,7 +631,7 @@ export default async function LeadSiteVisitDetailPage({
 
 function ChecklistBox(props: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <div className="mt-3 space-y-2">{props.children}</div>
     </div>

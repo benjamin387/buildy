@@ -61,13 +61,13 @@ export default async function PublicDocumentPage({
             <PrintButton />
             <Link
               href="/client/login"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+              className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
             >
               Client portal login
             </Link>
             <Link
               href="/"
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+              className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
             >
               Home
             </Link>
@@ -249,7 +249,7 @@ async function fetchInvoice(invoiceId: string) {
     title: `Invoice ${inv.invoiceNumber}`,
     body: (
       <div className="space-y-6">
-        <section className="grid gap-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
+        <section className="grid gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Bill To</p>
             <p className="mt-2 font-semibold text-neutral-950">{billToName}</p>
@@ -267,7 +267,7 @@ async function fetchInvoice(invoiceId: string) {
           </div>
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-neutral-200">
+        <section className="overflow-hidden rounded-xl border border-neutral-200">
           <table className="min-w-full text-sm">
             <thead className="bg-neutral-100 text-neutral-800">
               <tr>
@@ -291,11 +291,11 @@ async function fetchInvoice(invoiceId: string) {
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Notes</p>
             <p className="mt-2 whitespace-pre-wrap text-neutral-800">{inv.notes ?? "-"}</p>
           </div>
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-neutral-600">Subtotal</span>
               <span className="font-semibold tabular-nums text-neutral-950">{formatCurrency(Number(inv.subtotal))}</span>
@@ -336,7 +336,7 @@ async function fetchQuotation(quotationId: string) {
     title: `Quotation ${q.quotationNumber} (V${q.version})`,
     body: (
       <div className="space-y-6">
-        <section className="grid gap-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
+        <section className="grid gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Quotation</p>
             <p className="mt-2 font-semibold text-neutral-950">{q.quotationNumber}</p>
@@ -352,7 +352,7 @@ async function fetchQuotation(quotationId: string) {
         </section>
 
         {q.paymentTermsV2.length > 0 ? (
-          <section className="overflow-hidden rounded-2xl border border-neutral-200">
+          <section className="overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -391,7 +391,7 @@ async function fetchQuotation(quotationId: string) {
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-neutral-200">
+            <div className="overflow-hidden rounded-xl border border-neutral-200">
               <table className="min-w-full text-sm">
                 <thead className="bg-neutral-100 text-neutral-800">
                   <tr>
@@ -435,7 +435,7 @@ async function fetchContract(contractId: string) {
     title: `Contract ${c.contractNumber} (V${c.version})`,
     body: (
       <div className="space-y-6">
-        <section className="grid gap-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
+        <section className="grid gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Contract</p>
             <p className="mt-2 font-semibold text-neutral-950">{c.contractNumber}</p>
@@ -450,7 +450,7 @@ async function fetchContract(contractId: string) {
         </section>
 
         {c.milestones.length > 0 ? (
-          <section className="overflow-hidden rounded-2xl border border-neutral-200">
+          <section className="overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -476,7 +476,7 @@ async function fetchContract(contractId: string) {
           <h2 className="text-lg font-semibold text-neutral-950">Clauses</h2>
           <div className="grid gap-3">
             {c.clauses.map((clause) => (
-              <div key={clause.id} className="rounded-2xl border border-neutral-200 bg-white p-5">
+              <div key={clause.id} className="rounded-xl border border-neutral-200 bg-white p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{clause.clauseKey}</p>
                 <p className="mt-2 text-base font-semibold text-neutral-950">{clause.title}</p>
                 <div className="mt-3 whitespace-pre-wrap text-sm leading-6 text-neutral-800">{clause.content}</div>
@@ -500,7 +500,7 @@ async function fetchPurchaseOrder(poId: string) {
     title: `Purchase Order ${po.poNumber}`,
     body: (
       <div className="space-y-6">
-        <section className="grid gap-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
+        <section className="grid gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Supplier</p>
             <p className="mt-2 font-semibold text-neutral-950">{po.supplier.name}</p>
@@ -515,7 +515,7 @@ async function fetchPurchaseOrder(poId: string) {
           </div>
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-neutral-200">
+        <section className="overflow-hidden rounded-xl border border-neutral-200">
           <table className="min-w-full text-sm">
             <thead className="bg-neutral-100 text-neutral-800">
               <tr>
@@ -539,11 +539,11 @@ async function fetchPurchaseOrder(poId: string) {
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Notes</p>
             <p className="mt-2 whitespace-pre-wrap text-neutral-800">{po.notes ?? "-"}</p>
           </div>
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-neutral-600">Subtotal</span>
               <span className="font-semibold tabular-nums text-neutral-950">{formatCurrency(Number(po.subtotal))}</span>
@@ -574,7 +574,7 @@ async function fetchSubcontract(subcontractId: string) {
     title: `Subcontract ${sc.title}`,
     body: (
       <div className="space-y-6">
-        <section className="grid gap-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
+        <section className="grid gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Supplier</p>
             <p className="mt-2 font-semibold text-neutral-950">{sc.supplier.name}</p>
@@ -588,12 +588,12 @@ async function fetchSubcontract(subcontractId: string) {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-neutral-200 bg-white p-5 text-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-5 text-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Scope Summary</p>
           <p className="mt-2 whitespace-pre-wrap text-neutral-800">{sc.scopeSummary ?? "-"}</p>
         </section>
 
-        <section className="rounded-2xl border border-neutral-200 bg-white p-5 text-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-5 text-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Controls</p>
           <div className="mt-3 grid gap-2">
             <p className="text-neutral-800">Payment terms: {sc.paymentTerms ?? "-"}</p>
@@ -619,7 +619,7 @@ async function fetchSupplierBill(billId: string) {
     title: `Supplier Bill ${bill.billNumber}`,
     body: (
       <div className="space-y-6">
-        <section className="grid gap-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
+        <section className="grid gap-4 rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm sm:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Supplier</p>
             <p className="mt-2 font-semibold text-neutral-950">{bill.supplier.name}</p>
@@ -633,7 +633,7 @@ async function fetchSupplierBill(billId: string) {
           </div>
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-neutral-200">
+        <section className="overflow-hidden rounded-xl border border-neutral-200">
           <table className="min-w-full text-sm">
             <thead className="bg-neutral-100 text-neutral-800">
               <tr>
@@ -657,11 +657,11 @@ async function fetchSupplierBill(billId: string) {
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Notes</p>
             <p className="mt-2 whitespace-pre-wrap text-neutral-800">{bill.notes ?? "-"}</p>
           </div>
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-neutral-600">Subtotal</span>
               <span className="font-semibold tabular-nums text-neutral-950">{formatCurrency(Number(bill.subtotal))}</span>
@@ -709,7 +709,7 @@ async function fetchCollectionReminder(caseId: string) {
             <p className="text-neutral-700">DPD: {c.daysPastDue}</p>
           </div>
         </section>
-        <section className="rounded-2xl border border-neutral-200 bg-white p-5">
+        <section className="rounded-xl border border-neutral-200 bg-white p-5">
           <div className="flex items-center justify-between">
             <span className="text-neutral-600">Total</span>
             <span className="font-semibold tabular-nums text-neutral-950">{formatCurrency(Number(c.invoice.totalAmount))}</span>
