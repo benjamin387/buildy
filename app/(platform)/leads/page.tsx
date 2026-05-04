@@ -18,6 +18,10 @@ import { StatusPill } from "@/app/components/ui/status-pill";
 import { PaginationControls } from "@/app/components/ui/pagination";
 import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
+const fieldClass = "mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none ring-neutral-400 transition focus:ring-2";
+const compactSelectClass = "h-10 rounded-2xl border border-slate-200 bg-white px-2 text-xs outline-none ring-neutral-400 focus:ring-2";
+const compactStrongSelectClass = "h-10 rounded-2xl border border-slate-200 bg-white px-2 text-xs font-semibold outline-none ring-neutral-400 focus:ring-2";
+
 function formatDate(value: Date | null | undefined): string {
   if (!value) return "-";
   return new Intl.DateTimeFormat("en-SG", { year: "numeric", month: "short", day: "2-digit" }).format(value);
@@ -89,11 +93,7 @@ export default async function LeadsIndexPage(props: {
         kicker="Sales Pipeline"
         title="Leads"
         subtitle="Capture customer requirements, schedule follow-ups, and convert qualified leads into projects."
-        actions={
-          <Link href="/leads/new">
-            <ActionButton>New Lead</ActionButton>
-          </Link>
-        }
+        actions={<Link href="/leads/new"><ActionButton>New Lead</ActionButton></Link>}
       />
 
       <SectionCard title="Filters" description="Search by lead no, customer, contact, address, or salesperson.">
@@ -104,7 +104,7 @@ export default async function LeadsIndexPage(props: {
               name="q"
               defaultValue={q}
               placeholder="Lead no, customer, email, phone…"
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className={fieldClass}
             />
           </label>
 
@@ -113,7 +113,7 @@ export default async function LeadsIndexPage(props: {
             <select
               name="status"
               defaultValue={statusParam}
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className={fieldClass}
             >
               <option value="ALL">ALL</option>
               <option value="NEW">NEW</option>
@@ -132,7 +132,7 @@ export default async function LeadsIndexPage(props: {
               name="sales"
               defaultValue={assignedSalesEmail}
               placeholder="sales@company.com"
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className={fieldClass}
             />
           </label>
 
@@ -141,7 +141,7 @@ export default async function LeadsIndexPage(props: {
             <select
               name="rpt"
               defaultValue={rptParam}
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className={fieldClass}
             >
               <option value="ALL">ALL</option>
               <option value="HDB">HDB</option>
@@ -152,11 +152,7 @@ export default async function LeadsIndexPage(props: {
 
           <div className="flex items-end gap-2 sm:col-span-6">
             <ActionButton type="submit">Apply</ActionButton>
-            <Link href="/leads">
-              <ActionButton type="button" variant="secondary">
-                Reset
-              </ActionButton>
-            </Link>
+            <Link href="/leads"><ActionButton type="button" variant="secondary">Reset</ActionButton></Link>
           </div>
         </form>
       </SectionCard>
@@ -268,7 +264,7 @@ export default async function LeadsIndexPage(props: {
                               <select
                                 name="status"
                                 defaultValue={lead.status}
-                                className="h-10 rounded-2xl border border-slate-200 bg-white px-2 text-xs font-semibold outline-none ring-neutral-400 focus:ring-2"
+                                className={compactStrongSelectClass}
                               >
                                 <option value="NEW">NEW</option>
                                 <option value="CONTACTED">CONTACTED</option>
@@ -323,7 +319,7 @@ export default async function LeadsIndexPage(props: {
                                 <select
                                   name="assignedToUserId"
                                   defaultValue={lead.assignedToUserId ?? ""}
-                                  className="h-10 rounded-2xl border border-slate-200 bg-white px-2 text-xs outline-none ring-neutral-400 focus:ring-2"
+                                  className={compactSelectClass}
                                 >
                                   <option value="">Unassigned</option>
                                   {assignableUsers.map((u) => (
@@ -387,7 +383,7 @@ function LeadCard(props: {
             {lead.leadNumber} · {lead.source}
           </p>
         </div>
-        {props.isExec ? <StatusPill tone="neutral">{lead.status}</StatusPill> : <LeadStatusBadge status={lead.status} />}
+        <LeadStatusBadge status={lead.status} />
       </div>
 
       <div className="mt-4 grid gap-3 text-sm">
@@ -426,18 +422,10 @@ function LeadCard(props: {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Link href={`/leads/${lead.id}`}>
-            <ActionButton size="sm" variant="secondary">
-              View
-            </ActionButton>
-          </Link>
+          <Link href={`/leads/${lead.id}`}><ActionButton size="sm" variant="secondary">View</ActionButton></Link>
 
           {lead.convertedProjectId ? (
-            <Link href={`/projects/${lead.convertedProjectId}`}>
-              <ActionButton size="sm" variant="secondary">
-                Project
-              </ActionButton>
-            </Link>
+            <Link href={`/projects/${lead.convertedProjectId}`}><ActionButton size="sm" variant="secondary">Project</ActionButton></Link>
           ) : null}
 
           {props.canProjectWrite && !lead.convertedProjectId && lead.status !== "LOST" ? (
@@ -466,7 +454,7 @@ function LeadCard(props: {
               <select
                 name="status"
                 defaultValue={lead.status}
-                className="h-10 flex-1 rounded-2xl border border-slate-200 bg-white px-2 text-xs font-semibold outline-none ring-neutral-400 focus:ring-2"
+                className={`${compactStrongSelectClass} flex-1`}
               >
                 <option value="NEW">NEW</option>
                 <option value="CONTACTED">CONTACTED</option>
@@ -486,7 +474,7 @@ function LeadCard(props: {
               <select
                 name="assignedToUserId"
                 defaultValue={lead.assignedToUserId ?? ""}
-                className="h-10 flex-1 rounded-2xl border border-slate-200 bg-white px-2 text-xs outline-none ring-neutral-400 focus:ring-2"
+                className={`${compactSelectClass} flex-1`}
               >
                 <option value="">Unassigned</option>
                 {props.assignableUsers.map((u) => (
@@ -505,4 +493,3 @@ function LeadCard(props: {
     </div>
   );
 }
-
