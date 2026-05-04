@@ -11,6 +11,8 @@ import { StatusPill } from "@/app/components/ui/status-pill";
 import { PaginationControls } from "@/app/components/ui/pagination";
 import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
+const fieldClass = "mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none ring-neutral-400 transition focus:ring-2";
+
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-SG", {
     style: "currency",
@@ -60,11 +62,7 @@ export default async function ProjectsIndexPage({
         kicker="Interior Design / Renovation"
         title="Projects"
         subtitle="Enterprise project register with commercial snapshot, milestones, tasks, and progress tracking."
-        actions={
-          <Link href="/projects/new">
-            <ActionButton>New Project</ActionButton>
-          </Link>
-        }
+        actions={<Link href="/projects/new"><ActionButton>New Project</ActionButton></Link>}
       />
 
       <SectionCard title="Search" description="Search by code, project, client, email, or address.">
@@ -77,18 +75,12 @@ export default async function ProjectsIndexPage({
               name="q"
               defaultValue={q}
               placeholder="e.g. BDY-001, Tan, Tanjong Pagar, @gmail.com"
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className={fieldClass}
             />
           </div>
           <div className="flex items-center gap-2 pt-6 sm:pt-0">
-            <ActionButton type="submit" variant="primary">
-              Search
-            </ActionButton>
-            <Link href="/projects">
-              <ActionButton type="button" variant="secondary">
-                Reset
-              </ActionButton>
-            </Link>
+            <ActionButton type="submit" variant="primary">Search</ActionButton>
+            <Link href="/projects"><ActionButton type="button" variant="secondary">Reset</ActionButton></Link>
           </div>
         </form>
       </SectionCard>
