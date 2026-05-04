@@ -13,15 +13,23 @@ npm run dev
 
 ## Environment Variables
 
-Required for the GeBIZ RSS auto-import:
+Required for GeBIZ imports and cron sync:
 
 ```bash
 GEBIZ_RSS_URL="https://example.com/gebiz/rss.xml"
+GEBIZ_HUB_SUPABASE_URL="https://obtauarufcwgyiwilnar.supabase.co"
+GEBIZ_HUB_SUPABASE_KEY="supabase-anon-jwt"
 CRON_SECRET="replace-with-a-long-random-secret"
 ```
 
 `GEBIZ_RSS_URL`
 - Public GeBIZ RSS feed URL to import opportunities from.
+
+`GEBIZ_HUB_SUPABASE_URL`
+- Base URL for the `ai-operations-hub` Supabase project that exposes `public.tenders`.
+
+`GEBIZ_HUB_SUPABASE_KEY`
+- Supabase anon JWT used to read `public.tenders` through REST. RLS must allow public `SELECT`.
 
 `CRON_SECRET`
 - Shared bearer token used by manual imports and the Vercel cron endpoint.
@@ -37,8 +45,26 @@ curl -X POST https://app.buildy.sg/api/gebiz/import \
 
 Scheduled import endpoint:
 
+- `GET /api/cron/gebiz-hub-sync`
+- Intended for Vercel Cron daily at 02:00 SGT (`0 18 * * *` UTC)
+
+New hub sync endpoint options:
+
+```bash
+curl -X POST https://app.buildy.sg/api/cron/gebiz-hub-sync \
+  -H "Authorization: Bearer YOUR_CRON_SECRET"
+
+curl -X POST "https://app.buildy.sg/api/cron/gebiz-hub-sync?all=1&limit=1000" \
+  -H "Authorization: Bearer YOUR_CRON_SECRET"
+
+curl -X POST "https://app.buildy.sg/api/cron/gebiz-hub-sync?since=2026-05-01" \
+  -H "Authorization: Bearer YOUR_CRON_SECRET"
+```
+
+Legacy cron/manual endpoints retained in repo:
+
 - `GET /api/cron/gebiz`
-- Intended for Vercel Cron every 6 hours
+- `GET /api/cron/gebiz-import`
 
 ## Build Checks
 
