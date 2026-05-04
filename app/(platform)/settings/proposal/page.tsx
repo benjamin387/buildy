@@ -106,22 +106,22 @@ export default async function ProposalThemeSettingsPage() {
               </Field>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-stone-50 p-5">
+            <div className="rounded-xl border border-slate-200 bg-stone-50 p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-500">Visibility</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                   <input type="checkbox" name="showCompanyIntro" defaultChecked={theme.showCompanyIntro} className="h-4 w-4" />
                   <span className="text-sm font-semibold text-neutral-900">Show company intro</span>
                 </label>
-                <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                   <input type="checkbox" name="showPortfolio" defaultChecked={theme.showPortfolio} className="h-4 w-4" />
                   <span className="text-sm font-semibold text-neutral-900">Show portfolio summary</span>
                 </label>
-                <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                   <input type="checkbox" name="showWhyChooseUs" defaultChecked={theme.showWhyChooseUs} className="h-4 w-4" />
                   <span className="text-sm font-semibold text-neutral-900">Show why choose us</span>
                 </label>
-                <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                   <input type="checkbox" name="showNextSteps" defaultChecked={theme.showNextSteps} className="h-4 w-4" />
                   <span className="text-sm font-semibold text-neutral-900">Show next steps</span>
                 </label>
@@ -137,7 +137,7 @@ export default async function ProposalThemeSettingsPage() {
         </SectionCard>
 
         <SectionCard title="Cover Preview" description="A live preview of the cover page using your current theme and branding.">
-          <div className="rounded-2xl border border-slate-200 bg-stone-50 p-3">
+          <div className="rounded-md border border-slate-200 bg-stone-50 p-3">
             <ProposalCoverPage
               branding={branding}
               title={preview.title}

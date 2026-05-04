@@ -16,7 +16,7 @@ export default async function ClientPortalLayout({ children }: { children: React
           <div className="flex items-center gap-3">
             <Link
               href="/client/portal"
-              className="inline-flex items-center gap-2 rounded-2xl px-2 py-1 text-sm font-semibold tracking-tight text-neutral-950 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+              className="inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-semibold tracking-tight text-neutral-950 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
             >
               {branding.logoUrl ? (
                 <img
@@ -25,7 +25,7 @@ export default async function ClientPortalLayout({ children }: { children: React
                   className="h-9 w-auto max-w-[160px] object-contain"
                 />
               ) : (
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-neutral-950 text-xs font-bold text-white">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-950 text-xs font-bold text-white">
                   {branding.companyName.slice(0, 1).toUpperCase()}
                 </span>
               )}
@@ -38,7 +38,7 @@ export default async function ClientPortalLayout({ children }: { children: React
               <p className="text-xs text-neutral-500">{account.email}</p>
             </div>
             <form action={clientPortalSignOutAction}>
-              <button className="inline-flex h-10 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
+              <button className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
                 Sign out
               </button>
             </form>

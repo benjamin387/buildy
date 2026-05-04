@@ -141,7 +141,7 @@ export default async function CompanySettingsPage() {
 
         <SectionCard title="Live Preview" description="Client-facing cover preview using your current settings.">
           <div className="space-y-4">
-            <div className="rounded-2xl border border-slate-200 bg-stone-50 p-3">
+            <div className="rounded-md border border-slate-200 bg-stone-50 p-3">
               <ProposalCoverPage
                 branding={branding}
                 title={preview.title}

@@ -27,7 +27,7 @@ export default async function LeadChannelsSettingsPage() {
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -41,7 +41,7 @@ export default async function LeadChannelsSettingsPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm">
+          <div className="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm">
             <p className="font-semibold text-neutral-900">
               {session.user.name ?? session.user.email}
             </p>
@@ -53,7 +53,7 @@ export default async function LeadChannelsSettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-xl font-semibold text-neutral-950">Your Channels</h2>
           <p className="mt-1 text-sm text-neutral-600">

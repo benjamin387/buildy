@@ -54,7 +54,7 @@ export function RolePermissionMatrix(props: {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-stone-50 px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-slate-200 bg-stone-50 px-4 py-3">
         <p className="text-sm font-semibold text-neutral-900">
           Role: <span className="font-mono text-xs">{props.roleKey}</span>
         </p>
