@@ -119,7 +119,7 @@ export function SupplierQuoteForm(props: {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Supplier Quote Portal</p>
@@ -142,7 +142,7 @@ export function SupplierQuoteForm(props: {
       </div>
 
       {(props.initial.scopeSummary || props.initial.briefingNotes || props.initial.tradeScopeSummary) ? (
-        <div className="rounded-2xl border border-slate-200 bg-stone-50 p-5 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-stone-50 p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Scope & Notes</p>
           {props.initial.scopeSummary ? <p className="mt-3 whitespace-pre-wrap text-sm text-neutral-800">{props.initial.scopeSummary}</p> : null}
           {props.initial.tradeScopeSummary ? <p className="mt-3 whitespace-pre-wrap text-sm text-neutral-800">{props.initial.tradeScopeSummary}</p> : null}
@@ -155,7 +155,7 @@ export function SupplierQuoteForm(props: {
         <Field label="Quotation PDF URL (optional)" value={quotationFileUrl} onChange={setQuotationFileUrl} inputMode="text" placeholder="https://..." className="lg:col-span-2" />
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-sm font-semibold text-neutral-950">Pricing Lines</p>
@@ -288,7 +288,7 @@ function Field(props: {
         onChange={(e) => props.onChange(e.target.value)}
         inputMode={props.inputMode}
         placeholder={props.placeholder}
-        className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       />
     </div>
   );
@@ -296,12 +296,12 @@ function Field(props: {
 
 function TextArea(props: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <label className="block text-sm font-semibold text-neutral-900">{props.label}</label>
       <textarea
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
-        className="mt-2 h-32 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-2 h-32 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
         placeholder={props.placeholder}
       />
     </div>

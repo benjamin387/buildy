@@ -82,7 +82,7 @@ export default async function BidCostBuilderPage(props: { params: Promise<{ id: 
               <form action={`/api/bidding/${opportunityId}/cost-builder/generate`} method="post" className="grid gap-3">
                 <div>
                   <label className="block text-sm font-semibold text-neutral-900">Source RFQ</label>
-                  <select name="rfqId" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
+                  <select name="rfqId" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
                     {rfqs.map((r: any) => (
                       <option key={r.id} value={r.id}>
                         {r.title} · {String(r.status).replaceAll("_", " ")} · Quotes {r._count?.quotes ?? 0}
@@ -97,7 +97,7 @@ export default async function BidCostBuilderPage(props: { params: Promise<{ id: 
                   <select
                     name="strategyMode"
                     defaultValue="BALANCED"
-                    className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                    className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                   >
                     <option value="CONSERVATIVE">Conservative (higher margin)</option>
                     <option value="BALANCED">Balanced</option>
@@ -131,11 +131,11 @@ export default async function BidCostBuilderPage(props: { params: Promise<{ id: 
 
         <SectionCard title="Next Steps" description="After generating versions, compare and submit for director approval to lock.">
           <div className="space-y-3">
-            <Link href={`/bidding/${opportunityId}/cost-versions`} className="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
+            <Link href={`/bidding/${opportunityId}/cost-versions`} className="block rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
               <p className="text-sm font-semibold text-neutral-950">Review cost versions</p>
               <p className="mt-1 text-sm text-neutral-600">Compare bid price and margin across strategies, then approve the final submission version.</p>
             </Link>
-            <Link href={`/bidding/${opportunityId}/approval`} className="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
+            <Link href={`/bidding/${opportunityId}/approval`} className="block rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
               <p className="text-sm font-semibold text-neutral-950">Submission approval checklist</p>
               <p className="mt-1 text-sm text-neutral-600">Ensure compliance and documents are ready before submission.</p>
             </Link>

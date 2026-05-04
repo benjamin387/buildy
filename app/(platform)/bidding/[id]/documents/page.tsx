@@ -49,7 +49,7 @@ export default async function BidDocumentsPage(props: { params: Promise<{ id: st
           ) : (
             <div className="space-y-2">
               {(opp.complianceChecklist ?? []).map((c: any) => (
-                <div key={c.id} className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div key={c.id} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-neutral-950">{c.label}</p>
                     <p className="mt-0.5 text-xs text-neutral-500">
@@ -86,7 +86,7 @@ export default async function BidDocumentsPage(props: { params: Promise<{ id: st
           ) : (
             <div className="space-y-2">
               {(opp.submissionChecklist ?? []).map((c: any) => (
-                <div key={c.id} className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div key={c.id} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-neutral-950">{c.label}</p>
                     <p className="mt-0.5 text-xs text-neutral-500">
@@ -124,7 +124,7 @@ export default async function BidDocumentsPage(props: { params: Promise<{ id: st
             ) : (
               <div className="space-y-2">
                 {(opp.documents ?? []).map((d: any) => (
-                  <div key={d.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <div key={d.id} className="rounded-xl border border-slate-200 bg-white p-4">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-neutral-950">{d.documentName}</p>
@@ -147,29 +147,29 @@ export default async function BidDocumentsPage(props: { params: Promise<{ id: st
               </div>
             )}
 
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-stone-50 p-4">
+            <div className="mt-6 rounded-xl border border-slate-200 bg-stone-50 p-4">
               <p className="text-sm font-semibold text-neutral-950">Add Document</p>
               <form action={addBidDocumentAction} className="mt-3 grid gap-3 sm:grid-cols-2">
                 <input type="hidden" name="opportunityId" value={opp.id} />
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-semibold text-neutral-900">Document Name</label>
-                  <input name="documentName" required className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="e.g. Pricing schedule / Company profile" />
+                  <input name="documentName" required className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="e.g. Pricing schedule / Company profile" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-neutral-900">Document Type</label>
-                  <input name="documentType" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="e.g. PDF" />
+                  <input name="documentType" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="e.g. PDF" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-neutral-900">Due Date</label>
-                  <input name="dueDate" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="YYYY-MM-DD" />
+                  <input name="dueDate" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="YYYY-MM-DD" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-semibold text-neutral-900">File URL (optional)</label>
-                  <input name="fileUrl" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="https://..." />
+                  <input name="fileUrl" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="https://..." />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-semibold text-neutral-900">Notes</label>
-                  <textarea name="notes" className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="Any notes..." />
+                  <textarea name="notes" className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="Any notes..." />
                 </div>
                 <div className="sm:col-span-2 flex justify-end">
                   <ActionButton type="submit">Add Document</ActionButton>

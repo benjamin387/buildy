@@ -58,7 +58,7 @@ export function ProjectTabs(props: { projectId: string }) {
         <select
           value={active.href}
           onChange={(e) => router.push(e.target.value)}
-          className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+          className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
         >
           {tabs.map((t) => (
             <option key={t.key} value={t.href}>
@@ -77,7 +77,7 @@ export function ProjectTabs(props: { projectId: string }) {
                 key={t.key}
                 href={t.href}
                 className={cx(
-                  "shrink-0 rounded-2xl border px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
+                  "shrink-0 rounded-lg border px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
                   active
                     ? "border-neutral-900 bg-neutral-900 text-white"
                     : "border-slate-200 bg-white text-neutral-900 hover:bg-stone-50",

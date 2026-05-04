@@ -128,7 +128,7 @@ export function BizsafeTrainingTable(props: {
               <label className="block text-sm font-semibold text-neutral-900">Remarks</label>
               <textarea
                 name="remarks"
-                className="mt-2 h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-2 h-24 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               />
             </div>
             <div className="lg:col-span-2 flex justify-end">
@@ -156,7 +156,7 @@ function Field(props: { label: string; name: string; type?: string; required?: b
         name={props.name}
         type={props.type ?? "text"}
         required={props.required}
-        className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       />
     </div>
   );
@@ -174,7 +174,7 @@ function SelectField(props: {
       <select
         name={props.name}
         defaultValue={props.defaultValue}
-        className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       >
         {props.options.map((option) => (
           <option key={`${option.value}-${option.label}`} value={option.value}>

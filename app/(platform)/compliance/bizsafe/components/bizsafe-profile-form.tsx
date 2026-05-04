@@ -128,7 +128,7 @@ export function BizsafeProfileForm(props: {
             <textarea
               name="remarks"
               defaultValue={props.profile.remarks ?? ""}
-              className="mt-2 h-28 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+              className="mt-2 h-28 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               placeholder="Audit notes, application blockers, tender-specific compliance instructions..."
             />
           </div>
@@ -164,7 +164,7 @@ function Field(props: {
         type={props.type ?? "text"}
         defaultValue={props.defaultValue}
         required={props.required}
-        className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       />
     </div>
   );
@@ -182,7 +182,7 @@ function SelectField(props: {
       <select
         name={props.name}
         defaultValue={props.defaultValue}
-        className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       >
         {props.options.map((option) => (
           <option key={option.value} value={option.value}>

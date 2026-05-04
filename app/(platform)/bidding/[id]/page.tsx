@@ -124,7 +124,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
       <section className="grid gap-6 lg:grid-cols-2">
         <SectionCard title="Bid / No-Bid Decision" description="Set status and track submission readiness.">
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+            <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Checklist</p>
               <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">
                 {checklistDone}/{checklistTotal}
@@ -138,7 +138,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
                 </Link>
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+            <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Compliance</p>
               <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">
                 {(opp.complianceChecklist ?? []).filter((i: any) => i.status === "COMPLETED").length}/{(opp.complianceChecklist ?? []).length}
@@ -152,7 +152,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
                 </Link>
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+            <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Approvals</p>
               <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">
                 {approvalsPending > 0 ? `${approvalsPending} pending` : approvalsRejected > 0 ? `${approvalsRejected} rejected` : "Ready"}
@@ -169,13 +169,13 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
           </div>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <form action={updateBidStatusAction} className="rounded-2xl border border-slate-200 bg-white p-4">
+            <form action={updateBidStatusAction} className="rounded-xl border border-slate-200 bg-white p-4">
               <input type="hidden" name="id" value={opp.id} />
               <label className="block text-sm font-semibold text-neutral-900">Status</label>
               <select
                 name="status"
                 defaultValue={opp.status}
-                className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               >
                 {["WATCHING", "BID_NO_BID", "PREPARING", "PENDING_APPROVAL", "SUBMITTED", "AWARDED", "LOST", "CANCELLED"].map((s) => (
                   <option key={s} value={s}>
@@ -190,7 +190,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
               </div>
             </form>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="text-sm font-semibold text-neutral-900">Next Actions</p>
               <p className="mt-2 text-sm text-neutral-600">
                 Use these milestone actions to keep the pipeline consistent.
@@ -239,7 +239,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
             <ScoreCard title="Readiness" value={`${intelligence.readinessScore}/100`} tone={intelligence.readinessScore >= 75 ? "success" : intelligence.readinessScore >= 55 ? "warning" : "danger"} hint="Checklist & approvals" />
           </div>
 
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-stone-50 p-4">
+          <div className="mt-4 rounded-xl border border-slate-200 bg-stone-50 p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-neutral-950">{intelligence.summary.headline}</p>
@@ -251,7 +251,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
             </div>
 
             <div className="mt-3 grid gap-3 lg:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">AI Tender Summary</p>
                 <ul className="mt-2 space-y-1 text-sm text-neutral-700">
                   {intelligence.summary.bullets.slice(0, 6).map((b) => (
@@ -261,7 +261,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
                   ))}
                 </ul>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Recommended Next Actions</p>
                 {intelligence.summary.nextActions.length === 0 ? (
                   <p className="mt-2 text-sm text-neutral-700">No immediate actions detected.</p>
@@ -307,7 +307,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
               <select
                 name="strategyMode"
                 defaultValue={String(opp.strategyMode ?? "BALANCED")}
-                className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               >
                 <option value="CONSERVATIVE">Conservative</option>
                 <option value="BALANCED">Balanced</option>
@@ -319,7 +319,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
               <select
                 name="pricingPosition"
                 defaultValue={String(opp.pricingPosition ?? "MATCH")}
-                className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               >
                 <option value="UNDERCUT">Undercut</option>
                 <option value="MATCH">Match</option>
@@ -331,7 +331,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
               <textarea
                 name="strategyNotes"
                 defaultValue={opp.strategyNotes ?? ""}
-                className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 placeholder="Key positioning, constraints, win themes, exclusions..."
               />
             </div>
@@ -343,17 +343,17 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
           </form>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+            <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Target Margin</p>
               <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">{pricingIntel.targetMarginPercent.toFixed(1)}%</p>
               <p className="mt-2 text-xs text-neutral-600">Based on strategy + position</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+            <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Recommended Bid</p>
               <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">{formatCurrency(pricingIntel.recommendedBidPrice)}</p>
               <p className="mt-2 text-xs text-neutral-600">From cost and target margin</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+            <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Delta vs Current</p>
               <p className={`mt-2 text-2xl font-semibold tracking-tight ${pricingIntel.deltaFromCurrent > 0 ? "text-amber-700" : pricingIntel.deltaFromCurrent < 0 ? "text-emerald-700" : "text-neutral-950"}`}>
                 {pricingIntel.deltaFromCurrent === 0 ? "0" : formatCurrency(Math.abs(pricingIntel.deltaFromCurrent))}
@@ -364,7 +364,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
             </div>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Pricing Narrative</p>
             <ul className="mt-2 space-y-1 text-sm text-neutral-700">
               {pricingIntel.narrative.slice(0, 6).map((n) => (
@@ -376,44 +376,44 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
 
         <SectionCard title="Bid Snapshot" description="Key opportunity fields.">
           <dl className="grid gap-3 text-sm sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
               <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Opportunity No</dt>
               <dd className="mt-1 font-semibold text-neutral-950">{opp.opportunityNo}</dd>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
               <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Agency</dt>
               <dd className="mt-1 font-semibold text-neutral-950">{opp.agency}</dd>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
               <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Procurement Type</dt>
               <dd className="mt-1 font-semibold text-neutral-950">{String(opp.procurementType).replaceAll("_", " ")}</dd>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
               <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Estimated Value</dt>
               <dd className="mt-1 font-semibold text-neutral-950">{opp.estimatedValue ? formatCurrency(Number(opp.estimatedValue)) : "-"}</dd>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
               <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Target Margin</dt>
               <dd className="mt-1 font-semibold text-neutral-950">
                 {opp.targetMargin != null ? `${(Number(opp.targetMargin) * 100).toFixed(1)}%` : "-"}
               </dd>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
               <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Last Updated</dt>
               <dd className="mt-1 font-semibold text-neutral-950">{formatDateTime(opp.updatedAt)}</dd>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
               <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Submitted At</dt>
               <dd className="mt-1 font-semibold text-neutral-950">{formatDateTime(opp.submittedAt)}</dd>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
               <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Awarded At</dt>
               <dd className="mt-1 font-semibold text-neutral-950">{formatDateTime(opp.awardedAt)}</dd>
             </div>
           </dl>
 
           {opp.remarks ? (
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-stone-50 p-4 text-sm text-neutral-700">
+            <div className="mt-4 rounded-xl border border-slate-200 bg-stone-50 p-4 text-sm text-neutral-700">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Remarks</p>
               <p className="mt-2 whitespace-pre-wrap">{opp.remarks}</p>
             </div>
@@ -434,7 +434,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
                 name="name"
                 required
                 defaultValue={opp.agencyProfile?.name ?? opp.agency}
-                className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               />
             </div>
             <div>
@@ -443,7 +443,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
                 name="sector"
                 defaultValue={opp.agencyProfile?.sector ?? ""}
                 placeholder="e.g. Education / Healthcare / Town Council"
-                className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               />
             </div>
             <div>
@@ -452,7 +452,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
                 name="typicalCategories"
                 defaultValue={opp.agencyProfile?.typicalCategories ?? ""}
                 placeholder="e.g. Interior fit-out, M&E, Renovation"
-                className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               />
             </div>
             <div className="sm:col-span-2">
@@ -460,7 +460,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
               <textarea
                 name="notes"
                 defaultValue={opp.agencyProfile?.notes ?? ""}
-                className="mt-1 h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-24 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 placeholder="Past experience, evaluation criteria, contract risks, payment quirks..."
               />
             </div>
@@ -478,7 +478,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
           ) : (
             <div className="space-y-2">
               {(opp.competitorRecords ?? []).map((r: any) => (
-                <div key={r.id} className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <div key={r.id} className="rounded-xl border border-slate-200 bg-white px-4 py-3">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-neutral-950">{r.competitorName}</p>
@@ -503,7 +503,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
             </div>
           )}
 
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-stone-50 p-4">
+          <div className="mt-4 rounded-xl border border-slate-200 bg-stone-50 p-4">
             <p className="text-sm font-semibold text-neutral-950">Add Competitor Record</p>
             <form action={upsertBidCompetitorRecordAction} className="mt-3 grid gap-3 sm:grid-cols-2">
               <input type="hidden" name="opportunityId" value={opp.id} />
@@ -513,7 +513,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
                 <input
                   name="competitorName"
                   required
-                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                  className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                   placeholder="e.g. XYZ Builders Pte Ltd"
                 />
               </div>
@@ -522,11 +522,11 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
                 <input
                   name="quotedPrice"
                   inputMode="decimal"
-                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-right text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                  className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-right text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                   placeholder="e.g. 80000"
                 />
               </div>
-              <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-900">
+              <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-900">
                 <input type="checkbox" name="isWinner" className="h-4 w-4 accent-neutral-900" />
                 Winner
               </label>
@@ -534,7 +534,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
                 <label className="block text-sm font-semibold text-neutral-900">Notes</label>
                 <textarea
                   name="notes"
-                  className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                  className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 />
               </div>
               <div className="sm:col-span-2 flex justify-end">
@@ -556,7 +556,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
               <select
                 name="result"
                 defaultValue={opp.winLossRecord?.result ?? (opp.status === "AWARDED" ? "WON" : opp.status === "LOST" ? "LOST" : "LOST")}
-                className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               >
                 <option value="WON">Won</option>
                 <option value="LOST">Lost</option>
@@ -569,7 +569,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
                 name="awardedValue"
                 inputMode="decimal"
                 defaultValue={opp.winLossRecord?.awardedValue != null ? String(opp.winLossRecord.awardedValue) : ""}
-                className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-right text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-right text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               />
             </div>
             <div>
@@ -578,7 +578,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
                 name="decisionDate"
                 defaultValue={opp.winLossRecord?.decisionDate ? String(opp.winLossRecord.decisionDate).slice(0, 10) : ""}
                 placeholder="YYYY-MM-DD"
-                className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               />
             </div>
             <div className="sm:col-span-2">
@@ -586,7 +586,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
               <textarea
                 name="winReason"
                 defaultValue={opp.winLossRecord?.winReason ?? ""}
-                className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 placeholder="Key win themes: capability, track record, approach, pricing, timeline..."
               />
             </div>
@@ -595,7 +595,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
               <textarea
                 name="lostReason"
                 defaultValue={opp.winLossRecord?.lostReason ?? ""}
-                className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 placeholder="Loss reasons: price, compliance, timeline, scoring, capability mismatch..."
               />
             </div>
@@ -604,7 +604,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
               <textarea
                 name="competitorSummary"
                 defaultValue={opp.winLossRecord?.competitorSummary ?? ""}
-                className="mt-1 h-16 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-16 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 placeholder="If known: winner + pricing positioning + key factors."
               />
             </div>
@@ -622,7 +622,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
           ) : (
             <div className="space-y-2">
               {(opp.timelineMilestones ?? []).slice(0, 6).map((m: any) => (
-                <div key={m.id} className="flex flex-wrap items-start justify-between gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <div key={m.id} className="flex flex-wrap items-start justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-neutral-950">{m.title}</p>
                     <p className="mt-0.5 text-xs text-neutral-500">Due {formatDateTime(m.dueDate)}</p>
@@ -648,7 +648,7 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
         ) : (
           <div className="space-y-3">
             {opp.activities.map((a: any) => (
-              <div key={a.id} className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+              <div key={a.id} className="rounded-xl border border-slate-200 bg-white px-4 py-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-neutral-950">{a.title}</p>
@@ -678,7 +678,7 @@ function SummaryCard(props: { title: string; value: string; hint: string; tone?:
         : "border-slate-200 bg-white text-neutral-700";
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
@@ -700,7 +700,7 @@ function ScoreCard(props: { title: string; value: string; hint: string; tone: "s
         : "border-red-200 bg-red-50 text-red-700";
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>

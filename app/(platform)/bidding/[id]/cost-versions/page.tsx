@@ -84,7 +84,7 @@ export default async function BidCostVersionsPage(props: { params: Promise<{ id:
                       : "neutral";
 
               return (
-                <details key={v.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <details key={v.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                   <summary className="flex cursor-pointer list-none flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-neutral-950">
@@ -112,17 +112,17 @@ export default async function BidCostVersionsPage(props: { params: Promise<{ id:
                   </summary>
 
                   <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                    <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+                    <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Total Cost</p>
                       <p className="mt-2 text-lg font-semibold tabular-nums text-neutral-950">{formatCurrency(Number(v.totalCost ?? 0))}</p>
                       <p className="mt-1 text-xs text-neutral-500">Includes preliminaries, overhead and contingency.</p>
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+                    <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Bid Price</p>
                       <p className="mt-2 text-lg font-semibold tabular-nums text-neutral-950">{formatCurrency(Number(v.bidPrice ?? 0))}</p>
                       <p className="mt-1 text-xs text-neutral-500">Submission pricing target.</p>
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+                    <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Margin</p>
                       <p className="mt-2 text-lg font-semibold tabular-nums text-neutral-950">{formatPercent(v.marginPercent)}</p>
                       <p className="mt-1 text-xs text-neutral-500">Computed on bid price.</p>
@@ -164,7 +164,7 @@ export default async function BidCostVersionsPage(props: { params: Promise<{ id:
                         <input
                           name="remarks"
                           placeholder="Approval remarks (optional)"
-                          className="h-11 w-64 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                          className="h-11 w-64 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                         />
                         <ActionButton type="submit" variant="primary">
                           Approve & Lock
