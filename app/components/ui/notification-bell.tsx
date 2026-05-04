@@ -149,7 +149,7 @@ export function NotificationBell() {
           setOpen(next);
           if (next) loadPreview().catch(() => null);
         }}
-        className="relative inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-neutral-700 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+        className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-neutral-700 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
         aria-label="Notifications"
         aria-expanded={open}
       >

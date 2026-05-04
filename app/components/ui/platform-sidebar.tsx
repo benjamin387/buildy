@@ -258,7 +258,7 @@ export function PlatformSidebar(props: {
         <div className={cx("flex h-full flex-col", props.collapsed ? "px-2" : "px-3")}>
           <div className={cx("flex items-center justify-between gap-2 py-3", props.collapsed ? "px-1" : "px-2")}>
             <div className={cx("flex items-center gap-2", props.collapsed && "justify-center")}>
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-neutral-950 text-xs font-bold text-white">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-950 text-xs font-bold text-white">
                 B
               </span>
               {!props.collapsed ? (
@@ -272,7 +272,7 @@ export function PlatformSidebar(props: {
             <button
               type="button"
               onClick={props.onCloseMobile}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-neutral-700 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 lg:hidden"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-neutral-700 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 lg:hidden"
               aria-label="Close menu"
             >
               <X className="h-4 w-4" />
@@ -287,7 +287,7 @@ export function PlatformSidebar(props: {
                     type="button"
                     onClick={() => toggleGroup(group.key)}
                     className={cx(
-                      "flex w-full items-center justify-between gap-2 rounded-2xl px-2 py-2 text-left transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
+                      "flex w-full items-center justify-between gap-2 rounded-xl px-2 py-2 text-left transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
                       props.collapsed && "justify-center",
                     )}
                     aria-label={props.collapsed ? group.label : undefined}
@@ -334,7 +334,7 @@ export function PlatformSidebar(props: {
                   <p className="truncate text-sm font-semibold text-neutral-950">{props.user.name ?? props.user.email}</p>
                   <p className="truncate text-xs text-neutral-500">{props.user.primaryRoleLabel}</p>
                 </div>
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-stone-50 text-xs font-bold text-neutral-800">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-stone-50 text-xs font-bold text-neutral-800">
                   {(props.user.name ?? props.user.email ?? "U").slice(0, 1).toUpperCase()}
                 </span>
               </div>
@@ -343,7 +343,7 @@ export function PlatformSidebar(props: {
             <div className={cx("mt-3", props.collapsed ? "flex justify-center" : "")}>
               <SignOutButton
                 className={cx(
-                  "inline-flex h-10 items-center justify-center rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
+                  "inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
                   props.collapsed ? "w-10 px-0" : "w-full",
                 )}
                 variant={props.collapsed ? "icon" : "full"}
@@ -444,7 +444,7 @@ function SidebarItem(props: {
       title={props.collapsed ? props.item.label : undefined}
       onClick={props.onNavigate}
       className={cx(
-        "group flex items-center gap-3 rounded-2xl px-2 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
+        "group flex items-center gap-3 rounded-xl px-2 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
         props.active
           ? "bg-neutral-950 text-white shadow-sm"
           : "text-neutral-700 hover:bg-stone-50 hover:text-neutral-900",
@@ -453,7 +453,7 @@ function SidebarItem(props: {
     >
       <span
         className={cx(
-          "inline-flex h-9 w-9 items-center justify-center rounded-2xl border transition",
+          "inline-flex h-9 w-9 items-center justify-center rounded-xl border transition",
           props.active
             ? "border-white/10 bg-white/10 text-white"
             : "border-slate-200 bg-white text-neutral-600 group-hover:border-slate-300",

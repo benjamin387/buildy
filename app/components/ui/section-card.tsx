@@ -14,7 +14,7 @@ export function SectionCard(props: {
   return (
     <section
       className={cx(
-        "rounded-2xl border border-slate-200/80 bg-white shadow-sm",
+        "rounded-xl border border-slate-200/80 bg-white shadow-sm",
         "shadow-[0_1px_0_rgba(16,24,40,0.04),0_12px_28px_rgba(16,24,40,0.06)]",
         props.className,
       )}
@@ -40,4 +40,3 @@ export function SectionCard(props: {
     </section>
   );
 }
-
