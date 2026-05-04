@@ -63,11 +63,18 @@ function cx(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(" ");
 }
 
-const GROUP_STORAGE_KEY = "buildy.ui.sidebarGroups.v2";
+// Bumped to v3 because group default-open behavior changed: Design and Finance
+// used to be open by default, which made first-load sidebar long. Now only Core
+// is open by default. Existing users keep their chosen state via the v2 -> v3
+// migration below; new users see the calmer default.
+const GROUP_STORAGE_KEY = "buildy.ui.sidebarGroups.v3";
+const GROUP_STORAGE_KEY_LEGACY = "buildy.ui.sidebarGroups.v2";
 
 function readGroupState(): Record<string, boolean> {
   try {
-    const raw = globalThis.localStorage?.getItem(GROUP_STORAGE_KEY);
+    const raw =
+      globalThis.localStorage?.getItem(GROUP_STORAGE_KEY) ??
+      globalThis.localStorage?.getItem(GROUP_STORAGE_KEY_LEGACY);
     if (!raw) return {};
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== "object") return {};
@@ -134,7 +141,7 @@ export function PlatformSidebar(props: {
       {
         key: "design",
         label: "Design",
-        defaultOpen: true,
+        defaultOpen: false,
         items: [
           { key: "design-studio", label: "Design Studio", href: "/design-packages", icon: LayoutTemplate },
           { key: "quotations", label: "Quotations", href: "/projects", icon: NotebookText, description: projectContextHint },
@@ -144,7 +151,7 @@ export function PlatformSidebar(props: {
       {
         key: "finance",
         label: "Finance",
-        defaultOpen: true,
+        defaultOpen: false,
         items: [
           { key: "billing", label: "Billing", href: "/billing", icon: HandCoins },
           { key: "finance", label: "Finance", href: "/pnl", icon: LineChart, description: "P&L, cashflow, margin control" },
@@ -258,7 +265,7 @@ export function PlatformSidebar(props: {
         <div className={cx("flex h-full flex-col", props.collapsed ? "px-2" : "px-3")}>
           <div className={cx("flex items-center justify-between gap-2 py-3", props.collapsed ? "px-1" : "px-2")}>
             <div className={cx("flex items-center gap-2", props.collapsed && "justify-center")}>
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-950 text-xs font-bold text-white">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-neutral-950 text-xs font-bold text-white">
                 B
               </span>
               {!props.collapsed ? (
@@ -272,7 +279,7 @@ export function PlatformSidebar(props: {
             <button
               type="button"
               onClick={props.onCloseMobile}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-neutral-700 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 lg:hidden"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-neutral-700 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 lg:hidden"
               aria-label="Close menu"
             >
               <X className="h-4 w-4" />
@@ -287,7 +294,7 @@ export function PlatformSidebar(props: {
                     type="button"
                     onClick={() => toggleGroup(group.key)}
                     className={cx(
-                      "flex w-full items-center justify-between gap-2 rounded-xl px-2 py-2 text-left transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
+                      "flex w-full items-center justify-between gap-2 rounded-2xl px-2 py-2 text-left transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
                       props.collapsed && "justify-center",
                     )}
                     aria-label={props.collapsed ? group.label : undefined}
@@ -334,7 +341,7 @@ export function PlatformSidebar(props: {
                   <p className="truncate text-sm font-semibold text-neutral-950">{props.user.name ?? props.user.email}</p>
                   <p className="truncate text-xs text-neutral-500">{props.user.primaryRoleLabel}</p>
                 </div>
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-stone-50 text-xs font-bold text-neutral-800">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-stone-50 text-xs font-bold text-neutral-800">
                   {(props.user.name ?? props.user.email ?? "U").slice(0, 1).toUpperCase()}
                 </span>
               </div>
@@ -343,7 +350,7 @@ export function PlatformSidebar(props: {
             <div className={cx("mt-3", props.collapsed ? "flex justify-center" : "")}>
               <SignOutButton
                 className={cx(
-                  "inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
+                  "inline-flex h-10 items-center justify-center rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
                   props.collapsed ? "w-10 px-0" : "w-full",
                 )}
                 variant={props.collapsed ? "icon" : "full"}
@@ -444,7 +451,7 @@ function SidebarItem(props: {
       title={props.collapsed ? props.item.label : undefined}
       onClick={props.onNavigate}
       className={cx(
-        "group flex items-center gap-3 rounded-xl px-2 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
+        "group flex items-center gap-3 rounded-2xl px-2 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
         props.active
           ? "bg-neutral-950 text-white shadow-sm"
           : "text-neutral-700 hover:bg-stone-50 hover:text-neutral-900",
@@ -453,7 +460,7 @@ function SidebarItem(props: {
     >
       <span
         className={cx(
-          "inline-flex h-9 w-9 items-center justify-center rounded-xl border transition",
+          "inline-flex h-9 w-9 items-center justify-center rounded-2xl border transition",
           props.active
             ? "border-white/10 bg-white/10 text-white"
             : "border-slate-200 bg-white text-neutral-600 group-hover:border-slate-300",
@@ -471,11 +478,11 @@ function SidebarItem(props: {
           ) : null}
         </span>
       ) : null}
-      {!props.collapsed ? (
-        <span className={cx("text-xs font-semibold", props.active ? "text-white/60" : "text-neutral-300 group-hover:text-neutral-400")}>
-          →
-        </span>
-      ) : null}
+      {/*
+        Trailing → glyph removed. The active state already inverts colors and
+        the icon on the left is signal enough that this is a nav row. Adding
+        an arrow per item turned every line into visual repetition.
+      */}
     </Link>
   );
 }
