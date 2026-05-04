@@ -60,12 +60,8 @@ export default async function BiddingHomePage() {
         subtitle="Track opportunities, manage costing and margin, complete document checklists, and run approvals before submission."
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <Link href="/bidding/opportunities">
-              <ActionButton>GeBIZ Opportunities</ActionButton>
-            </Link>
-            <Link href="/bidding/pipeline">
-              <ActionButton variant="secondary">Pipeline</ActionButton>
-            </Link>
+            <Link href="/bidding/opportunities"><ActionButton>GeBIZ Opportunities</ActionButton></Link>
+            <Link href="/bidding/pipeline"><ActionButton variant="secondary">Pipeline</ActionButton></Link>
           </div>
         }
       />
@@ -93,9 +89,7 @@ export default async function BiddingHomePage() {
         title="Closing & Recent"
         description="Next items by closing date."
         actions={
-          <Link href="/bidding/opportunities">
-            <ActionButton variant="secondary">View all</ActionButton>
-          </Link>
+          <Link href="/bidding/opportunities"><ActionButton variant="secondary">View all</ActionButton></Link>
         }
       >
         {recent.length === 0 ? (
@@ -146,14 +140,6 @@ export default async function BiddingHomePage() {
 }
 
 function KpiCard(props: { title: string; value: string; hint: string; tone?: "neutral" | "warning" | "success" }) {
-  const tone = props.tone ?? "neutral";
-  const badge =
-    tone === "warning"
-      ? "border-amber-200 bg-amber-50 text-amber-800"
-      : tone === "success"
-        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-        : "border-slate-200 bg-white text-neutral-700";
-
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -162,9 +148,7 @@ function KpiCard(props: { title: string; value: string; hint: string; tone?: "ne
           <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">{props.value}</p>
           <p className="mt-2 text-sm text-neutral-600">{props.hint}</p>
         </div>
-        <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${badge}`}>
-          Live
-        </span>
+        <StatusPill tone={props.tone === "warning" ? "warning" : props.tone === "success" ? "success" : "neutral"}>Live</StatusPill>
       </div>
     </div>
   );
@@ -175,7 +159,7 @@ function QuickLink(props: { href: string; title: string; subtitle: string }) {
     <Link href={props.href} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
       <p className="text-sm font-semibold text-neutral-950">{props.title}</p>
       <p className="mt-1 text-xs text-neutral-600">{props.subtitle}</p>
-      <p className="mt-3 text-xs font-semibold text-neutral-500">Open →</p>
+      <StatusPill className="mt-3" tone="neutral">Open</StatusPill>
     </Link>
   );
 }
