@@ -1,5 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
+// Next.js 15+ moved `themeColor` (and `colorScheme`, `viewport`) out of `metadata`
+// into a dedicated `viewport` export. Keeping it in `metadata` still works but
+// emits a build-time warning. This split keeps the build clean.
+export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://app.buildy.sg"),
@@ -10,7 +19,6 @@ export const metadata: Metadata = {
   description:
     "Buildy is the Studio OS for design, bidding, and project operations — leads, quotations, contracts, billing, and tender intelligence in one place.",
   applicationName: "Buildy",
-  themeColor: "#0a0a0a",
   openGraph: {
     title: "Buildy — Studio OS",
     description:
