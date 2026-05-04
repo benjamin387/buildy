@@ -21,6 +21,7 @@ import {
 import { safeQuery } from "@/lib/server/safe-query";
 import { computeBidIntelligence } from "@/lib/bidding/intelligence";
 import { computePricingIntelligence } from "@/lib/bidding/pricing-intelligence";
+import { findOrRetry } from "@/lib/server/find-or-retry";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-SG", { style: "currency", currency: "SGD", maximumFractionDigits: 2 }).format(value);
@@ -45,22 +46,24 @@ export default async function BidWorkspacePage(props: { params: Promise<{ id: st
 
   const opp = await safeQuery(
     () =>
-      prisma.bidOpportunity.findUnique({
-        where: { id },
-        include: {
-          approvals: { orderBy: [{ createdAt: "desc" }] },
-          submissionChecklist: { orderBy: [{ sortOrder: "asc" }] },
-          complianceChecklist: { orderBy: [{ sortOrder: "asc" }] },
-          supplierQuotes: { orderBy: [{ createdAt: "desc" }], take: 20 },
-          timelineMilestones: { orderBy: [{ sortOrder: "asc" }, { dueDate: "asc" }, { createdAt: "asc" }], take: 30 },
-          competitorRecords: { orderBy: [{ isWinner: "desc" }, { createdAt: "desc" }], take: 10 },
-          winLossRecord: true,
-          agencyProfile: true,
-          activities: { orderBy: [{ createdAt: "desc" }], take: 20 },
-          awardedProject: { select: { id: true, projectCode: true, name: true } },
-          awardedContract: { select: { id: true, contractNumber: true, status: true } },
-        },
-      }),
+      findOrRetry(() =>
+        prisma.bidOpportunity.findUnique({
+          where: { id },
+          include: {
+            approvals: { orderBy: [{ createdAt: "desc" }] },
+            submissionChecklist: { orderBy: [{ sortOrder: "asc" }] },
+            complianceChecklist: { orderBy: [{ sortOrder: "asc" }] },
+            supplierQuotes: { orderBy: [{ createdAt: "desc" }], take: 20 },
+            timelineMilestones: { orderBy: [{ sortOrder: "asc" }, { dueDate: "asc" }, { createdAt: "asc" }], take: 30 },
+            competitorRecords: { orderBy: [{ isWinner: "desc" }, { createdAt: "desc" }], take: 10 },
+            winLossRecord: true,
+            agencyProfile: true,
+            activities: { orderBy: [{ createdAt: "desc" }], take: 20 },
+            awardedProject: { select: { id: true, projectCode: true, name: true } },
+            awardedContract: { select: { id: true, contractNumber: true, status: true } },
+          },
+        }),
+      ),
     null as any,
   );
 
