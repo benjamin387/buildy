@@ -141,7 +141,7 @@ export default async function BiddingHomePage() {
 
 function KpiCard(props: { title: string; value: string; hint: string; tone?: "neutral" | "warning" | "success" }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
@@ -156,7 +156,7 @@ function KpiCard(props: { title: string; value: string; hint: string; tone?: "ne
 
 function QuickLink(props: { href: string; title: string; subtitle: string }) {
   return (
-    <Link href={props.href} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
+    <Link href={props.href} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
       <p className="text-sm font-semibold text-neutral-950">{props.title}</p>
       <p className="mt-1 text-xs text-neutral-600">{props.subtitle}</p>
       <StatusPill className="mt-3" tone="neutral">Open</StatusPill>

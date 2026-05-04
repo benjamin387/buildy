@@ -334,7 +334,7 @@ export default async function DashboardPage() {
         <SectionCard
           title="Recent Projects"
           actions={
-            <Link href="/projects" className="text-sm font-semibold text-neutral-900 hover:underline">
+            <Link href="/projects" className="inline-flex h-8 items-center rounded-lg px-2 text-sm font-semibold text-neutral-900 transition hover:bg-stone-100 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
               Open projects
             </Link>
           }
@@ -347,7 +347,7 @@ export default async function DashboardPage() {
                 <Link
                   key={p.id}
                   href={`/projects/${p.id}`}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:bg-stone-50"
+                  className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:bg-stone-50"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-neutral-950">
@@ -369,7 +369,7 @@ export default async function DashboardPage() {
         <SectionCard
           title="Recent Leads"
           actions={
-            <Link href="/leads" className="text-sm font-semibold text-neutral-900 hover:underline">
+            <Link href="/leads" className="inline-flex h-8 items-center rounded-lg px-2 text-sm font-semibold text-neutral-900 transition hover:bg-stone-100 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
               Open leads
             </Link>
           }
@@ -382,7 +382,7 @@ export default async function DashboardPage() {
                 <Link
                   key={l.id}
                   href={`/leads/${l.id}`}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:bg-stone-50"
+                  className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition hover:bg-stone-50"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-neutral-950">{l.customerName}</p>

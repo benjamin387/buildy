@@ -18,9 +18,9 @@ import { StatusPill } from "@/app/components/ui/status-pill";
 import { PaginationControls } from "@/app/components/ui/pagination";
 import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
-const fieldClass = "mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none ring-neutral-400 transition focus:ring-2";
-const compactSelectClass = "h-10 rounded-2xl border border-slate-200 bg-white px-2 text-xs outline-none ring-neutral-400 focus:ring-2";
-const compactStrongSelectClass = "h-10 rounded-2xl border border-slate-200 bg-white px-2 text-xs font-semibold outline-none ring-neutral-400 focus:ring-2";
+const fieldClass = "mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none ring-neutral-400 transition focus:ring-2";
+const compactSelectClass = "h-10 rounded-lg border border-slate-200 bg-white px-2 text-xs outline-none ring-neutral-400 focus:ring-2";
+const compactStrongSelectClass = "h-10 rounded-lg border border-slate-200 bg-white px-2 text-xs font-semibold outline-none ring-neutral-400 focus:ring-2";
 
 function formatDate(value: Date | null | undefined): string {
   if (!value) return "-";
@@ -190,7 +190,7 @@ export default async function LeadsIndexPage(props: {
             </div>
 
             <div className="hidden overflow-x-auto md:block">
-              <div className="min-w-[1180px] overflow-hidden rounded-2xl border border-slate-200">
+              <div className="min-w-[1180px] overflow-hidden rounded-xl border border-slate-200">
                 <table className="min-w-full text-sm">
                   <thead className="bg-stone-50 text-neutral-700">
                     <tr>
@@ -356,7 +356,7 @@ function SummaryCard(props: {
   tone?: Parameters<typeof StatusPill>[0]["tone"];
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-500">{props.title}</p>
         <StatusPill tone={props.tone ?? "neutral"}>{String(props.value)}</StatusPill>
@@ -375,7 +375,7 @@ function LeadCard(props: {
 }) {
   const lead = props.lead;
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold tracking-tight text-neutral-950">{lead.customerName}</p>
@@ -387,18 +387,18 @@ function LeadCard(props: {
       </div>
 
       <div className="mt-4 grid gap-3 text-sm">
-        <div className="rounded-2xl border border-slate-200 bg-stone-50 px-3 py-2">
+        <div className="rounded-md border border-slate-200 bg-stone-50 px-3 py-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Contact</p>
           <p className="mt-1 font-semibold text-neutral-950">{lead.customerPhone ?? "-"}</p>
           <p className="mt-0.5 text-xs text-neutral-600">{lead.customerEmail ?? "-"}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-slate-200 bg-stone-50 px-3 py-2">
+          <div className="rounded-md border border-slate-200 bg-stone-50 px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Type</p>
             <p className="mt-1 font-semibold text-neutral-950">{lead.projectType}</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-stone-50 px-3 py-2">
+          <div className="rounded-md border border-slate-200 bg-stone-50 px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Budget</p>
             <p className="mt-1 font-semibold text-neutral-950 tabular-nums">
               {lead.estimatedBudget ? formatCurrency(Number(lead.estimatedBudget)) : "-"}
@@ -407,13 +407,13 @@ function LeadCard(props: {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-slate-200 bg-stone-50 px-3 py-2">
+          <div className="rounded-md border border-slate-200 bg-stone-50 px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Submitted</p>
             <p className="mt-1 font-semibold text-neutral-950">
               {lead.submittedByUser?.name ?? lead.submittedByUser?.email ?? "-"}
             </p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-stone-50 px-3 py-2">
+          <div className="rounded-md border border-slate-200 bg-stone-50 px-3 py-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Assigned</p>
             <p className="mt-1 font-semibold text-neutral-950">
               {lead.assignedToUser?.name ?? lead.assignedToUser?.email ?? "-"}
