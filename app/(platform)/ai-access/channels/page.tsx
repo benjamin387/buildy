@@ -60,6 +60,8 @@ export default async function AIChannelsPage({ searchParams }: { searchParams: S
   const rowByChannel = new Map(channels.map((channel) => [channel.channel, channel]));
 
   const message = firstString(params.message);
+  // eslint-disable-next-line react-hooks/purity -- server component renders once per request; Date.now() here is deterministic for the response
+  const pairingExpiresAtDate = new Date(pairingCodeExpiresAt || Date.now() + 10 * 60 * 1000);
 
   return (
     <main className="space-y-8">
@@ -87,7 +89,7 @@ export default async function AIChannelsPage({ searchParams }: { searchParams: S
           <p className="font-semibold">Pairing code generated for {channelFilter.toUpperCase()}</p>
           <p className="mt-1 text-lg font-mono text-neutral-900">{showCode}</p>
           <p className="mt-1 text-xs text-emerald-700">
-            Expires at {formatDateTime(new Date(pairingCodeExpiresAt || Date.now() + 10 * 60 * 1000))}
+            Expires at {formatDateTime(pairingExpiresAtDate)}
           </p>
           <p className="mt-2 text-xs text-neutral-700">Use one of these in your channel:</p>
           <ul className="mt-1 list-disc pl-5">
