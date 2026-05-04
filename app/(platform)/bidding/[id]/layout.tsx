@@ -5,6 +5,7 @@ import { requirePermission } from "@/lib/auth/permissions";
 import type { PermissionModuleKey } from "@/lib/auth/permission-keys";
 import { StatusPill } from "@/app/components/ui/status-pill";
 import { computeClosingRisk } from "@/lib/bidding/intelligence";
+import { findOrRetry } from "@/lib/server/find-or-retry";
 
 export const dynamic = "force-dynamic";
 
@@ -26,23 +27,25 @@ export default async function BidWorkspaceLayout(props: {
   await requirePermission({ moduleKey: "BIDDING" satisfies PermissionModuleKey, action: "view" });
   const { id } = await props.params;
 
-  const opp = await prisma.bidOpportunity.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      opportunityNo: true,
-      title: true,
-      agency: true,
-      procurementType: true,
-      status: true,
-      closingDate: true,
-      briefingDate: true,
-      bidPrice: true,
-      estimatedCost: true,
-      finalMargin: true,
-      updatedAt: true,
-    },
-  });
+  const opp = await findOrRetry(() =>
+    prisma.bidOpportunity.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        opportunityNo: true,
+        title: true,
+        agency: true,
+        procurementType: true,
+        status: true,
+        closingDate: true,
+        briefingDate: true,
+        bidPrice: true,
+        estimatedCost: true,
+        finalMargin: true,
+        updatedAt: true,
+      },
+    }),
+  );
   if (!opp) notFound();
   const closingRisk = computeClosingRisk(opp.closingDate ?? null, new Date());
   const riskTone =
