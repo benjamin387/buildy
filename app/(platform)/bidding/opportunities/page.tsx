@@ -17,6 +17,9 @@ type StatusFilter = (typeof STATUSES)[number];
 const SOURCES = ["ALL", "GEBIZ", "MANUAL"] as const;
 type SourceFilter = (typeof SOURCES)[number];
 
+const FITS = ["ALL", "HIGH", "MEDIUM", "LOW", "UNKNOWN"] as const;
+type FitFilter = (typeof FITS)[number];
+
 function toSingle(v: string | string[] | undefined): string | undefined {
   if (!v) return undefined;
   return Array.isArray(v) ? v[0] : v;
@@ -31,6 +34,19 @@ function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-SG", { style: "currency", currency: "SGD", maximumFractionDigits: 2 }).format(value);
 }
 
+function fitTone(label: string): "success" | "info" | "warning" | "neutral" {
+  switch (label) {
+    case "HIGH":
+      return "success";
+    case "MEDIUM":
+      return "info";
+    case "LOW":
+      return "warning";
+    default:
+      return "neutral";
+  }
+}
+
 export const dynamic = "force-dynamic";
 
 export default async function BidOpportunitiesPage(props: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -39,16 +55,18 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
   const q = (toSingle(sp.q) ?? "").trim();
   const status = ((toSingle(sp.status) ?? "ALL") as StatusFilter) || "ALL";
   const source = ((toSingle(sp.source) ?? "ALL") as SourceFilter) || "ALL";
+  const fit = ((toSingle(sp.fit) ?? "ALL") as FitFilter) || "ALL";
 
   const rows = await safeQuery(
     () =>
       prisma.bidOpportunity.findMany({
         where: {
           ...(status !== "ALL" ? { status } : {}),
+          ...(fit !== "ALL" ? { fitLabel: fit } : {}),
           ...(source !== "ALL"
             ? source === "GEBIZ"
-              ? { gebizImportedItems: { some: {} } }
-              : { gebizImportedItems: { none: {} } }
+              ? { importHash: { not: null } }
+              : { importHash: null }
             : {}),
           ...(q
             ? {
@@ -61,7 +79,7 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
               }
             : {}),
         },
-        orderBy: [{ closingDate: "asc" }, { updatedAt: "desc" }],
+        orderBy: [{ fitScore: "desc" }, { closingDate: "asc" }, { updatedAt: "desc" }],
         take: 500,
         include: {
           gebizImportedItems: {
@@ -87,7 +105,7 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
       <PageHeader
         kicker="Bidding / GeBIZ"
         title="GeBIZ Opportunities"
-        subtitle="Manual entry or paste-import GeBIZ text into a structured bid opportunity."
+        subtitle="Manual entry or auto-imported GeBIZ opportunities. Sorted by fit score and soonest closing."
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/bidding/pipeline">
@@ -109,9 +127,7 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
               className="h-44 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               placeholder="Paste GeBIZ opportunity details here (copied text)..."
             />
-            <p className="text-xs text-neutral-600">
-              Tip: Paste first, then fill missing fields below if needed.
-            </p>
+            <p className="text-xs text-neutral-600">Tip: Paste first, then fill missing fields below if needed.</p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
@@ -165,36 +181,27 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
               placeholder="Search opportunity no, title, agency…"
               className="h-11 w-64 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
             />
-            <select
-              name="source"
-              defaultValue={source}
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
-            >
+            <select name="source" defaultValue={source} className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
               {SOURCES.map((s) => (
-                <option key={s} value={s}>
-                  {s === "ALL" ? "All sources" : s === "MANUAL" ? "Manual" : "GeBIZ"}
-                </option>
+                <option key={s} value={s}>{s === "ALL" ? "All sources" : s === "MANUAL" ? "Manual" : "GeBIZ"}</option>
               ))}
             </select>
-            <select
-              name="status"
-              defaultValue={status}
-              className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
-            >
+            <select name="fit" defaultValue={fit} className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
+              {FITS.map((f) => (
+                <option key={f} value={f}>{f === "ALL" ? "All fit" : `Fit: ${f}`}</option>
+              ))}
+            </select>
+            <select name="status" defaultValue={status} className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
               {STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s === "ALL" ? "All statuses" : s.replaceAll("_", " ")}
-                </option>
+                <option key={s} value={s}>{s === "ALL" ? "All statuses" : s.replaceAll("_", " ")}</option>
               ))}
             </select>
-            <ActionButton type="submit" variant="secondary">
-              Apply
-            </ActionButton>
+            <ActionButton type="submit" variant="secondary">Apply</ActionButton>
           </form>
         }
       >
         {rows.length === 0 ? (
-          <EmptyState title="No opportunities found" description="Try adjusting filters, or create a new GeBIZ opportunity above." />
+          <EmptyState title="No opportunities found" description="Try adjusting filters, or create a new opportunity above." />
         ) : (
           <div className="space-y-3">
             <div className="grid gap-3 lg:hidden">
@@ -202,47 +209,33 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
                 const imported = o.gebizImportedItems?.[0] ?? null;
                 const detailUrl = imported?.detailUrl ?? null;
                 const importedAt = imported?.createdAt ?? null;
-                const sourceLabel = imported ? "GeBIZ" : "Manual";
+                const isAutoImport = !!o.importHash;
+                const sourceLabel = isAutoImport ? "GeBIZ" : "Manual";
                 const categoryLabel = o.category ?? imported?.category ?? "-";
                 const risk = computeClosingRisk(o.closingDate ?? null, new Date());
-                const riskTone =
-                  risk.severity === "CRITICAL" || risk.severity === "HIGH"
-                    ? "danger"
-                    : risk.severity === "MEDIUM"
-                      ? "warning"
-                      : risk.severity === "LOW"
-                        ? "info"
-                        : "neutral";
-
-                const riskLabel =
-                  risk.severity === "CRITICAL"
-                    ? "URGENT"
-                    : risk.severity === "HIGH"
-                      ? "HIGH"
-                      : risk.severity === "MEDIUM"
-                        ? "MEDIUM"
-                        : risk.severity === "LOW"
-                          ? "LOW"
-                          : "OK";
+                const riskTone = risk.severity === "CRITICAL" || risk.severity === "HIGH" ? "danger" : risk.severity === "MEDIUM" ? "warning" : risk.severity === "LOW" ? "info" : "neutral";
+                const riskLabel = risk.severity === "CRITICAL" ? "URGENT" : risk.severity === "HIGH" ? "HIGH" : risk.severity === "MEDIUM" ? "MEDIUM" : risk.severity === "LOW" ? "LOW" : "OK";
+                const fitLabelStr = String(o.fitLabel ?? "UNKNOWN");
+                const fitScoreNum = Number(o.fitScore ?? 0);
 
                 return (
                   <div key={o.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <Link href={`/bidding/${o.id}`} className="text-sm font-semibold text-neutral-950 hover:underline">
-                          {o.opportunityNo}
-                        </Link>
+                        <Link href={`/bidding/${o.id}`} className="text-sm font-semibold text-neutral-950 hover:underline">{o.opportunityNo}</Link>
                         <p className="mt-1 line-clamp-2 text-xs text-neutral-600">{o.title}</p>
                         <p className="mt-2 text-xs text-neutral-500">{o.agency}</p>
                         <p className="mt-1 text-xs text-neutral-500">{categoryLabel}</p>
                       </div>
                       <div className="flex flex-col items-end gap-2">
+                        <StatusPill tone={fitTone(fitLabelStr)}>{fitLabelStr}</StatusPill>
+                        <div className="text-[11px] text-neutral-500">{fitScoreNum}/100</div>
                         <StatusPill tone={riskTone}>{riskLabel}</StatusPill>
                       </div>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <StatusPill tone={imported ? "info" : "neutral"}>{sourceLabel}</StatusPill>
+                        <StatusPill tone={isAutoImport ? "info" : "neutral"}>{sourceLabel}</StatusPill>
                         <StatusPill tone={o.status === "AWARDED" ? "success" : o.status === "LOST" ? "danger" : o.status === "SUBMITTED" ? "info" : o.status === "PENDING_APPROVAL" ? "warning" : "neutral"}>
                           {String(o.status).replaceAll("_", " ")}
                         </StatusPill>
@@ -254,17 +247,10 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
                       </div>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-neutral-500">
-                      <div>{importedAt ? `Imported ${formatDate(importedAt)}` : "—"}</div>
+                      <div>{importedAt ? `Imported ${formatDate(importedAt)}` : isAutoImport ? "Auto-imported" : "—"}</div>
                       <div className="flex items-center gap-2">
                         {detailUrl ? (
-                          <a
-                            href={detailUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="font-semibold text-neutral-900 underline decoration-slate-300 underline-offset-2 hover:decoration-neutral-900"
-                          >
-                            Open GeBIZ
-                          </a>
+                          <a href={detailUrl} target="_blank" rel="noreferrer" className="font-semibold text-neutral-900 underline decoration-slate-300 underline-offset-2 hover:decoration-neutral-900">Open GeBIZ</a>
                         ) : null}
                       </div>
                     </div>
@@ -275,104 +261,76 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
             </div>
 
             <div className="hidden overflow-x-auto lg:block">
-              <table className="min-w-[1460px] w-full text-sm">
-              <thead className="bg-stone-50 text-neutral-800">
-                <tr className="border-b border-slate-200">
-                  <th className="px-4 py-3 text-left font-semibold">Opportunity</th>
-                  <th className="px-4 py-3 text-left font-semibold">Source</th>
-                  <th className="px-4 py-3 text-left font-semibold">Agency</th>
-                  <th className="px-4 py-3 text-left font-semibold">Type</th>
-                  <th className="px-4 py-3 text-left font-semibold">Category</th>
-                  <th className="px-4 py-3 text-left font-semibold">Imported</th>
-                  <th className="px-4 py-3 text-left font-semibold">Closing</th>
-                  <th className="px-4 py-3 text-left font-semibold">Risk</th>
-                  <th className="px-4 py-3 text-left font-semibold">Status</th>
-                  <th className="px-4 py-3 text-right font-semibold">Est. Value</th>
-                  <th className="px-4 py-3 text-right font-semibold">Bid Price</th>
-                  <th className="px-4 py-3 text-right font-semibold">Margin</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 bg-white">
-                {rows.map((o: any) => (
-                  (() => {
-                    const imported = o.gebizImportedItems?.[0] ?? null;
-                    const detailUrl = imported?.detailUrl ?? null;
-                    const importedAt = imported?.createdAt ?? null;
-                    const categoryLabel = o.category ?? imported?.category ?? "-";
-                    const risk = computeClosingRisk(o.closingDate ?? null, new Date());
-
-                    const riskTone =
-                      risk.severity === "CRITICAL" || risk.severity === "HIGH"
-                        ? "danger"
-                        : risk.severity === "MEDIUM"
-                          ? "warning"
-                          : risk.severity === "LOW"
-                            ? "info"
-                            : "neutral";
-
-                    const riskLabel =
-                      risk.severity === "CRITICAL"
-                        ? "URGENT"
-                        : risk.severity === "HIGH"
-                          ? "HIGH"
-                          : risk.severity === "MEDIUM"
-                            ? "MEDIUM"
-                            : risk.severity === "LOW"
-                              ? "LOW"
-                              : "OK";
-
-                    return (
-                  <tr key={o.id} className="hover:bg-stone-50/60">
-                    <td className="px-4 py-3">
-                      <Link href={`/bidding/${o.id}`} className="font-semibold text-neutral-950 hover:underline">
-                        {o.opportunityNo}
-                      </Link>
-                      <div className="mt-0.5 line-clamp-1 text-xs text-neutral-600">{o.title}</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusPill tone={imported ? "info" : "neutral"}>{imported ? "GeBIZ" : "Manual"}</StatusPill>
-                      {detailUrl ? (
-                        <div className="mt-1">
-                          <a
-                            href={detailUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-xs font-semibold text-neutral-900 underline decoration-slate-300 underline-offset-2 hover:decoration-neutral-900"
-                          >
-                            GeBIZ link
-                          </a>
-                        </div>
-                      ) : null}
-                    </td>
-                    <td className="px-4 py-3 text-neutral-700">{o.agency}</td>
-                    <td className="px-4 py-3 text-neutral-700">{String(o.procurementType).replaceAll("_", " ")}</td>
-                    <td className="px-4 py-3 text-neutral-700">{categoryLabel}</td>
-                    <td className="px-4 py-3 text-neutral-700">{importedAt ? formatDate(importedAt) : "-"}</td>
-                    <td className="px-4 py-3 text-neutral-700">{formatDate(o.closingDate)}</td>
-                    <td className="px-4 py-3">
-                      <StatusPill tone={riskTone}>{riskLabel}</StatusPill>
-                      {risk.daysLeft != null ? (
-                        <div className="mt-1 text-xs text-neutral-500">{risk.daysLeft} day(s)</div>
-                      ) : (
-                        <div className="mt-1 text-xs text-neutral-500">TBC</div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusPill tone={o.status === "AWARDED" ? "success" : o.status === "LOST" ? "danger" : o.status === "SUBMITTED" ? "info" : o.status === "PENDING_APPROVAL" ? "warning" : "neutral"}>
-                        {String(o.status).replaceAll("_", " ")}
-                      </StatusPill>
-                    </td>
-                    <td className="px-4 py-3 text-right text-neutral-700">{o.estimatedValue ? formatCurrency(Number(o.estimatedValue)) : "-"}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-neutral-950">{formatCurrency(Number(o.bidPrice ?? 0))}</td>
-                    <td className="px-4 py-3 text-right text-neutral-700">
-                      {o.finalMargin != null ? `${(Number(o.finalMargin) * 100).toFixed(1)}%` : "-"}
-                    </td>
+              <table className="min-w-[1560px] w-full text-sm">
+                <thead className="bg-stone-50 text-neutral-800">
+                  <tr className="border-b border-slate-200">
+                    <th className="px-4 py-3 text-left font-semibold">Opportunity</th>
+                    <th className="px-4 py-3 text-left font-semibold">Source</th>
+                    <th className="px-4 py-3 text-left font-semibold">Agency</th>
+                    <th className="px-4 py-3 text-left font-semibold">Type</th>
+                    <th className="px-4 py-3 text-left font-semibold">Category</th>
+                    <th className="px-4 py-3 text-left font-semibold">Imported</th>
+                    <th className="px-4 py-3 text-left font-semibold">Closing</th>
+                    <th className="px-4 py-3 text-left font-semibold">Fit</th>
+                    <th className="px-4 py-3 text-left font-semibold">Risk</th>
+                    <th className="px-4 py-3 text-left font-semibold">Status</th>
+                    <th className="px-4 py-3 text-right font-semibold">Est. Value</th>
+                    <th className="px-4 py-3 text-right font-semibold">Bid Price</th>
+                    <th className="px-4 py-3 text-right font-semibold">Margin</th>
                   </tr>
-                    );
-                  })()
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-200 bg-white">
+                  {rows.map((o: any) => (
+                    (() => {
+                      const imported = o.gebizImportedItems?.[0] ?? null;
+                      const detailUrl = imported?.detailUrl ?? null;
+                      const importedAt = imported?.createdAt ?? null;
+                      const isAutoImport = !!o.importHash;
+                      const categoryLabel = o.category ?? imported?.category ?? "-";
+                      const risk = computeClosingRisk(o.closingDate ?? null, new Date());
+                      const riskTone = risk.severity === "CRITICAL" || risk.severity === "HIGH" ? "danger" : risk.severity === "MEDIUM" ? "warning" : risk.severity === "LOW" ? "info" : "neutral";
+                      const riskLabel = risk.severity === "CRITICAL" ? "URGENT" : risk.severity === "HIGH" ? "HIGH" : risk.severity === "MEDIUM" ? "MEDIUM" : risk.severity === "LOW" ? "LOW" : "OK";
+                      const fitLabelStr = String(o.fitLabel ?? "UNKNOWN");
+                      const fitScoreNum = Number(o.fitScore ?? 0);
+                      return (
+                        <tr key={o.id} className="hover:bg-stone-50/60">
+                          <td className="px-4 py-3">
+                            <Link href={`/bidding/${o.id}`} className="font-semibold text-neutral-950 hover:underline">{o.opportunityNo}</Link>
+                            <div className="mt-0.5 line-clamp-1 text-xs text-neutral-600">{o.title}</div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusPill tone={isAutoImport ? "info" : "neutral"}>{isAutoImport ? "GeBIZ" : "Manual"}</StatusPill>
+                            {detailUrl ? (
+                              <div className="mt-1">
+                                <a href={detailUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-neutral-900 underline decoration-slate-300 underline-offset-2 hover:decoration-neutral-900">GeBIZ link</a>
+                              </div>
+                            ) : null}
+                          </td>
+                          <td className="px-4 py-3 text-neutral-700">{o.agency}</td>
+                          <td className="px-4 py-3 text-neutral-700">{String(o.procurementType).replaceAll("_", " ")}</td>
+                          <td className="px-4 py-3 text-neutral-700">{categoryLabel}</td>
+                          <td className="px-4 py-3 text-neutral-700">{importedAt ? formatDate(importedAt) : isAutoImport ? "Auto" : "-"}</td>
+                          <td className="px-4 py-3 text-neutral-700">{formatDate(o.closingDate)}</td>
+                          <td className="px-4 py-3">
+                            <StatusPill tone={fitTone(fitLabelStr)}>{fitLabelStr}</StatusPill>
+                            <div className="mt-1 text-xs text-neutral-500">{Number.isFinite(fitScoreNum) ? `${fitScoreNum}/100` : "-"}</div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusPill tone={riskTone}>{riskLabel}</StatusPill>
+                            {risk.daysLeft != null ? <div className="mt-1 text-xs text-neutral-500">{risk.daysLeft} day(s)</div> : <div className="mt-1 text-xs text-neutral-500">TBC</div>}
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusPill tone={o.status === "AWARDED" ? "success" : o.status === "LOST" ? "danger" : o.status === "SUBMITTED" ? "info" : o.status === "PENDING_APPROVAL" ? "warning" : "neutral"}>{String(o.status).replaceAll("_", " ")}</StatusPill>
+                          </td>
+                          <td className="px-4 py-3 text-right text-neutral-700">{o.estimatedValue ? formatCurrency(Number(o.estimatedValue)) : "-"}</td>
+                          <td className="px-4 py-3 text-right font-semibold text-neutral-950">{formatCurrency(Number(o.bidPrice ?? 0))}</td>
+                          <td className="px-4 py-3 text-right text-neutral-700">{o.finalMargin != null ? `${(Number(o.finalMargin) * 100).toFixed(1)}%` : "-"}</td>
+                        </tr>
+                      );
+                    })()
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -381,13 +339,7 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
   );
 }
 
-function Field(props: {
-  label: string;
-  name: string;
-  placeholder?: string;
-  required?: boolean;
-  inputMode?: "text" | "decimal" | "numeric";
-}) {
+function Field(props: { label: string; name: string; placeholder?: string; required?: boolean; inputMode?: "text" | "decimal" | "numeric" }) {
   return (
     <div>
       <label className="block text-sm font-semibold text-neutral-900">
