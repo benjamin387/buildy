@@ -13,6 +13,8 @@ export async function listDesignPackages(input?: {
   propertyType?: PropertyType | "ALL";
   designStyle?: DesignStyle | "ALL";
   isActive?: boolean | "ALL";
+  skip?: number;
+  take?: number;
 }) {
   const q = input?.search?.trim();
   const where: Prisma.DesignPackageWhereInput = {
@@ -31,18 +33,23 @@ export async function listDesignPackages(input?: {
     ...(input?.isActive === false ? { isActive: false } : {}),
   };
 
-  return prisma.designPackage.findMany({
-    where,
-    orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
-    include: {
-      rooms: {
-        where: { isActive: true },
-        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-        select: { id: true, roomCode: true, name: true, roomType: true, sortOrder: true, isActive: true },
+  const [items, total] = await Promise.all([
+    prisma.designPackage.findMany({
+      where,
+      orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
+      include: {
+        rooms: {
+          where: { isActive: true },
+          orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+          select: { id: true, roomCode: true, name: true, roomType: true, sortOrder: true, isActive: true },
+        },
       },
-    },
-    take: 500,
-  });
+      skip: input?.skip ?? 0,
+      take: input?.take ?? 50,
+    }),
+    prisma.designPackage.count({ where }),
+  ]);
+  return { items, total };
 }
 
 export async function getDesignPackageById(packageId: string) {

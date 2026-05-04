@@ -9,6 +9,8 @@ import { SectionCard } from "@/app/components/ui/section-card";
 import { StatusPill } from "@/app/components/ui/status-pill";
 import { ActionButton } from "@/app/components/ui/action-button";
 import { toggleTemplateActiveAction } from "@/app/(platform)/templates/actions";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 export const dynamic = "force-dynamic";
 
@@ -42,12 +44,21 @@ export default async function TemplateLibraryIndexPage(props: {
   const isActive =
     activeRaw === "true" ? true : activeRaw === "false" ? false : null;
 
-  const templates = await listTemplateLibraryItems({
+  const { page, pageSize, skip, take } = parsePagination(sp);
+
+  const { items: templates, total } = await listTemplateLibraryItems({
     category,
     q: q.trim() || null,
     isActive,
-    take: 250,
+    skip,
+    take,
   });
+
+  const baseParams = new URLSearchParams();
+  if (q) baseParams.set("q", q);
+  if (category) baseParams.set("category", category);
+  if (activeRaw) baseParams.set("active", activeRaw);
+  const hrefForPage = (n: number) => buildPageHref("/templates", baseParams, n, pageSize);
 
   return (
     <main className="space-y-8">
@@ -115,9 +126,10 @@ export default async function TemplateLibraryIndexPage(props: {
       </SectionCard>
 
       <SectionCard
-        title={`Templates (${templates.length})`}
+        title={`Templates (${total})`}
         description="Click into a template to preview, copy, or edit."
       >
+        <div className="space-y-4">
         {templates.length === 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-stone-50 p-6 text-sm text-neutral-700">
             No templates found. Create one with <span className="font-semibold">New Template</span>.
@@ -169,6 +181,8 @@ export default async function TemplateLibraryIndexPage(props: {
             </table>
           </div>
         )}
+        <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </SectionCard>
     </main>
   );

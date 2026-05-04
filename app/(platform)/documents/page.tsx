@@ -6,6 +6,8 @@ import { requireDocumentCenterAccess, getAllowedDocumentKinds, asPublicDocumentT
 import { listDocumentRegister } from "@/lib/documents/service";
 import { CopyLinkButton } from "@/app/(platform)/components/copy-link-button";
 import { generatePublicDocumentLinkAction, revokePublicDocumentLinksAction } from "@/app/(platform)/messaging/actions";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 function formatDateTime(value: Date | null | undefined): string {
   if (!value) return "-";
@@ -87,9 +89,13 @@ export default async function DocumentsPage({
   const expiredLinks =
     typeof sp.expired === "string" && ["expired", "active"].includes(sp.expired) ? (sp.expired as any) : null;
 
-  const rows = await listDocumentRegister({
+  const { page, pageSize, skip } = parsePagination(sp);
+
+  const { items: rows, total } = await listDocumentRegister({
     user,
-    take: 220,
+    take: 300,
+    skip,
+    pageSize,
     filters: {
       projectId: selectedProjectId || null,
       kind: selectedKind,
@@ -99,6 +105,15 @@ export default async function DocumentsPage({
       expiredLinks,
     },
   });
+
+  const baseParams = new URLSearchParams();
+  if (selectedProjectId) baseParams.set("projectId", selectedProjectId);
+  if (selectedKind) baseParams.set("kind", selectedKind);
+  if (status) baseParams.set("status", status);
+  if (signed) baseParams.set("signed", signed);
+  if (sent) baseParams.set("sent", sent);
+  if (expiredLinks) baseParams.set("expired", expiredLinks);
+  const hrefForPage = (n: number) => buildPageHref("/documents", baseParams, n, pageSize);
 
   const projects = await prisma.project.findMany({
     orderBy: [{ createdAt: "desc" }],
@@ -233,7 +248,7 @@ export default async function DocumentsPage({
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Document Register</h2>
           <p className="mt-1 text-sm text-neutral-600">
-            {rows.length} records (limited to latest results).
+            {total} records.
           </p>
         </div>
 
@@ -363,6 +378,9 @@ export default async function DocumentsPage({
             </table>
           </div>
         )}
+        <div className="border-t border-neutral-200 px-6 py-4">
+          <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </section>
     </main>
   );

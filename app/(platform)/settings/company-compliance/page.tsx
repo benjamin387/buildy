@@ -43,6 +43,12 @@ export default async function CompanyComplianceSettingsPage() {
         <div className="flex flex-wrap items-center gap-2">
           <StatusPill tone="neutral">{docs} active document(s)</StatusPill>
           <Link
+            href="/compliance/bizsafe"
+            className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50"
+          >
+            Open BizSAFE Module
+          </Link>
+          <Link
             href="/settings/document-library"
             className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50"
           >
@@ -109,4 +115,3 @@ function Field(props: { label: string; name: string; defaultValue?: string; plac
     </div>
   );
 }
-

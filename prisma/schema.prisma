@@ -550,6 +550,41 @@ enum AIActionStatus {
   CANCELLED
 }
 
+enum AIChannel {
+  TELEGRAM
+  WHATSAPP
+}
+
+enum AiTool {
+  WEB_SEARCH
+  GMAIL_READ
+  GMAIL_DRAFT
+  GMAIL_SEND
+  CALENDAR_READ
+  CALENDAR_WRITE
+}
+
+enum AiMessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+  TOOL
+}
+
+enum AiActionRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXECUTED
+  FAILED
+}
+
+enum AiRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 enum AIOutcomeType {
   LEAD_CONVERSION
   QUOTATION_ACCEPTANCE
@@ -1624,6 +1659,129 @@ model AISalesMessageDraft {
   @@index([createdAt])
 }
 
+model AiUserChannel {
+  id               String    @id @default(cuid())
+  userId           String
+  channel          AIChannel
+  externalUserId   String
+  displayName      String?
+  phoneNumber      String?
+  username         String?
+  isVerified       Boolean   @default(false)
+  pairingCodeHash  String?
+  pairingCodeExpiresAt DateTime?
+  pairedAt         DateTime?
+  lastSeenAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channel])
+  @@index([channel])
+  @@index([externalUserId])
+  @@index([isVerified])
+  @@index([pairingCodeExpiresAt])
+}
+
+model AiToolPermission {
+  id               String      @id @default(cuid())
+  userId           String
+  tool             AiTool
+  isEnabled        Boolean     @default(false)
+  requiresApproval Boolean     @default(true)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tool])
+  @@index([userId])
+  @@index([tool])
+  @@index([isEnabled])
+}
+
+model AiConversation {
+  id               String      @id @default(cuid())
+  userId           String
+  channel          AIChannel
+  externalThreadId  String
+  title            String
+  lastMessageAt     DateTime    @default(now())
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     AiMessage[]
+  actionRequests AiActionRequest[]
+
+  @@unique([userId, channel, externalThreadId])
+  @@index([userId])
+  @@index([channel])
+  @@index([externalThreadId])
+  @@index([lastMessageAt])
+}
+
+model AiMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  role           AiMessageRole
+  content        String
+  metadata       Json?
+  createdAt      DateTime       @default(now())
+
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([createdAt])
+}
+
+model AiActionRequest {
+  id             String         @id @default(cuid())
+  userId         String
+  conversationId String
+  tool           AiTool
+  actionType     String
+  status         AiActionRequestStatus @default(PENDING)
+  input          Json
+  result         Json?
+  riskLevel      AiRiskLevel     @default(MEDIUM)
+  approvalToken  String?
+  expiresAt      DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([conversationId])
+  @@index([tool])
+  @@index([status])
+  @@index([approvalToken])
+}
+
+model AiAuditLog {
+  id          String      @id @default(cuid())
+  userId      String
+  channel     AIChannel
+  tool        AiTool
+  action      String
+  inputSummary String
+  status      String
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([channel])
+  @@index([tool])
+  @@index([action])
+  @@index([createdAt])
+}
+
 model AIActionLog {
   id               String         @id @default(cuid())
   action           String
@@ -2333,6 +2491,11 @@ model User {
   assignedLeads      Lead[]           @relation("LeadAssignedTo")
   leadBotSessions    LeadBotSession[] @relation("LeadBotSessionSubmittedBy")
   gebizFeedSourcesDefaultOwner GebizFeedSource[] @relation("GebizFeedSourceDefaultOwner")
+  aiUserChannels     AiUserChannel[]  @relation
+  aiConversations    AiConversation[] @relation
+  aiToolPermissions  AiToolPermission[] @relation
+  aiActionRequests   AiActionRequest[] @relation
+  aiAuditLogs        AiAuditLog[] @relation
 
   @@index([email])
   @@index([status])
@@ -3056,6 +3219,40 @@ enum TenderGeneratedDocumentStatus {
   APPROVED
 }
 
+enum BizsafeLevel {
+  NONE
+  LEVEL_1
+  LEVEL_2
+  LEVEL_3
+  LEVEL_4
+  STAR
+}
+
+enum BizsafeApplicationStatus {
+  NOT_STARTED
+  PREPARING
+  COURSE_BOOKED
+  COURSE_COMPLETED
+  RM_PLAN_PREPARING
+  AUDIT_BOOKED
+  AUDIT_COMPLETED
+  SUBMITTED
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum BizsafeDocumentType {
+  CERTIFICATE
+  RM_AUDIT_REPORT
+  COURSE_CERTIFICATE
+  TRAINING_RECORD
+  APPLICATION_FORM
+  RISK_MANAGEMENT_PLAN
+  WSH_POLICY
+  OTHER
+}
+
 enum TenderSubmissionPackStatus {
   DRAFT
   APPROVAL_REQUIRED
@@ -3637,6 +3834,105 @@ model CompanyComplianceProfile {
 
   @@index([companyName])
   @@index([uen])
+}
+
+model BizsafeProfile {
+  id                           String                   @id @default(cuid())
+  companyName                  String
+  uen                          String?
+  currentLevel                 BizsafeLevel             @default(NONE)
+  certificateNumber            String?
+  approvalDate                 DateTime?
+  issueDate                    DateTime?
+  expiryDate                   DateTime?
+  status                       BizsafeApplicationStatus @default(NOT_STARTED)
+  seniorManagementName         String?
+  seniorManagementEmail        String?
+  seniorManagementPhone        String?
+  rmChampionName               String?
+  rmChampionEmail              String?
+  rmChampionPhone              String?
+  auditorName                  String?
+  auditCompany                 String?
+  auditDate                    DateTime?
+  auditReportExpiryDate        DateTime?
+  remarks                      String?
+  createdAt                    DateTime                 @default(now())
+  updatedAt                    DateTime                 @updatedAt
+
+  documents                    BizsafeDocument[]
+  tasks                        BizsafeTask[]
+  trainingRecords              BizsafeTrainingRecord[]
+
+  @@index([companyName])
+  @@index([uen])
+  @@index([currentLevel])
+  @@index([status])
+  @@index([expiryDate])
+  @@index([auditReportExpiryDate])
+}
+
+model BizsafeDocument {
+  id               String             @id @default(cuid())
+  bizsafeProfileId String
+  documentType     BizsafeDocumentType
+  title            String
+  fileUrl          String?
+  fileName         String?
+  uploadedAt       DateTime           @default(now())
+  uploadedBy       String?
+  remarks          String?
+
+  bizsafeProfile   BizsafeProfile     @relation(fields: [bizsafeProfileId], references: [id], onDelete: Cascade)
+
+  @@index([bizsafeProfileId])
+  @@index([documentType])
+  @@index([uploadedAt])
+}
+
+model BizsafeTask {
+  id               String         @id @default(cuid())
+  bizsafeProfileId String
+  title            String
+  description      String?
+  dueDate          DateTime?
+  completedAt      DateTime?
+  isCompleted      Boolean        @default(false)
+  priority         TaskPriority   @default(MEDIUM)
+  assignedTo       String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  bizsafeProfile   BizsafeProfile @relation(fields: [bizsafeProfileId], references: [id], onDelete: Cascade)
+
+  @@index([bizsafeProfileId])
+  @@index([isCompleted])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([createdAt])
+}
+
+model BizsafeTrainingRecord {
+  id               String         @id @default(cuid())
+  bizsafeProfileId String
+  courseName       String
+  courseLevel      BizsafeLevel?
+  attendeeName     String
+  attendeeRole     String?
+  providerName     String?
+  courseDate       DateTime?
+  completionDate   DateTime?
+  certificateUrl   String?
+  remarks          String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  bizsafeProfile   BizsafeProfile @relation(fields: [bizsafeProfileId], references: [id], onDelete: Cascade)
+
+  @@index([bizsafeProfileId])
+  @@index([courseLevel])
+  @@index([completionDate])
+  @@index([createdAt])
 }
 
 model ComplianceDocument {

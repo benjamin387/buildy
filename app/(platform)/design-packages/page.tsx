@@ -4,6 +4,8 @@ import { requirePermission } from "@/lib/rbac";
 import { listDesignPackages } from "@/lib/design-packages/service";
 import { seedDesignPackagesAction } from "@/app/(platform)/design-packages/actions";
 import { EmptyState } from "@/app/(platform)/projects/components/empty-state";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 function formatCurrency(value: number | null | undefined): string {
   if (value === null || value === undefined) return "-";
@@ -32,14 +34,25 @@ export default async function DesignPackagesIndexPage({
   const isActive =
     active === "ALL" ? "ALL" : active === "true" ? true : active === "false" ? false : "ALL";
 
-  const packages = await listDesignPackages({
+  const { page, pageSize, skip, take } = parsePagination(params);
+
+  const { items: packages, total } = await listDesignPackages({
     search: q || undefined,
     propertyType,
     designStyle,
     isActive,
+    skip,
+    take,
   });
 
   const activeCount = packages.filter((p) => p.isActive).length;
+
+  const baseParams = new URLSearchParams();
+  if (q) baseParams.set("q", q);
+  if (pt !== "ALL") baseParams.set("pt", pt);
+  if (ds !== "ALL") baseParams.set("ds", ds);
+  if (active !== "ALL") baseParams.set("active", active);
+  const hrefForPage = (n: number) => buildPageHref("/design-packages", baseParams, n, pageSize);
 
   return (
     <main className="space-y-8">
@@ -71,10 +84,10 @@ export default async function DesignPackagesIndexPage({
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <SummaryCard title="Total Packages" value={`${packages.length}`} />
-        <SummaryCard title="Active" value={`${activeCount}`} />
-        <SummaryCard title="Inactive" value={`${packages.length - activeCount}`} />
-        <SummaryCard title="Rooms (Active)" value={`${packages.reduce((sum, p) => sum + p.rooms.length, 0)}`} />
+        <SummaryCard title="Total Packages" value={`${total}`} />
+        <SummaryCard title="Active (page)" value={`${activeCount}`} />
+        <SummaryCard title="Inactive (page)" value={`${packages.length - activeCount}`} />
+        <SummaryCard title="Rooms (page)" value={`${packages.reduce((sum, p) => sum + p.rooms.length, 0)}`} />
       </section>
 
       <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
@@ -222,6 +235,9 @@ export default async function DesignPackagesIndexPage({
             </table>
           </div>
         )}
+        <div className="border-t border-neutral-200 px-4 py-4">
+          <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </section>
     </main>
   );

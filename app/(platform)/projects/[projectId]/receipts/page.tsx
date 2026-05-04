@@ -7,6 +7,8 @@ import {
   recordPaymentReceiptAction,
   syncPaymentReceiptToXeroAction,
 } from "@/app/(platform)/projects/[projectId]/invoices/actions";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-SG", {
@@ -35,12 +37,17 @@ function todayIsoDate(): string {
 
 export default async function ProjectReceiptsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ projectId: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { projectId } = await params;
   const { permissions } = await requirePermission({ permission: Permission.INVOICE_READ, projectId });
   const canSyncAccounting = permissions.has(Permission.SETTINGS_WRITE);
+
+  const sp = (await searchParams) ?? {};
+  const { page, pageSize, skip, take } = parsePagination(sp);
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
@@ -55,12 +62,19 @@ export default async function ProjectReceiptsPage({
     take: 100,
   });
 
-  const receipts = await prisma.paymentReceipt.findMany({
-    where: { projectId },
-    include: { invoice: { select: { invoiceNumber: true } } },
-    orderBy: [{ paymentDate: "desc" }, { createdAt: "desc" }],
-    take: 200,
-  });
+  const [receipts, total] = await Promise.all([
+    prisma.paymentReceipt.findMany({
+      where: { projectId },
+      include: { invoice: { select: { invoiceNumber: true } } },
+      orderBy: [{ paymentDate: "desc" }, { createdAt: "desc" }],
+      skip,
+      take,
+    }),
+    prisma.paymentReceipt.count({ where: { projectId } }),
+  ]);
+
+  const hrefForPage = (n: number) =>
+    buildPageHref(`/projects/${projectId}/receipts`, new URLSearchParams(), n, pageSize);
 
   const syncLogByReceiptId = canSyncAccounting
     ? await (async () => {
@@ -270,6 +284,9 @@ export default async function ProjectReceiptsPage({
             </table>
           </div>
         )}
+        <div className="mt-6">
+          <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </section>
     </main>
   );

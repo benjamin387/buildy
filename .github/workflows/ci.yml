@@ -10,6 +10,12 @@ jobs:
   quality-check:
     runs-on: ubuntu-latest
 
+    env:
+      # Prisma 7's TypeScript config (prisma.config.ts) reads DATABASE_URL
+      # eagerly even for `prisma generate`. CI doesn't connect to a real DB —
+      # this placeholder just makes the env var resolvable for codegen.
+      DATABASE_URL: postgres://placeholder:placeholder@localhost:5432/placeholder
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

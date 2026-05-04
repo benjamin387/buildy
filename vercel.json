@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/cron/gebiz",
-      "schedule": "0 2 * * *"
+      "path": "/api/cron/gebiz-hub-sync",
+      "schedule": "0 18 * * *"
     }
   ]
 }

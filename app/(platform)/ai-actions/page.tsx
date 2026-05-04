@@ -7,6 +7,8 @@ import type { PermissionModuleKey } from "@/lib/auth/permission-keys";
 import { PendingSubmitButton } from "@/app/(platform)/components/pending-submit-button";
 import { approveAIActionAction, cancelAIActionAction, executeAIActionAction } from "@/app/(platform)/ai-actions/actions";
 import { safeQuery } from "@/lib/server/safe-query";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 function formatDateTime(value: Date | null | undefined): string {
   if (!value) return "-";
@@ -54,13 +56,16 @@ export default async function AIActionsPage({
   const delegate = prismaAny.aIActionLog ?? prismaAny.aiActionLog;
   const hasDelegate = Boolean(delegate);
 
-  const [rows, counts] = await Promise.all([
+  const { page, pageSize, skip, take } = parsePagination(sp);
+
+  const [rows, counts, total] = await Promise.all([
     safeQuery(async () => {
       if (!hasDelegate) return [];
       return await delegate.findMany({
         where: { status },
         orderBy: [{ createdAt: "desc" }],
-        take: 300,
+        skip,
+        take,
       });
     }, [] as any[]),
     safeQuery(async () => {
@@ -70,10 +75,18 @@ export default async function AIActionsPage({
         _count: { _all: true },
       })) as Array<{ status: AIActionStatus; _count: { _all: number } }>;
     }, [] as Array<{ status: AIActionStatus; _count: { _all: number } }>),
+    safeQuery(async () => {
+      if (!hasDelegate) return 0;
+      return (await delegate.count({ where: { status } })) as number;
+    }, 0),
   ]);
 
   const countMap = new Map<AIActionStatus, number>();
   for (const c of counts) countMap.set(c.status, c._count._all);
+
+  const baseParams = new URLSearchParams();
+  baseParams.set("status", status);
+  const hrefForPage = (n: number) => buildPageHref("/ai-actions", baseParams, n, pageSize);
 
   return (
     <main className="space-y-8">
@@ -218,6 +231,9 @@ export default async function AIActionsPage({
             )}
           </tbody>
         </table>
+        <div className="border-t border-neutral-200 px-4 py-4">
+          <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </section>
     </main>
   );

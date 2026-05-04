@@ -5,8 +5,22 @@ function hasSessionCookie(request: NextRequest): boolean {
   return request.cookies.has("app_session");
 }
 
+const OPEN_AI_WEBHOOK_PREFIXES = [
+  "/api/ai/channels/telegram",
+  "/api/ai/channels/telegram/webhook",
+  "/api/ai/channels/whatsapp",
+  "/api/ai/channels/whatsapp/webhook",
+  "/api/webhooks/telegram",
+  "/api/webhooks/whatsapp",
+];
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (OPEN_AI_WEBHOOK_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+    return NextResponse.next();
+  }
+
   const protectedPrefixes = [
     "/dashboard",
     "/projects",
@@ -51,5 +65,6 @@ export const config = {
     "/suppliers/:path*",
     "/vendors/:path*",
     "/settings/:path*",
+    "/api/ai/channels/:path*",
   ],
 };

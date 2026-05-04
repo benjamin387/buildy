@@ -3,11 +3,23 @@ import { prisma } from "@/lib/prisma";
 import { Permission, VendorType } from "@prisma/client";
 import { requirePermission } from "@/lib/rbac";
 import { createVendor } from "@/app/(platform)/projects/[projectId]/suppliers/actions";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
-export default async function VendorsPage() {
+export default async function VendorsPage(props: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePermission({ permission: Permission.SUPPLIER_READ });
 
-  const vendors = await prisma.vendor.findMany({ orderBy: { createdAt: "desc" } });
+  const sp = (await props.searchParams) ?? {};
+  const { page, pageSize, skip, take } = parsePagination(sp);
+
+  const [vendors, total] = await Promise.all([
+    prisma.vendor.findMany({ orderBy: { createdAt: "desc" }, skip, take }),
+    prisma.vendor.count(),
+  ]);
+
+  const hrefForPage = (n: number) => buildPageHref("/vendors", new URLSearchParams(), n, pageSize);
 
   return (
     <main className="space-y-8">
@@ -105,6 +117,9 @@ export default async function VendorsPage() {
             </table>
           </div>
         )}
+        <div className="border-t border-neutral-200 px-6 py-4">
+          <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </section>
     </main>
   );

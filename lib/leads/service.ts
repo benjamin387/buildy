@@ -60,9 +60,16 @@ export async function listLeads(filters: LeadFilters) {
   return listLeadsForViewer({ viewer: null, filters });
 }
 
-export async function listLeadsForViewer(params: { viewer: SessionUser | null; filters: LeadFilters }): Promise<LeadListRow[]> {
+export type LeadListPage = { items: LeadListRow[]; total: number };
+
+export async function listLeadsForViewer(params: {
+  viewer: SessionUser | null;
+  filters: LeadFilters;
+  skip?: number;
+  take?: number;
+}): Promise<LeadListPage> {
   const lead = getLeadDelegate();
-  if (!lead) return [];
+  if (!lead) return { items: [], total: 0 };
 
   const search = params.filters.search?.trim();
   const visibility = params.viewer ? buildLeadVisibilityWhere(params.viewer) : {};
@@ -84,16 +91,21 @@ export async function listLeadsForViewer(params: { viewer: SessionUser | null; f
   };
 
   try {
-    return (await lead.findMany({
-      where,
-      orderBy: [{ nextFollowUpAt: "asc" }, { createdAt: "desc" }],
-      include: {
-        convertedProject: { select: { id: true, name: true, projectCode: true } },
-        submittedByUser: { select: { id: true, email: true, name: true } },
-        assignedToUser: { select: { id: true, email: true, name: true } },
-      },
-      take: 500,
-    })) as LeadListRow[];
+    const [items, total] = await Promise.all([
+      lead.findMany({
+        where,
+        orderBy: [{ nextFollowUpAt: "asc" }, { createdAt: "desc" }],
+        include: {
+          convertedProject: { select: { id: true, name: true, projectCode: true } },
+          submittedByUser: { select: { id: true, email: true, name: true } },
+          assignedToUser: { select: { id: true, email: true, name: true } },
+        },
+        skip: params.skip ?? 0,
+        take: params.take ?? 50,
+      }),
+      lead.count({ where }),
+    ]);
+    return { items: items as LeadListRow[], total };
   } catch (err) {
     // Fail-soft for dev/prod stability:
     // If Prisma Client is stale (or schema just changed), relation includes/orderBy can throw
@@ -105,19 +117,26 @@ export async function listLeadsForViewer(params: { viewer: SessionUser | null; f
     if (!isValidation) throw err;
 
     try {
-      const rows = (await lead.findMany({
-        orderBy: [{ createdAt: "desc" }],
-        take: 200,
-      })) as any[];
+      const [rows, total] = await Promise.all([
+        lead.findMany({
+          orderBy: [{ createdAt: "desc" }],
+          skip: params.skip ?? 0,
+          take: params.take ?? 50,
+        }),
+        lead.count(),
+      ]);
 
-      return rows.map((r) => ({
-        ...r,
-        convertedProject: null,
-        submittedByUser: null,
-        assignedToUser: null,
-      })) as LeadListRow[];
+      return {
+        items: (rows as any[]).map((r) => ({
+          ...r,
+          convertedProject: null,
+          submittedByUser: null,
+          assignedToUser: null,
+        })) as LeadListRow[],
+        total,
+      };
     } catch {
-      return [];
+      return { items: [], total: 0 };
     }
   }
 }

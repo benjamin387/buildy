@@ -45,17 +45,24 @@ export async function getVariationById(params: { projectId: string; variationId:
   return vo;
 }
 
-export async function listVariationsByProject(projectId: string) {
-  const vos = await prisma.variationOrder.findMany({
-    where: { projectId },
-    orderBy: [{ createdAt: "desc" }],
-    include: {
-      approvals: true,
-      invoices: { select: { id: true, invoiceNumber: true, totalAmount: true, status: true } },
-    },
-    take: 200,
-  });
-  return vos;
+export async function listVariationsByProject(
+  projectId: string,
+  options?: { skip?: number; take?: number },
+) {
+  const [items, total] = await Promise.all([
+    prisma.variationOrder.findMany({
+      where: { projectId },
+      orderBy: [{ createdAt: "desc" }],
+      include: {
+        approvals: true,
+        invoices: { select: { id: true, invoiceNumber: true, totalAmount: true, status: true } },
+      },
+      skip: options?.skip ?? 0,
+      take: options?.take ?? 50,
+    }),
+    prisma.variationOrder.count({ where: { projectId } }),
+  ]);
+  return { items, total };
 }
 
 export async function createVariationDraft(params: {

@@ -8,6 +8,8 @@ import { requireDocumentCenterAccess, asPublicDocumentType, type DocumentKind } 
 import { listDocumentRegister } from "@/lib/documents/service";
 import { generatePublicDocumentLinkAction, revokePublicDocumentLinksAction } from "@/app/(platform)/messaging/actions";
 import { CopyLinkButton } from "@/app/(platform)/components/copy-link-button";
+import { PaginationControls } from "@/app/components/ui/pagination";
+import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
 function formatDateTime(value: Date | null | undefined): string {
   if (!value) return "-";
@@ -90,9 +92,13 @@ export default async function ProjectDocumentsPage({
   const expiredLinks =
     typeof sp.expired === "string" && ["expired", "active"].includes(sp.expired) ? (sp.expired as any) : null;
 
-  const rows = await listDocumentRegister({
+  const { page, pageSize, skip } = parsePagination(sp);
+
+  const { items: rows, total } = await listDocumentRegister({
     user,
-    take: 220,
+    take: 300,
+    skip,
+    pageSize,
     filters: {
       projectId,
       kind: selectedKind,
@@ -102,6 +108,14 @@ export default async function ProjectDocumentsPage({
       expiredLinks,
     },
   });
+
+  const baseParams = new URLSearchParams();
+  if (selectedKind) baseParams.set("kind", selectedKind);
+  if (status) baseParams.set("status", status);
+  if (signed) baseParams.set("signed", signed);
+  if (sent) baseParams.set("sent", sent);
+  if (expiredLinks) baseParams.set("expired", expiredLinks);
+  const hrefForPage = (n: number) => buildPageHref(`/projects/${projectId}/documents`, baseParams, n, pageSize);
 
   const canCommsWrite = user.permissions.includes(Permission.COMMS_WRITE);
   const returnTo = `/projects/${projectId}/documents?${new URLSearchParams(
@@ -207,7 +221,7 @@ export default async function ProjectDocumentsPage({
       <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Documents</h2>
-          <p className="mt-1 text-sm text-neutral-600">{rows.length} records.</p>
+          <p className="mt-1 text-sm text-neutral-600">{total} records.</p>
         </div>
 
         {rows.length === 0 ? (
@@ -305,6 +319,9 @@ export default async function ProjectDocumentsPage({
             </table>
           </div>
         )}
+        <div className="border-t border-neutral-200 px-6 py-4">
+          <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={hrefForPage} />
+        </div>
       </section>
     </main>
   );
