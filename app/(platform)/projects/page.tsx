@@ -11,6 +11,8 @@ import { StatusPill } from "@/app/components/ui/status-pill";
 import { PaginationControls } from "@/app/components/ui/pagination";
 import { buildPageHref, parsePagination } from "@/lib/utils/pagination";
 
+const fieldClass = "mt-2 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none ring-neutral-400 transition focus:ring-2";
+
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-SG", {
     style: "currency",
@@ -60,11 +62,7 @@ export default async function ProjectsIndexPage({
         kicker="Interior Design / Renovation"
         title="Projects"
         subtitle="Enterprise project register with commercial snapshot, milestones, tasks, and progress tracking."
-        actions={
-          <Link href="/projects/new">
-            <ActionButton>New Project</ActionButton>
-          </Link>
-        }
+        actions={<Link href="/projects/new"><ActionButton>New Project</ActionButton></Link>}
       />
 
       <SectionCard title="Search" description="Search by code, project, client, email, or address.">
@@ -77,18 +75,12 @@ export default async function ProjectsIndexPage({
               name="q"
               defaultValue={q}
               placeholder="e.g. BDY-001, Tan, Tanjong Pagar, @gmail.com"
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className={fieldClass}
             />
           </div>
           <div className="flex items-center gap-2 pt-6 sm:pt-0">
-            <ActionButton type="submit" variant="primary">
-              Search
-            </ActionButton>
-            <Link href="/projects">
-              <ActionButton type="button" variant="secondary">
-                Reset
-              </ActionButton>
-            </Link>
+            <ActionButton type="submit" variant="primary">Search</ActionButton>
+            <Link href="/projects"><ActionButton type="button" variant="secondary">Reset</ActionButton></Link>
           </div>
         </form>
       </SectionCard>
@@ -122,7 +114,7 @@ export default async function ProjectsIndexPage({
             </div>
 
             <div className="hidden overflow-x-auto md:block">
-              <div className="min-w-[1040px] overflow-hidden rounded-2xl border border-slate-200">
+              <div className="min-w-[1040px] overflow-hidden rounded-xl border border-slate-200">
                 <table className="min-w-full text-sm">
                   <thead className="bg-stone-50 text-neutral-700">
                     <tr>
@@ -194,7 +186,7 @@ export default async function ProjectsIndexPage({
 
 function SummaryCard(props: { title: string; value: string; tone?: Parameters<typeof StatusPill>[0]["tone"] }) {
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-500">{props.title}</p>
         <StatusPill tone={props.tone ?? "neutral"}>{props.value}</StatusPill>
@@ -213,7 +205,7 @@ function ProjectCard(props: { project: Awaited<ReturnType<typeof listProjectsFor
   return (
     <Link
       href={`/projects/${project.id}`}
-      className="block rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:bg-stone-50"
+      className="block rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:bg-stone-50"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -226,19 +218,19 @@ function ProjectCard(props: { project: Awaited<ReturnType<typeof listProjectsFor
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-        <div className="rounded-2xl border border-slate-200 bg-stone-50 px-3 py-2">
+        <div className="rounded-md border border-slate-200 bg-stone-50 px-3 py-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Contract</p>
           <p className="mt-1 font-semibold text-neutral-950 tabular-nums">{formatCurrency(contractValue)}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-stone-50 px-3 py-2">
+        <div className="rounded-md border border-slate-200 bg-stone-50 px-3 py-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Profit</p>
           <p className="mt-1 font-semibold text-neutral-950 tabular-nums">{formatCurrency(Number(project.projectedProfit))}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-stone-50 px-3 py-2">
+        <div className="rounded-md border border-slate-200 bg-stone-50 px-3 py-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Start</p>
           <p className="mt-1 font-semibold text-neutral-950 tabular-nums">{formatDate(project.startDate)}</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-stone-50 px-3 py-2">
+        <div className="rounded-md border border-slate-200 bg-stone-50 px-3 py-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Target</p>
           <p className="mt-1 font-semibold text-neutral-950 tabular-nums">{formatDate(project.targetCompletionDate)}</p>
         </div>

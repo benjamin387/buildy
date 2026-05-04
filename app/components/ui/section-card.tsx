@@ -23,7 +23,14 @@ export function SectionCard(props: {
         <div className="border-b border-slate-200/70 px-5 py-4 sm:px-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-base font-semibold tracking-tight text-neutral-950">
+              {/*
+                Heading scale: H1 (page) is text-3xl/4xl, body is text-sm/text-base.
+                Section H2 was previously text-base (16px) which is identical in size
+                to body copy and only distinguishable by weight — that's why
+                section breaks felt weak. Bumping to text-lg (18px) gives a real
+                mid-tier without being shouty.
+              */}
+              <h2 className="text-lg font-semibold tracking-tight text-neutral-950">
                 {props.title}
               </h2>
               {props.description ? (
@@ -40,4 +47,3 @@ export function SectionCard(props: {
     </section>
   );
 }
-

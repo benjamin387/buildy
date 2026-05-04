@@ -59,7 +59,7 @@ export function MobileNav(props: {
           type="button"
           onClick={props.onOpenMore}
           className={cx(
-            "flex flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-xs font-semibold transition",
+            "flex flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 text-xs font-semibold transition",
             "text-neutral-700 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
           )}
           aria-label="More"
@@ -77,7 +77,7 @@ function NavItem(props: { href: string; label: string; icon: ReactNode; active: 
     <Link
       href={props.href}
       className={cx(
-        "flex flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
+        "flex flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
         props.active ? "bg-neutral-900 text-white" : "text-neutral-700 hover:bg-stone-50",
       )}
       aria-current={props.active ? "page" : undefined}

@@ -63,11 +63,18 @@ function cx(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(" ");
 }
 
-const GROUP_STORAGE_KEY = "buildy.ui.sidebarGroups.v2";
+// Bumped to v3 because group default-open behavior changed: Design and Finance
+// used to be open by default, which made first-load sidebar long. Now only Core
+// is open by default. Existing users keep their chosen state via the v2 -> v3
+// migration below; new users see the calmer default.
+const GROUP_STORAGE_KEY = "buildy.ui.sidebarGroups.v3";
+const GROUP_STORAGE_KEY_LEGACY = "buildy.ui.sidebarGroups.v2";
 
 function readGroupState(): Record<string, boolean> {
   try {
-    const raw = globalThis.localStorage?.getItem(GROUP_STORAGE_KEY);
+    const raw =
+      globalThis.localStorage?.getItem(GROUP_STORAGE_KEY) ??
+      globalThis.localStorage?.getItem(GROUP_STORAGE_KEY_LEGACY);
     if (!raw) return {};
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== "object") return {};
@@ -134,7 +141,7 @@ export function PlatformSidebar(props: {
       {
         key: "design",
         label: "Design",
-        defaultOpen: true,
+        defaultOpen: false,
         items: [
           { key: "design-studio", label: "Design Studio", href: "/design-packages", icon: LayoutTemplate },
           { key: "quotations", label: "Quotations", href: "/projects", icon: NotebookText, description: projectContextHint },
@@ -144,7 +151,7 @@ export function PlatformSidebar(props: {
       {
         key: "finance",
         label: "Finance",
-        defaultOpen: true,
+        defaultOpen: false,
         items: [
           { key: "billing", label: "Billing", href: "/billing", icon: HandCoins },
           { key: "finance", label: "Finance", href: "/pnl", icon: LineChart, description: "P&L, cashflow, margin control" },
@@ -471,11 +478,11 @@ function SidebarItem(props: {
           ) : null}
         </span>
       ) : null}
-      {!props.collapsed ? (
-        <span className={cx("text-xs font-semibold", props.active ? "text-white/60" : "text-neutral-300 group-hover:text-neutral-400")}>
-          →
-        </span>
-      ) : null}
+      {/*
+        Trailing → glyph removed. The active state already inverts colors and
+        the icon on the left is signal enough that this is a nav row. Adding
+        an arrow per item turned every line into visual repetition.
+      */}
     </Link>
   );
 }

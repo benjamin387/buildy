@@ -19,11 +19,19 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/*
+ * Dark theme is opt-in via a `.dark` class on <html> (or <body>).
+ * Previously this was `@media (prefers-color-scheme: dark)`, which made the body
+ * paint near-black under a fully light-themed UI for any visitor whose OS was set
+ * to dark mode — causing a black flash on first paint and inheriting black on any
+ * surface that didn't explicitly set its own bg.
+ *
+ * Until a real dark theme exists across all surfaces, light is the only theme.
+ * To re-enable dark, toggle the .dark class on <html> from a theme switcher.
+ */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {

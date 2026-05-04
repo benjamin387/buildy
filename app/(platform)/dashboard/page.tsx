@@ -37,99 +37,33 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
-const primaryCards: Card[] = [
-  { href: "/leads", title: "Leads Pipeline", description: "Sales pipeline for qualification, site visits, and conversion to projects." },
-  { href: "/leads/new", title: "New Lead", description: "Create a new lead record and start follow-up." },
-  { href: "/bidding", title: "Bidding", description: "GeBIZ tender and quotation opportunities, costing, documents, and approvals." },
-  { href: "/command-center", title: "Command Center", description: "Owner/director dashboard for full business health (ADMIN/DIRECTOR only)." },
-  { href: "/ai-control-center", title: "AI Control Center", description: "Automation safety controls and approval rules (ADMIN/DIRECTOR only)." },
-  { href: "/ai-actions", title: "AI Actions", description: "Approval queue for AI-recommended actions (ADMIN/DIRECTOR only)." },
-  { href: "/ai-learning", title: "AI Learning", description: "Outcome tracking and scoring for AI recommendations (ADMIN/DIRECTOR only)." },
-  { href: "/sales", title: "Sales Dashboard", description: "Design-to-sales pipeline visibility, conversion metrics, and package readiness." },
-  { href: "/sales/assistant", title: "Sales Assistant", description: "AI-assisted lead qualification, follow-ups, pitches, and draft messages (review-only)." },
+// Quick Access is now intentionally short. Anything not listed here lives in the
+// sidebar — duplicating the sidebar inside the dashboard creates noise. Order
+// matters: most-used first. Admin/Director-only items are filtered after data
+// loads (see `quickWithExecGate` below).
+const quickActions: Card[] = [
+  { href: "/leads", title: "Leads Pipeline", description: "Qualify, schedule site visits, and convert to projects." },
   { href: "/projects", title: "Projects", description: "Open the live project register and continue active work." },
-  { href: "/projects/new", title: "New Project", description: "Create a new project record and start the workflow." },
-  { href: "/documents", title: "Documents", description: "Central register for client-facing and generated project documents." },
-  { href: "/design-packages", title: "Design Packages", description: "Reusable packages, room templates, and BOQ templates to accelerate quotation creation." },
-  { href: "/suppliers", title: "Suppliers", description: "Manage the supplier and subcontractor master records." },
-  { href: "/collections", title: "Collections", description: "Overdue receivables, chasing workflow, and case management." },
-  { href: "/cashflow", title: "Cashflow", description: "Company cashflow forecast across invoices, billing stages, and supplier exposure." },
-  { href: "/settings/security", title: "Security", description: "Security center, password, and active sessions." },
-  { href: "/settings/accounting", title: "Accounting", description: "Xero-ready accounting sync mappings, tax codes, and sync logs." },
+  { href: "/bidding", title: "Bidding", description: "GeBIZ tenders, costing, documents, and approvals." },
+  { href: "/documents", title: "Documents", description: "Central register for client-facing and generated documents." },
+  { href: "/command-center", title: "Command Center", description: "Owner/director dashboard for full business health." },
+  { href: "/ai-actions", title: "AI Actions", description: "Approval queue for AI-recommended actions." },
 ];
 
-const workflowCards: Card[] = [
-  {
-    href: "/projects",
-    title: "Design Workflow",
-    badge: "Project Module",
-    description: "Open a project to manage design briefs, room-by-room collaboration, QS BOQ drafts, and push to quotation.",
-  },
-  {
-    href: "/projects",
-    title: "Quotations",
-    badge: "Project Module",
-    description: "Open a project to access project-linked quotations and BOQ costing.",
-  },
-  {
-    href: "/projects",
-    title: "Contracts",
-    badge: "Project Module",
-    description: "Open a project to generate and e-sign contracts from accepted quotations.",
-  },
-  {
-    href: "/projects",
-    title: "Billing",
-    badge: "Project Module",
-    description: "Open a project to manage payment schedules and progressive billing controls.",
-  },
-  {
-    href: "/projects",
-    title: "Invoices",
-    badge: "Project Module",
-    description: "Open a project to view invoices, print, and record collections.",
-  },
-  {
-    href: "/projects",
-    title: "Receipts",
-    badge: "Project Module",
-    description: "Open a project to record receipts and track collected payments.",
-  },
-  {
-    href: "/projects",
-    title: "Communications",
-    badge: "Project Module",
-    description: "Open a project to view correspondence logs and outbound message history.",
-  },
-  {
-    href: "/projects",
-    title: "Purchase Orders",
-    badge: "Project Module",
-    description: "Open a project to issue purchase orders and track committed costs.",
-  },
-  {
-    href: "/projects",
-    title: "Subcontracts",
-    badge: "Project Module",
-    description: "Open a project to manage subcontracts, claims, and controls.",
-  },
-  {
-    href: "/projects",
-    title: "Supplier Bills",
-    badge: "Project Module",
-    description: "Open a project to record supplier bills and actual costs.",
-  },
-  {
-    href: "/projects",
-    title: "P&L",
-    badge: "Project Module",
-    description: "Open a project to view profitability, alerts, and margin leakage signals.",
-  },
-  {
-    href: "/quotation",
-    title: "Legacy Quotations",
-    description: "Older quotation workflow (non-project linked).",
-  },
+// Inline list of project-scoped modules. Previously rendered as 12 cards that
+// all linked to /projects with the same "Open a project to…" copy, which read
+// as filler. Now compressed into a single CTA + a concise inline list.
+const projectModules: string[] = [
+  "Design Workflow",
+  "Quotations",
+  "Contracts",
+  "Billing & Invoices",
+  "Receipts",
+  "Communications",
+  "Purchase Orders",
+  "Subcontracts",
+  "Supplier Bills",
+  "P&L",
 ];
 
 export default async function DashboardPage() {
@@ -245,16 +179,15 @@ export default async function DashboardPage() {
     }, 0),
   ]);
 
-  const primary = primaryCards.map((c) => {
+  const quick = quickActions.map((c) => {
     if (c.title === "Projects") return { ...c, badge: `Total: ${projectCount}` };
     if (c.title === "Leads Pipeline") return { ...c, badge: `Leads: ${leadCount}` };
-    if (c.title === "Collections") return { ...c, badge: `Outstanding: ${formatCurrency(invoiceOutstandingTotal)}` };
     if (c.title === "AI Actions") return { ...c, badge: `Pending: ${aiActionsPendingApproval}` };
     return c;
   });
 
-  const primaryWithExecGate = primary.filter((c) => {
-    if (c.title === "Command Center" || c.title === "AI Control Center" || c.title === "AI Actions" || c.title === "AI Learning") return canCommandCenter;
+  const quickWithExecGate = quick.filter((c) => {
+    if (c.title === "Command Center" || c.title === "AI Actions") return canCommandCenter;
     return true;
   });
 
@@ -276,7 +209,7 @@ export default async function DashboardPage() {
         }
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricTile title="Projects" value={String(projectCount)} href="/projects" />
         <MetricTile title="Leads" value={String(leadCount)} href="/leads" />
         <MetricTile title="Outstanding Receivables" value={formatCurrency(invoiceOutstandingTotal)} href="/collections" />
@@ -291,12 +224,12 @@ export default async function DashboardPage() {
         title="Tender Intelligence"
         description="GeBIZ tender radar (last 7 days), high-fit opportunities, and closing-soon risk. Open Bidding for deep analysis."
         actions={
-          <Link href="/bidding/opportunities" className="text-sm font-semibold text-neutral-900 hover:underline">
+          <Link href="/bidding/opportunities" className="inline-flex h-8 items-center rounded-lg px-2 text-sm font-semibold text-neutral-900 transition hover:bg-stone-100 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
             Open GeBIZ opportunities
           </Link>
         }
       >
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <MetricTile title="New Opportunities" value={String(newOpportunitiesCount)} href="/bidding/opportunities?source=GEBIZ&status=WATCHING" />
           <MetricTile title="High Fit" value={String(highFitCount)} href="/bidding/opportunities?fit=HIGH" />
           <MetricTile title="Closing ≤ 7 Days" value={String(closingSoonCount)} href="/bidding/opportunities?deadline=HIGH" />
@@ -310,31 +243,35 @@ export default async function DashboardPage() {
 
       <SectionCard
         title="Quick Access"
-        description="Core navigation and key workflows. Project modules require selecting a project first."
+        description="Most-used routes. Everything else lives in the sidebar."
       >
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {primaryWithExecGate.map((card) => (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {quickWithExecGate.map((card) => (
             <DashboardCard key={card.title} card={card} />
           ))}
         </div>
       </SectionCard>
 
       <SectionCard
-        title="Project Workflow"
-        description="Open a project to access quotations, contracts, billing, invoices, suppliers, and project P&L."
+        title="Project Modules"
+        description="Quotations, contracts, billing, invoices, suppliers, and project P&L all live inside a project."
+        actions={
+          <Link href="/projects" className="inline-flex h-8 items-center rounded-lg px-2 text-sm font-semibold text-neutral-900 transition hover:bg-stone-100 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
+            Open a project →
+          </Link>
+        }
       >
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {workflowCards.map((card) => (
-            <DashboardCard key={card.title} card={card} />
-          ))}
-        </div>
+        <p className="text-sm leading-6 text-neutral-600">
+          Inside a project you can access:{" "}
+          <span className="text-neutral-900">{projectModules.join(", ")}</span>.
+        </p>
       </SectionCard>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <SectionCard
           title="Recent Projects"
           actions={
-            <Link href="/projects" className="text-sm font-semibold text-neutral-900 hover:underline">
+            <Link href="/projects" className="inline-flex h-8 items-center rounded-lg px-2 text-sm font-semibold text-neutral-900 transition hover:bg-stone-100 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
               Open projects
             </Link>
           }
@@ -369,7 +306,7 @@ export default async function DashboardPage() {
         <SectionCard
           title="Recent Leads"
           actions={
-            <Link href="/leads" className="text-sm font-semibold text-neutral-900 hover:underline">
+            <Link href="/leads" className="inline-flex h-8 items-center rounded-lg px-2 text-sm font-semibold text-neutral-900 transition hover:bg-stone-100 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
               Open leads
             </Link>
           }

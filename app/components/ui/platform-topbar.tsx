@@ -54,7 +54,7 @@ export function PlatformTopbar(props: {
         <button
           type="button"
           onClick={props.onOpenMobileSidebar}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-neutral-700 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 lg:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-neutral-700 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 lg:hidden"
           aria-label="Open menu"
         >
           <Menu className="h-4 w-4" />
@@ -63,7 +63,7 @@ export function PlatformTopbar(props: {
         <button
           type="button"
           onClick={props.onToggleSidebarCollapsed}
-          className="hidden h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-neutral-700 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 lg:inline-flex"
+          className="hidden h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-neutral-700 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 lg:inline-flex"
           aria-label={props.sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {props.sidebarCollapsed ? <SidebarOpen className="h-4 w-4" /> : <SidebarClose className="h-4 w-4" />}
@@ -71,7 +71,7 @@ export function PlatformTopbar(props: {
 
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 rounded-2xl px-2 py-1 text-sm font-semibold tracking-tight text-neutral-950 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+          className="inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-semibold tracking-tight text-neutral-950 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
         >
           <LayoutGrid className="h-4 w-4 text-neutral-700" />
           <span>Buildy</span>
@@ -85,7 +85,7 @@ export function PlatformTopbar(props: {
             name="q"
             placeholder="Search projects (code, client, address)…"
             className={cx(
-              "h-10 w-full rounded-2xl border border-slate-200 bg-white pl-10 pr-10 text-sm outline-none ring-neutral-400 transition",
+              "h-10 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-10 text-sm outline-none ring-neutral-400 transition",
               "focus:ring-2",
             )}
             aria-label="Global search"
@@ -106,7 +106,7 @@ export function PlatformTopbar(props: {
                 setQuickOpen((v) => !v);
                 setProfileOpen(false);
               }}
-              className="inline-flex h-10 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
               aria-expanded={quickOpen}
               aria-label="Quick create"
             >
@@ -143,7 +143,7 @@ export function PlatformTopbar(props: {
                 setProfileOpen((v) => !v);
                 setQuickOpen(false);
               }}
-              className="inline-flex h-10 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-2 pr-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 pr-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
               aria-expanded={profileOpen}
               aria-label="User menu"
             >

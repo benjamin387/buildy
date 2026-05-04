@@ -7,6 +7,7 @@ import { SectionCard } from "@/app/components/ui/section-card";
 import { StatusPill } from "@/app/components/ui/status-pill";
 import { ActionButton } from "@/app/components/ui/action-button";
 import { EmptyState } from "@/app/components/ui/empty-state";
+import { PaginationControls } from "@/app/components/ui/pagination";
 import { markAllNotificationsReadAction, markNotificationReadAction } from "@/app/(platform)/notifications/actions";
 
 function formatDateTime(date: Date): string {
@@ -60,8 +61,6 @@ export default async function NotificationsPage(props: {
   })();
 
   const hasAny = total > 0;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
   const baseParams = new URLSearchParams();
   if (unreadOnly) baseParams.set("unread", "1");
   if (severity) baseParams.set("severity", severity);
@@ -79,13 +78,7 @@ export default async function NotificationsPage(props: {
         kicker="Inbox"
         title="Notifications"
         subtitle="Alerts, reminders, and system events relevant to you."
-        actions={
-          <form action={markAllNotificationsReadAction}>
-            <ActionButton type="submit" variant="secondary">
-              Mark all as read
-            </ActionButton>
-          </form>
-        }
+        actions={<form action={markAllNotificationsReadAction}><ActionButton type="submit" variant="secondary">Mark all as read</ActionButton></form>}
       />
 
       <SectionCard
@@ -162,31 +155,7 @@ export default async function NotificationsPage(props: {
               </table>
             </div>
 
-            <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-              <p className="text-sm text-neutral-600">
-                Page {page} of {totalPages}
-              </p>
-              <div className="flex flex-wrap items-center gap-2">
-                {page > 1 ? (
-                  <Link href={pageHref(page - 1)}>
-                    <ActionButton variant="secondary">Previous</ActionButton>
-                  </Link>
-                ) : (
-                  <ActionButton variant="secondary" disabled>
-                    Previous
-                  </ActionButton>
-                )}
-                {page < totalPages ? (
-                  <Link href={pageHref(page + 1)}>
-                    <ActionButton variant="secondary">Next</ActionButton>
-                  </Link>
-                ) : (
-                  <ActionButton variant="secondary" disabled>
-                    Next
-                  </ActionButton>
-                )}
-              </div>
-            </div>
+            <PaginationControls page={page} pageSize={pageSize} total={total} hrefForPage={pageHref} />
           </div>
         ) : (
           <EmptyState

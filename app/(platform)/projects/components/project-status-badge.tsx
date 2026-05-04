@@ -1,4 +1,5 @@
 import { ProjectStatus } from "@prisma/client";
+import { StatusPill } from "@/app/components/ui/status-pill";
 
 function labelForStatus(status: ProjectStatus): string {
   return status
@@ -8,10 +9,16 @@ function labelForStatus(status: ProjectStatus): string {
 }
 
 export function ProjectStatusBadge(props: { status: ProjectStatus }) {
-  return (
-    <span className="inline-flex rounded-lg bg-neutral-100 px-2.5 py-1 text-xs font-semibold text-neutral-800">
-      {labelForStatus(props.status)}
-    </span>
-  );
-}
+  const tone =
+    props.status === "COMPLETED"
+      ? "success"
+      : props.status === "IN_PROGRESS"
+        ? "warning"
+        : props.status === "ON_HOLD" || props.status === "CANCELLED"
+          ? "danger"
+          : props.status === "LEAD" || props.status === "QUOTING" || props.status === "CONTRACTED"
+            ? "info"
+            : "neutral";
 
+  return <StatusPill tone={tone}>{labelForStatus(props.status)}</StatusPill>;
+}
