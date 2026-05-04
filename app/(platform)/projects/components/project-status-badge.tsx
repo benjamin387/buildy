@@ -16,7 +16,7 @@ export function ProjectStatusBadge(props: { status: ProjectStatus }) {
         ? "warning"
         : props.status === "ON_HOLD" || props.status === "CANCELLED"
           ? "danger"
-          : props.status === "PLANNING"
+          : props.status === "LEAD" || props.status === "QUOTING" || props.status === "CONTRACTED"
             ? "info"
             : "neutral";
 
