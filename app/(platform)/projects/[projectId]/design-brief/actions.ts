@@ -31,6 +31,7 @@ import {
   deleteQsBoqDraftItem,
   saveQsBoqDraftItems,
   updateDesignArea,
+  updateDesignBrief,
   updateDesignBriefStatus,
   updateDesignTask,
   upsertPresentation,
@@ -70,6 +71,15 @@ const createBriefSchema = z.object({
   designStyle: z.string().optional().or(z.literal("")).default(""),
   propertyType: z.enum(["HDB", "CONDO", "LANDED", "COMMERCIAL", "OTHER"]),
 });
+
+function designBriefEditHref(projectId: string, briefId: string): string {
+  return `/projects/${projectId}/design-brief/${briefId}/edit`;
+}
+
+function formatDeleteBlocker(count: number, label: string): string | null {
+  if (count < 1) return null;
+  return `${count} ${label}${count === 1 ? "" : "s"}`;
+}
 
 export async function createDesignBriefAction(formData: FormData) {
   const projectId = String(formData.get("projectId") ?? "");
@@ -128,6 +138,168 @@ export async function createDesignBriefAction(formData: FormData) {
 
   revalidatePath(`/projects/${parsed.data.projectId}/design-brief`);
   redirect(`/projects/${parsed.data.projectId}/design-brief/${brief.id}`);
+}
+
+const updateBriefSchema = createBriefSchema.extend({
+  briefId: z.string().min(1),
+});
+
+export async function updateDesignBriefAction(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  const parsed = updateBriefSchema.safeParse({
+    projectId,
+    briefId: formData.get("briefId"),
+    title: formData.get("title"),
+    clientNeeds: formData.get("clientNeeds"),
+    designStyle: formData.get("designStyle"),
+    propertyType: formData.get("propertyType"),
+  });
+  if (!parsed.success) throw new Error("Invalid design brief.");
+
+  const { userId } = await requirePermission({ permission: Permission.PROJECT_WRITE, projectId });
+
+  let updated: Awaited<ReturnType<typeof updateDesignBrief>> | null = null;
+  try {
+    const existing = await prisma.designBrief.findUnique({
+      where: { id: parsed.data.briefId },
+      select: {
+        id: true,
+        projectId: true,
+        title: true,
+        clientNeeds: true,
+        designStyle: true,
+        propertyType: true,
+        status: true,
+      },
+    });
+    if (!existing || existing.projectId !== parsed.data.projectId) {
+      throw new Error("Design brief not found.");
+    }
+
+    updated = await updateDesignBrief({
+      briefId: existing.id,
+      title: parsed.data.title,
+      clientNeeds: parsed.data.clientNeeds,
+      designStyle: parsed.data.designStyle ? (parsed.data.designStyle as DesignStyle) : null,
+      propertyType: parsed.data.propertyType as PropertyType,
+    });
+
+    await auditLog({
+      module: "design_workflow",
+      action: "update_brief",
+      actorUserId: userId,
+      projectId: parsed.data.projectId,
+      entityType: "DesignBrief",
+      entityId: updated.id,
+      metadata: {
+        fromTitle: existing.title,
+        toTitle: updated.title,
+        status: updated.status,
+      },
+    });
+    await createRevision({
+      entityType: "DesignBrief",
+      entityId: updated.id,
+      projectId: parsed.data.projectId,
+      actorUserId: userId,
+      note: "Design brief updated",
+      data: toRevisionJson(updated),
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Failed to update design brief.";
+    redirect(`${designBriefEditHref(parsed.data.projectId, parsed.data.briefId)}?error=${encodeURIComponent(msg.slice(0, 180))}`);
+  }
+  if (!updated) {
+    throw new Error("Failed to update design brief.");
+  }
+
+  revalidatePath(`/projects/${parsed.data.projectId}/design-brief`);
+  revalidatePath(`/projects/${parsed.data.projectId}/design-brief/${updated.id}`);
+  revalidatePath(designBriefEditHref(parsed.data.projectId, updated.id));
+  redirect(`/projects/${parsed.data.projectId}/design-brief/${updated.id}?notice=${encodeURIComponent("Design brief updated.")}`);
+}
+
+const deleteBriefSchema = z.object({
+  projectId: z.string().min(1),
+  briefId: z.string().min(1),
+});
+
+export async function deleteDesignBriefAction(formData: FormData) {
+  const projectId = String(formData.get("projectId") ?? "");
+  const parsed = deleteBriefSchema.safeParse({
+    projectId,
+    briefId: formData.get("briefId"),
+  });
+  if (!parsed.success) throw new Error("Invalid request.");
+
+  const { userId } = await requirePermission({ permission: Permission.PROJECT_WRITE, projectId });
+
+  try {
+    const deleted = await prisma.$transaction(async (tx) => {
+      const brief = await tx.designBrief.findUnique({
+        where: { id: parsed.data.briefId },
+        select: {
+          id: true,
+          projectId: true,
+          title: true,
+          clientNeeds: true,
+          designStyle: true,
+          propertyType: true,
+          status: true,
+          _count: {
+            select: {
+              followUps: true,
+              quotations: true,
+              upsellRecommendations: true,
+            },
+          },
+        },
+      });
+      if (!brief || brief.projectId !== parsed.data.projectId) {
+        throw new Error("Design brief not found.");
+      }
+
+      const blockers = [
+        formatDeleteBlocker(brief._count.quotations, "linked quotation"),
+        formatDeleteBlocker(brief._count.followUps, "client follow-up"),
+        formatDeleteBlocker(brief._count.upsellRecommendations, "upsell recommendation"),
+      ].filter((value): value is string => Boolean(value));
+
+      if (blockers.length > 0) {
+        throw new Error(`Cannot delete this design brief because it has ${blockers.join(", ")}.`);
+      }
+
+      await tx.designBrief.delete({
+        where: { id: brief.id },
+      });
+
+      return brief;
+    });
+
+    await auditLog({
+      module: "design_workflow",
+      action: "delete_brief",
+      actorUserId: userId,
+      projectId: parsed.data.projectId,
+      entityType: "DesignBrief",
+      entityId: deleted.id,
+      metadata: { title: deleted.title, status: deleted.status },
+    });
+    await createRevision({
+      entityType: "DesignBrief",
+      entityId: deleted.id,
+      projectId: parsed.data.projectId,
+      actorUserId: userId,
+      note: "Design brief deleted",
+      data: toRevisionJson(deleted),
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Failed to delete design brief.";
+    redirect(`${designBriefEditHref(parsed.data.projectId, parsed.data.briefId)}?error=${encodeURIComponent(msg.slice(0, 180))}`);
+  }
+
+  revalidatePath(`/projects/${parsed.data.projectId}/design-brief`);
+  redirect(`/projects/${parsed.data.projectId}/design-brief?notice=${encodeURIComponent("Design brief deleted.")}`);
 }
 
 const updateBriefStatusSchema = z.object({

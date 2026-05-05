@@ -98,6 +98,8 @@ export default async function DesignBriefDashboardPage({
   const pipelineError = typeof sp.pipelineError === "string" ? sp.pipelineError : "";
   const salesPackageReady = typeof sp.salesPackageReady === "string" ? sp.salesPackageReady : "";
   const quotationId = typeof sp.quotationId === "string" ? sp.quotationId : "";
+  const notice = typeof sp.notice === "string" ? sp.notice : "";
+  const error = typeof sp.error === "string" ? sp.error : "";
 
   const openTasks = brief.tasks.filter((t) => t.status !== "COMPLETED").length;
   const roleStats = Object.values(DesignRole).map((role) => {
@@ -139,6 +141,12 @@ export default async function DesignBriefDashboardPage({
 
         <div className="flex flex-wrap items-center justify-end gap-2">
           <Link
+            href={`/projects/${projectId}/design-brief/${briefId}/edit`}
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
+          >
+            Edit Brief
+          </Link>
+          <Link
             href={`/projects/${projectId}/design-brief/${briefId}/areas`}
             className="inline-flex h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
           >
@@ -152,6 +160,18 @@ export default async function DesignBriefDashboardPage({
           </Link>
         </div>
       </div>
+
+      {error ? (
+        <section className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <span className="font-semibold">Error:</span> {error}
+        </section>
+      ) : null}
+
+      {notice ? (
+        <section className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          {notice}
+        </section>
+      ) : null}
 
       <section className="grid gap-4 lg:grid-cols-3">
         <MetricCard title="Created" value={formatDate(brief.createdAt)} />
