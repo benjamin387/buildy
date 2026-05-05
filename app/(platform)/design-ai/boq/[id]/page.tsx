@@ -141,14 +141,14 @@ export default async function DesignBoqDetailPage({ params }: { params: Promise<
         <div className="mt-4 flex flex-wrap gap-3">
           <form action={createQuotationFromDesignBOQ}>
             <input type="hidden" name="boqId" value={boq.id} />
-            <ActionButton type="submit" disabled={!boq.designBrief.projectId}>Create Quotation</ActionButton>
+            <ActionButton type="submit">Create Quotation</ActionButton>
           </form>
           <Link href={`/design-ai/briefs/${boq.designBrief.id}`} className="inline-flex h-11 items-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 hover:bg-slate-50">
             Open Design Brief
           </Link>
         </div>
         {!boq.designBrief.projectId ? (
-          <p className="mt-2 text-xs text-amber-700">This design brief is not linked to a project yet, so quotation conversion is disabled.</p>
+          <p className="mt-2 text-xs text-amber-700">This design brief is not linked to a project yet. Create or link a project if quotation conversion needs project context.</p>
         ) : null}
       </SectionCard>
     </main>

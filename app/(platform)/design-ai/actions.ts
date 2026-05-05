@@ -5,6 +5,7 @@ import {
   LineItemType,
   Permission,
   Prisma,
+  ProjectStatus,
   PropertyType,
   ScopeCategory,
 } from "@prisma/client";
@@ -14,6 +15,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth/session";
 import { requirePermission } from "@/lib/rbac";
+import { createProjectWithTx } from "@/lib/projects/service";
 import { generateQuoteReference } from "@/lib/quotation-engine/quote-reference";
 import { computeProjectQuotationSummary } from "@/lib/quotation-engine/project-quotation-math";
 import { generateBriefSummaryAi, generateDesignConceptAi } from "@/lib/design-ai/engine";
@@ -116,6 +118,125 @@ function numberToNullableString(value: number | null): string | null {
 function asNumber(value: { toString(): string } | number | null): number | null {
   if (value === null) return null;
   return Number(value.toString());
+}
+
+type DesignBriefProjectSource = {
+  id: string;
+  title: string;
+  clientName: string | null;
+  clientPhone: string | null;
+  clientEmail: string | null;
+  propertyType: PropertyType;
+  propertyAddress: string | null;
+  floorArea: string | null;
+  rooms: string | null;
+  preferredStyle: string | null;
+  timeline: string | null;
+  requirements: string | null;
+};
+
+function deriveProjectTypeFromPropertyType(propertyType: PropertyType): "RESIDENTIAL" | "COMMERCIAL" {
+  return propertyType === PropertyType.COMMERCIAL ? "COMMERCIAL" : "RESIDENTIAL";
+}
+
+function buildProjectNotesFromDesignBrief(brief: DesignBriefProjectSource): string | null {
+  const notes = [
+    `Generated from design brief: ${brief.title}`,
+    `Property type: ${brief.propertyType}`,
+    brief.floorArea ? `Floor area: ${brief.floorArea}` : null,
+    brief.rooms ? `Rooms: ${brief.rooms}` : null,
+    brief.preferredStyle ? `Preferred style: ${brief.preferredStyle}` : null,
+    brief.timeline ? `Timeline: ${brief.timeline}` : null,
+    brief.requirements ? `Requirements: ${brief.requirements}` : null,
+  ].filter((value): value is string => Boolean(value));
+
+  return notes.length > 0 ? notes.join("\n") : null;
+}
+
+async function ensureProjectForDesignBrief(params: {
+  brief: DesignBriefProjectSource;
+  actorUserId: string;
+}) {
+  const clientName = params.brief.clientName?.trim() || params.brief.title.trim() || "Design Project";
+  const siteAddress = params.brief.propertyAddress?.trim() || params.brief.title.trim() || "Address pending";
+  const projectName = params.brief.clientName?.trim()
+    ? `${params.brief.clientName.trim()} Project`
+    : params.brief.title.trim() || "Design Project";
+
+  return prisma.$transaction(async (tx) => {
+    const current = await tx.designBrief.findUnique({
+      where: { id: params.brief.id },
+      select: { projectId: true },
+    });
+    if (!current) throw new Error("Design brief not found.");
+    if (current.projectId) {
+      return { projectId: current.projectId, created: false };
+    }
+
+    const { project, client } = await createProjectWithTx(tx, {
+      projectCode: undefined,
+      name: projectName,
+      projectType: deriveProjectTypeFromPropertyType(params.brief.propertyType),
+      status: ProjectStatus.LEAD,
+      clientName,
+      clientCompany: null,
+      clientEmail: params.brief.clientEmail?.trim().toLowerCase() || null,
+      clientPhone: params.brief.clientPhone?.trim() || null,
+      siteAddress,
+      startDate: null,
+      targetCompletionDate: null,
+      actualCompletionDate: null,
+      contractValue: 0,
+      revisedContractValue: 0,
+      estimatedCost: 0,
+      committedCost: 0,
+      actualCost: 0,
+      notes: buildProjectNotesFromDesignBrief(params.brief),
+      addressLine1: siteAddress,
+      addressLine2: null,
+      postalCode: null,
+      propertyType: params.brief.propertyType,
+      unitSizeSqft: null,
+    });
+
+    const linked = await tx.designBrief.updateMany({
+      where: { id: params.brief.id, projectId: null },
+      data: { projectId: project.id },
+    });
+
+    if (linked.count === 0) {
+      const existing = await tx.designBrief.findUnique({
+        where: { id: params.brief.id },
+        select: { projectId: true },
+      });
+      await tx.client.delete({ where: { id: client.id } });
+      if (!existing?.projectId) {
+        throw new Error("Design brief is not linked to a project.");
+      }
+      return { projectId: existing.projectId, created: false };
+    }
+
+    await tx.projectCommercialProfile.create({
+      data: { projectId: project.id, status: "LEAD" },
+    });
+
+    await tx.projectTimelineItem.create({
+      data: {
+        projectId: project.id,
+        type: "NOTE",
+        title: "Project auto-created from design brief",
+        description: `Generated while converting BOQ "${params.brief.title}" to quotation.`,
+        createdById: params.actorUserId,
+        metadata: {
+          designBriefId: params.brief.id,
+          designBriefTitle: params.brief.title,
+          propertyType: params.brief.propertyType,
+        },
+      },
+    });
+
+    return { projectId: project.id, created: true };
+  });
 }
 
 function briefPayload(brief: {
@@ -596,6 +717,7 @@ export async function deleteDesignBOQItem(formData: FormData) {
 }
 
 export async function createQuotationFromDesignBOQ(formData: FormData) {
+  const user = await requireUser();
   const boqId = String(formData.get("boqId") ?? "").trim();
   if (!boqId) throw new Error("Missing BOQ id.");
 
@@ -608,11 +730,19 @@ export async function createQuotationFromDesignBOQ(formData: FormData) {
   });
   if (!boq) throw new Error("BOQ not found.");
 
-  if (!boq.designBrief.projectId) {
-    throw new Error("Design brief is not linked to a project. Link it to a project before creating quotation.");
+  let projectId = boq.designBrief.projectId;
+  let createdProject = false;
+
+  if (!projectId) {
+    await requirePermission({ permission: Permission.PROJECT_WRITE });
+    const ensured = await ensureProjectForDesignBrief({
+      brief: boq.designBrief,
+      actorUserId: user.id,
+    });
+    projectId = ensured.projectId;
+    createdProject = ensured.created;
   }
 
-  const projectId = boq.designBrief.projectId;
   const { userId } = await requirePermission({ permission: Permission.QUOTE_WRITE, projectId });
 
   const project = await prisma.project.findUnique({
@@ -756,6 +886,10 @@ export async function createQuotationFromDesignBOQ(formData: FormData) {
   revalidatePath("/design-ai/boq");
   revalidatePath(`/design-ai/boq/${boqId}`);
   revalidatePath(`/design-ai/briefs/${boq.designBriefId}`);
+  if (createdProject) {
+    revalidatePath("/projects");
+    revalidatePath(`/projects/${projectId}`);
+  }
   revalidatePath(`/projects/${projectId}/quotations`);
 
   redirect(`/projects/${projectId}/quotations/${quotation.id}`);
