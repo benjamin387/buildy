@@ -1,0 +1,28 @@
+export const MODULE_ACCESS_KEYS = [
+  "dashboard",
+  "ai_design",
+  "design_briefs",
+  "design_concepts",
+  "design_boq",
+  "design_proposals",
+  "sales_followup",
+  "projects",
+  "project_cost_control",
+  "variation_orders",
+  "project_profitability",
+  "quotations",
+  "contracts",
+  "invoices",
+  "receipts",
+  "suppliers",
+  "subcontractors",
+  "purchase_orders",
+  "finance",
+  "cost_ledger",
+  "xero",
+  "settings",
+  "users",
+  "roles_access",
+] as const;
+
+export type ModuleAccessKey = (typeof MODULE_ACCESS_KEYS)[number];

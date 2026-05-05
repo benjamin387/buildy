@@ -111,7 +111,7 @@ export default async function SettingsIndexPage() {
           <Card
             title="Role Permissions"
             description="Fine-grained module/action permissions matrix by role."
-            href="/settings/permissions"
+            href="/settings/roles-access"
           />
         ) : null}
       </section>

@@ -98,6 +98,12 @@ export default async function ContractDetailPage({
 
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Link
+          href={`/contracts/${contractId}/signatures`}
+          className="inline-flex h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
+        >
+          Signature Audit
+        </Link>
+        <Link
           href={`/projects/${projectId}/contract/${contractId}/print`}
           className="inline-flex h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
         >

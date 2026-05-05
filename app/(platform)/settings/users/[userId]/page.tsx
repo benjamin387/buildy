@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PermissionLevel, PlatformModule, UserStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requirePlatformAdmin } from "@/lib/rbac/admin";
+import { requireModuleAccess, getCurrentUserAccess } from "@/lib/auth/module-access";
 import { getPrimaryRoleKey, getRoleLabel, ROLE_DEFINITIONS, type AppRoleKey } from "@/lib/rbac/permissions";
 import { PendingSubmitButton } from "@/app/(platform)/components/pending-submit-button";
 import { updateUserAction } from "@/app/(platform)/settings/users/actions";
@@ -54,6 +55,9 @@ export default async function EditUserPage({
   params: Promise<{ userId: string }>;
 }) {
   await requirePlatformAdmin();
+  await requireModuleAccess("users", "edit");
+  const access = await getCurrentUserAccess();
+  const canEdit = access.isAdmin || access.matrix.users.canEdit;
 
   const { userId } = await params;
 
@@ -118,6 +122,7 @@ export default async function EditUserPage({
         </div>
 
         <form action={updateUserAction} className="space-y-6 p-6">
+          <fieldset disabled={!canEdit} className="space-y-6 disabled:cursor-not-allowed disabled:opacity-60">
           <input type="hidden" name="userId" value={user.id} />
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -206,9 +211,9 @@ export default async function EditUserPage({
           <div className="flex justify-end">
             <PendingSubmitButton pendingText="Saving...">Save Changes</PendingSubmitButton>
           </div>
+          </fieldset>
         </form>
       </section>
     </main>
   );
 }
-

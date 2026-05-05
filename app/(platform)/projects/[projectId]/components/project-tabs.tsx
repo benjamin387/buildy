@@ -44,6 +44,9 @@ export function ProjectTabs(props: { projectId: string }) {
       { key: "variations", label: "Variations", href: `/projects/${id}/variations` },
       { key: "documents", label: "Documents", href: `/projects/${id}/documents` },
       { key: "pnl", label: "P&L", href: `/projects/${id}/pnl` },
+      { key: "profitability", label: "Profitability", href: `/projects/${id}/profitability` },
+      { key: "cost-ledger", label: "Cost Ledger", href: `/projects/${id}/cost-ledger` },
+      { key: "variation-orders", label: "Variation Orders", href: `/projects/${id}/variation-orders` },
       { key: "cashflow", label: "Cashflow", href: `/projects/${id}/cashflow` },
       { key: "comms", label: "Comms", href: `/projects/${id}/comms` },
     ];

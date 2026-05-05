@@ -4,6 +4,7 @@ import { requireExecutive } from "@/lib/rbac/executive";
 import { ROLE_DEFINITIONS, type AppRoleKey } from "@/lib/rbac/permissions";
 import { PERMISSION_MODULE_KEYS } from "@/lib/auth/permission-keys";
 import { DEFAULT_PERMISSION_RULES_BY_ROLE } from "@/lib/auth/permission-defaults";
+import { getCurrentUserAccess, requireModuleAccess } from "@/lib/auth/module-access";
 import { PageHeader } from "@/app/components/ui/page-header";
 import { SectionCard } from "@/app/components/ui/section-card";
 import { ActionButton } from "@/app/components/ui/action-button";
@@ -21,6 +22,9 @@ export default async function PermissionsSettingsPage(props: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireExecutive();
+  await requireModuleAccess("roles_access", "view");
+  const access = await getCurrentUserAccess();
+  const canEdit = access.isAdmin || access.matrix.roles_access.canEdit;
   const sp = await props.searchParams;
 
   const roleParam = (toSingle(sp.role) ?? "").trim();
@@ -104,13 +108,14 @@ export default async function PermissionsSettingsPage(props: {
         actions={
           <form action={resetRolePermissionMatrixAction}>
             <input type="hidden" name="roleKey" value={roleKey} />
-            <ActionButton type="submit" variant="danger">
+            <ActionButton type="submit" variant="danger" disabled={!canEdit}>
               Reset to defaults
             </ActionButton>
           </form>
         }
       >
         <form action={saveRolePermissionMatrixAction} className="space-y-4">
+          <fieldset disabled={!canEdit} className="space-y-4 disabled:cursor-not-allowed disabled:opacity-60">
           <input type="hidden" name="roleKey" value={roleKey} />
 
           <RolePermissionMatrix roleKey={roleKey} modules={modules} rules={rules} />
@@ -118,6 +123,7 @@ export default async function PermissionsSettingsPage(props: {
           <div className="flex justify-end gap-2">
             <ActionButton type="submit">Save Changes</ActionButton>
           </div>
+          </fieldset>
         </form>
       </SectionCard>
     </main>

@@ -1111,6 +1111,8 @@ model Project {
   communications    ProjectCommunicationLog[]
   variationOrders   VariationOrder[]
   actualCosts       ActualCostEntry[]
+  costLedgers       ProjectCostLedger[]
+  profitSnapshots   ProjectProfitSnapshot[]
   pnlAlerts         PnLAlert[]
   collectionCases   CollectionCase[]
   convertedLeads    Lead[]
@@ -1914,9 +1916,26 @@ model DesignBrief {
   clientNeeds  String
   designStyle  DesignStyle?
   propertyType PropertyType
+  clientName   String?
+  clientPhone  String?
+  clientEmail  String?
+  propertyAddress String?
+  floorArea    String?
+  rooms        String?
+  budgetMin    Decimal?          @db.Decimal(14, 2)
+  budgetMax    Decimal?          @db.Decimal(14, 2)
+  preferredStyle String?
+  timeline     String?
+  requirements String?
   status       DesignBriefStatus @default(DRAFT)
+  aiSummary    String?
+  aiRecommendedStyle String?
+  aiBudgetRisk String?
+  aiNextAction String?
+  aiStatus     String? @default("PENDING")
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
+  version      Int               @default(1)
 
   lead    Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
   project Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
@@ -1927,11 +1946,136 @@ model DesignBrief {
   budgetOptimizationScenarios BudgetOptimizationScenario[]
   upsellRecommendations UpsellRecommendation[]
   quotations   Quotation[]
+  concepts     DesignConcept[]
+  boqs         DesignBOQ[]
+  followUps    ClientFollowUp[]
 
   @@index([leadId])
   @@index([projectId])
   @@index([status])
   @@index([createdAt])
+}
+
+model DesignConcept {
+  id                 String   @id @default(cuid())
+  designBriefId      String
+  title              String
+  theme              String?
+  conceptSummary     String
+  livingRoomConcept  String?
+  bedroomConcept     String?
+  kitchenConcept     String?
+  bathroomConcept    String?
+  materialPalette    String?
+  lightingPlan       String?
+  furnitureDirection String?
+  renovationScope    String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  designBrief DesignBrief @relation(fields: [designBriefId], references: [id], onDelete: Cascade)
+  boqs        DesignBOQ[]
+
+  @@index([designBriefId])
+  @@index([createdAt])
+}
+
+model DesignBOQ {
+  id                String   @id @default(cuid())
+  designBriefId     String
+  designConceptId   String
+  title             String
+  status            String   @default("DRAFT")
+  totalCost         Decimal  @default(0) @db.Decimal(14, 2)
+  totalSellingPrice Decimal  @default(0) @db.Decimal(14, 2)
+  grossProfit       Decimal  @default(0) @db.Decimal(14, 2)
+  grossMargin       Decimal  @default(0) @db.Decimal(7, 4)
+  aiRiskNotes       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  designBrief   DesignBrief   @relation(fields: [designBriefId], references: [id], onDelete: Cascade)
+  designConcept DesignConcept @relation(fields: [designConceptId], references: [id], onDelete: Cascade)
+  items         DesignBOQItem[]
+
+  @@index([designBriefId])
+  @@index([designConceptId])
+  @@index([createdAt])
+}
+
+model DesignBOQItem {
+  id                String   @id @default(cuid())
+  designBOQId       String
+  room              String
+  category          String
+  description       String
+  quantity          Decimal  @default(0) @db.Decimal(14, 2)
+  unit              String
+  costRate          Decimal  @default(0) @db.Decimal(14, 2)
+  sellingRate       Decimal  @default(0) @db.Decimal(14, 2)
+  totalCost         Decimal  @default(0) @db.Decimal(14, 2)
+  totalSellingPrice Decimal  @default(0) @db.Decimal(14, 2)
+  margin            Decimal  @default(0) @db.Decimal(7, 4)
+  supplierType      String?
+  riskLevel         String?
+  aiNotes           String?
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  designBOQ DesignBOQ @relation(fields: [designBOQId], references: [id], onDelete: Cascade)
+
+  @@index([designBOQId])
+  @@index([room])
+  @@index([category])
+  @@index([sortOrder])
+}
+
+model ClientFollowUp {
+  id                  String   @id @default(cuid())
+  designBriefId       String?
+  quotationId         String?
+  proposalId          String?
+  clientName          String
+  clientPhone         String
+  stage               String
+  priority            String   @default("MEDIUM")
+  lastContactedAt     DateTime?
+  nextFollowUpAt      DateTime?
+  clientConcern       String?
+  aiSuggestedReply    String?
+  aiObjectionHandling String?
+  aiUpsellSuggestion  String?
+  aiDiscountLimit     String?
+  status              String   @default("OPEN")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  designBrief DesignBrief? @relation(fields: [designBriefId], references: [id], onDelete: SetNull)
+  quotation   Quotation?   @relation(fields: [quotationId], references: [id], onDelete: SetNull)
+
+  @@index([designBriefId])
+  @@index([quotationId])
+  @@index([stage])
+  @@index([priority])
+  @@index([status])
+  @@index([nextFollowUpAt])
+}
+
+model ClientMessageTemplate {
+  id        String         @id @default(cuid())
+  name      String
+  channel   MessageChannel
+  stage     String
+  tone      String
+  content   String
+  isActive  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([channel])
+  @@index([stage])
+  @@index([isActive])
 }
 
 model DesignTask {
@@ -2437,6 +2581,8 @@ model ClientPortalToken {
   createdAt DateTime @default(now())
 
   account ClientPortalAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  contractSignatures ContractSignature[]
+  contractApprovalLogs ContractApprovalLog[]
 
   @@index([accountId])
   @@index([expiresAt])
@@ -2479,6 +2625,7 @@ model User {
 
   roles              UserRole[]
   modulePermissions  UserModulePermission[]
+  moduleAccesses     UserModuleAccess[]
   sessions           Session[]
   authAuditLogs      AuthAuditLog[]
   projectMemberships ProjectMember[]
@@ -2516,6 +2663,24 @@ model UserModulePermission {
   @@index([module])
   @@index([level])
   @@index([createdAt])
+}
+
+model UserModuleAccess {
+  id        String   @id @default(cuid())
+  userId    String
+  moduleKey String
+  canView   Boolean  @default(false)
+  canCreate Boolean  @default(false)
+  canEdit   Boolean  @default(false)
+  canDelete Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleKey])
+  @@index([userId])
+  @@index([moduleKey])
 }
 
 model AccountingConnection {
@@ -4219,6 +4384,22 @@ model PermissionRule {
   @@index([moduleKey])
 }
 
+model RoleModuleAccess {
+  id        String   @id @default(cuid())
+  role      String
+  moduleKey String
+  canView   Boolean  @default(false)
+  canCreate Boolean  @default(false)
+  canEdit   Boolean  @default(false)
+  canDelete Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([role, moduleKey])
+  @@index([role])
+  @@index([moduleKey])
+}
+
 model Notification {
   id         String               @id @default(cuid())
   userEmail  String
@@ -4351,6 +4532,7 @@ model Quotation {
   paymentSchedules PaymentSchedule[]
   paymentTermsV2 QuotationPaymentTerm[]
   budgets   ProjectBudget[] @relation("QuotationBudgets")
+  followUps ClientFollowUp[]
 
   @@unique([quotationNumber, version])
   @@index([clientId])
@@ -4420,6 +4602,8 @@ model Contract {
   clauses   ContractClause[]
 
   signatureRequests SignatureRequest[]
+  contractSignatures ContractSignature[]
+  contractApprovalLogs ContractApprovalLog[]
   awardedBids       BidOpportunity[] @relation("BidAwardedContract")
   progressClaims    ProgressClaim[]
   retentionLedger   RetentionLedger[]
@@ -4434,6 +4618,51 @@ model Contract {
   @@index([status])
 
   @@map("JobContract")
+}
+
+model ContractSignature {
+  id                 String   @id @default(cuid())
+  contractId         String
+  clientPortalAccessId String
+  signerName         String
+  signerEmail        String
+  signerPhone        String?
+  signatureDataUrl   String
+  signedIpAddress    String?
+  signedUserAgent    String?
+  signedAt           DateTime?
+  status             String   @default("PENDING")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  clientPortalAccess ClientPortalToken @relation(fields: [clientPortalAccessId], references: [id], onDelete: Cascade)
+
+  @@index([contractId])
+  @@index([clientPortalAccessId])
+  @@index([status])
+  @@index([signedAt])
+  @@index([createdAt])
+  @@unique([contractId, clientPortalAccessId])
+}
+
+model ContractApprovalLog {
+  id                 String   @id @default(cuid())
+  contractId         String
+  clientPortalAccessId String?
+  action             String
+  comment            String?
+  ipAddress          String?
+  userAgent          String?
+  createdAt          DateTime @default(now())
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  clientPortalAccess ClientPortalToken? @relation(fields: [clientPortalAccessId], references: [id], onDelete: SetNull)
+
+  @@index([contractId])
+  @@index([clientPortalAccessId])
+  @@index([action])
+  @@index([createdAt])
 }
 
 model ClauseTemplate {
@@ -4768,6 +4997,7 @@ model VariationOrder {
   costImpact    Decimal             @default(0) @db.Decimal(14, 2)
   submittedAt   DateTime?
   approvedAt    DateTime?
+  clientApprovedAt DateTime?
   rejectedAt    DateTime?
 
   subtotal      Decimal @default(0) @db.Decimal(14, 2)
@@ -4861,6 +5091,58 @@ model ActualCostEntry {
   @@index([vendorId])
   @@index([category])
   @@index([occurredAt])
+}
+
+model ProjectCostLedger {
+  id          String   @id @default(cuid())
+  projectId   String
+  sourceType  String
+  sourceId    String?
+  description String
+  category    String
+  costType    String
+  amount      Decimal  @default(0) @db.Decimal(14, 2)
+  gstAmount   Decimal  @default(0) @db.Decimal(14, 2)
+  totalAmount Decimal  @default(0) @db.Decimal(14, 2)
+  status      String   @default("POSTED")
+  incurredDate DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([sourceType, sourceId])
+  @@index([category])
+  @@index([costType])
+  @@index([status])
+  @@index([incurredDate])
+}
+
+model ProjectProfitSnapshot {
+  id                     String   @id @default(cuid())
+  projectId              String
+  contractValue          Decimal  @default(0) @db.Decimal(14, 2)
+  approvedVariationValue Decimal  @default(0) @db.Decimal(14, 2)
+  totalRevenue           Decimal  @default(0) @db.Decimal(14, 2)
+  committedCost          Decimal  @default(0) @db.Decimal(14, 2)
+  actualCost             Decimal  @default(0) @db.Decimal(14, 2)
+  projectedCost          Decimal  @default(0) @db.Decimal(14, 2)
+  grossProfit            Decimal  @default(0) @db.Decimal(14, 2)
+  grossMargin            Decimal  @default(0) @db.Decimal(7, 4)
+  amountInvoiced         Decimal  @default(0) @db.Decimal(14, 2)
+  amountPaid             Decimal  @default(0) @db.Decimal(14, 2)
+  outstandingAmount      Decimal  @default(0) @db.Decimal(14, 2)
+  riskLevel              String
+  aiRiskSummary          String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([riskLevel])
+  @@index([createdAt])
 }
 
 model Invoice {

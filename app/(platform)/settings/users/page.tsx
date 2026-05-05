@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PermissionLevel, PlatformModule, UserStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requirePlatformAdmin } from "@/lib/rbac/admin";
+import { requireModuleAccess, getCurrentUserAccess } from "@/lib/auth/module-access";
 import { getPrimaryRoleKey, getRoleLabel, ROLE_DEFINITIONS, type AppRoleKey } from "@/lib/rbac/permissions";
 import { PendingSubmitButton } from "@/app/(platform)/components/pending-submit-button";
 import { createUserAction } from "@/app/(platform)/settings/users/actions";
@@ -65,6 +66,10 @@ const levels: PermissionLevel[] = ["NONE", "VIEW", "EDIT", "APPROVE", "ADMIN"];
 
 export default async function UsersSettingsPage() {
   await requirePlatformAdmin();
+  await requireModuleAccess("users", "view");
+  const access = await getCurrentUserAccess();
+  const canCreate = access.isAdmin || access.matrix.users.canCreate;
+  const canEdit = access.isAdmin || access.matrix.users.canEdit;
 
   const users = await prisma.user.findMany({
     select: {
@@ -109,7 +114,12 @@ export default async function UsersSettingsPage() {
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/settings/users/new"
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
+              aria-disabled={!canCreate}
+              className={`inline-flex h-11 items-center justify-center rounded-xl px-4 text-sm font-semibold transition ${
+                canCreate
+                  ? "bg-neutral-950 text-white hover:bg-neutral-800"
+                  : "cursor-not-allowed border border-neutral-300 bg-neutral-100 text-neutral-500"
+              }`}
             >
               New User
             </Link>
@@ -126,6 +136,7 @@ export default async function UsersSettingsPage() {
         </div>
 
         <form action={createUserAction} className="space-y-6 p-6">
+          <fieldset disabled={!canCreate} className="space-y-6 disabled:cursor-not-allowed disabled:opacity-60">
           <div className="grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm">
               <span className="font-medium text-neutral-800">Name</span>
@@ -205,6 +216,7 @@ export default async function UsersSettingsPage() {
           <div className="flex justify-end">
             <PendingSubmitButton pendingText="Creating...">Create User</PendingSubmitButton>
           </div>
+          </fieldset>
         </form>
       </section>
 
@@ -249,8 +261,13 @@ export default async function UsersSettingsPage() {
                     <td className="px-4 py-3 text-neutral-700">{formatDate(u.createdAt)}</td>
                     <td className="px-4 py-3">
                       <Link
-                        href={`/settings/users/${u.id}`}
-                        className="inline-flex h-10 items-center justify-center rounded-xl border border-neutral-300 bg-white px-3 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
+                        href={canEdit ? `/settings/users/${u.id}/access` : "#"}
+                        aria-disabled={!canEdit}
+                        className={`inline-flex h-10 items-center justify-center rounded-xl border px-3 text-sm font-semibold transition ${
+                          canEdit
+                            ? "border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100"
+                            : "cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-400"
+                        }`}
                       >
                         Edit
                       </Link>

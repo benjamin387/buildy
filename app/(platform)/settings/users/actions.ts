@@ -9,6 +9,7 @@ import { requirePlatformAdmin } from "@/lib/rbac/admin";
 import { ROLE_DEFINITIONS, type AppRoleKey } from "@/lib/rbac/permissions";
 import { hashPassword } from "@/lib/security/password";
 import { auditLog } from "@/lib/audit";
+import { MODULE_ACCESS_KEYS } from "@/lib/auth/module-access-keys";
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -19,6 +20,57 @@ function toStatus(isActive: boolean): UserStatus {
 }
 
 const moduleKeys = Object.values(PlatformModule);
+
+function levelToCrud(level: PermissionLevel) {
+  const isEditor = level === PermissionLevel.EDIT || level === PermissionLevel.APPROVE || level === PermissionLevel.ADMIN;
+  const isApprover = level === PermissionLevel.APPROVE || level === PermissionLevel.ADMIN;
+  return {
+    canView: level !== PermissionLevel.NONE,
+    canCreate: isEditor,
+    canEdit: isEditor,
+    canDelete: isApprover,
+  };
+}
+
+const MODULE_ACCESS_TO_PLATFORM_MODULE: Record<string, PlatformModule> = {
+  dashboard: PlatformModule.SETTINGS,
+  ai_design: PlatformModule.PROJECTS,
+  design_briefs: PlatformModule.PROJECTS,
+  design_concepts: PlatformModule.PROJECTS,
+  design_boq: PlatformModule.PROJECTS,
+  design_proposals: PlatformModule.PROJECTS,
+  sales_followup: PlatformModule.PROJECTS,
+  projects: PlatformModule.PROJECTS,
+  project_cost_control: PlatformModule.PROJECTS,
+  variation_orders: PlatformModule.PROJECTS,
+  project_profitability: PlatformModule.PROJECTS,
+  quotations: PlatformModule.QUOTATIONS,
+  contracts: PlatformModule.CONTRACTS,
+  invoices: PlatformModule.INVOICES,
+  receipts: PlatformModule.INVOICES,
+  suppliers: PlatformModule.SUPPLIERS,
+  subcontractors: PlatformModule.SUPPLIERS,
+  purchase_orders: PlatformModule.SUPPLIERS,
+  finance: PlatformModule.SETTINGS,
+  cost_ledger: PlatformModule.SETTINGS,
+  xero: PlatformModule.SETTINGS,
+  settings: PlatformModule.SETTINGS,
+  users: PlatformModule.SETTINGS,
+  roles_access: PlatformModule.SETTINGS,
+};
+
+function toUserModuleAccessRows(userId: string, permissions: Array<{ module: PlatformModule; level: PermissionLevel }>) {
+  return MODULE_ACCESS_KEYS.map((moduleKey) => {
+    const mappedPlatformModule = MODULE_ACCESS_TO_PLATFORM_MODULE[moduleKey] ?? PlatformModule.SETTINGS;
+    const level = permissions.find((p) => p.module === mappedPlatformModule)?.level ?? PermissionLevel.NONE;
+    const crud = levelToCrud(level);
+    return {
+      userId,
+      moduleKey,
+      ...crud,
+    };
+  });
+}
 
 function permissionLevelFromForm(formData: FormData, module: PlatformModule): PermissionLevel {
   const key = `perm_${module}`;
@@ -111,6 +163,11 @@ export async function createUserAction(formData: FormData) {
         module: p.module,
         level: p.level,
       })),
+      skipDuplicates: true,
+    });
+
+    await tx.userModuleAccess.createMany({
+      data: toUserModuleAccessRows(created.id, permissions),
       skipDuplicates: true,
     });
 
@@ -231,6 +288,20 @@ export async function updateUserAction(formData: FormData) {
         update: { level: p.level },
       });
     }
+
+    const moduleAccessRows = toUserModuleAccessRows(userId, modulePerms);
+    for (const row of moduleAccessRows) {
+      await tx.userModuleAccess.upsert({
+        where: { userId_moduleKey: { userId: row.userId, moduleKey: row.moduleKey } },
+        create: row,
+        update: {
+          canView: row.canView,
+          canCreate: row.canCreate,
+          canEdit: row.canEdit,
+          canDelete: row.canDelete,
+        },
+      });
+    }
   });
 
   await auditLog({
@@ -247,4 +318,3 @@ export async function updateUserAction(formData: FormData) {
   revalidatePath(`/settings/users/${userId}`);
   redirect(`/settings/users/${userId}`);
 }
-
