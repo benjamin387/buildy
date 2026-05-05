@@ -63,7 +63,7 @@ export default async function CompanyComplianceSettingsPage() {
           <Field label="Legal Name" name="legalName" defaultValue={profile?.legalName ?? ""} placeholder="Optional" />
           <Field label="UEN" name="uen" defaultValue={profile?.uen ?? ""} placeholder="Optional" />
 
-          <div className="sm:col-span-2 flex items-center gap-3 rounded-2xl border border-slate-200 bg-stone-50 px-4 py-3">
+          <div className="sm:col-span-2 flex items-center gap-3 rounded-md border border-slate-200 bg-stone-50 px-4 py-3">
             <input type="checkbox" name="gstRegistered" defaultChecked={Boolean(profile?.gstRegistered ?? true)} />
             <div>
               <p className="text-sm font-semibold text-neutral-950">GST Registered</p>
@@ -84,7 +84,7 @@ export default async function CompanyComplianceSettingsPage() {
             <textarea
               name="notes"
               defaultValue={profile?.notes ?? ""}
-              className="mt-2 h-28 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+              className="mt-2 h-28 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               placeholder="Any compliance notes, validation constraints, tender-specific considerations..."
             />
           </div>
@@ -110,7 +110,7 @@ function Field(props: { label: string; name: string; defaultValue?: string; plac
         defaultValue={props.defaultValue}
         placeholder={props.placeholder}
         required={props.required}
-        className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       />
     </div>
   );

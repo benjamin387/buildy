@@ -7,35 +7,29 @@ import type { SessionUser } from "@/lib/auth/session";
 import type { PermissionMatrix } from "@/lib/auth/permissions-shared";
 import { can as canDo } from "@/lib/auth/permissions-shared";
 import type { PermissionModuleKey } from "@/lib/auth/permission-keys";
+import type { CurrentUserAccess } from "@/lib/auth/module-access-shared";
+import type { ModuleAccessKey } from "@/lib/auth/module-access-keys";
 import { SignOutButton } from "@/app/(platform)/sign-out-button";
 import {
   Activity,
-  Bell,
   Bot,
   BriefcaseBusiness,
   Building2,
-  Command,
   FileText,
   Gauge,
   HandCoins,
-  Gavel,
   LayoutDashboard,
   LayoutTemplate,
-  LifeBuoy,
   LineChart,
   ListChecks,
-  Lock,
   NotebookText,
+  Palette,
   Package,
   Receipt,
   ScrollText,
   Settings,
   Shield,
-  ShieldCheck,
   Users,
-  Library,
-  History,
-  Wallet,
   Workflow,
   X,
 } from "lucide-react";
@@ -63,11 +57,7 @@ function cx(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(" ");
 }
 
-// Bumped to v3 because group default-open behavior changed: Design and Finance
-// used to be open by default, which made first-load sidebar long. Now only Core
-// is open by default. Existing users keep their chosen state via the v2 -> v3
-// migration below; new users see the calmer default.
-const GROUP_STORAGE_KEY = "buildy.ui.sidebarGroups.v3";
+const GROUP_STORAGE_KEY = "buildy.ui.sidebarGroups.v4";
 const GROUP_STORAGE_KEY_LEGACY = "buildy.ui.sidebarGroups.v2";
 
 function readGroupState(): Record<string, boolean> {
@@ -104,48 +94,61 @@ export function PlatformSidebar(props: {
   mobileOpen: boolean;
   onCloseMobile: () => void;
   permissions?: PermissionMatrix | null;
+  moduleAccess?: CurrentUserAccess | null;
 }) {
   const pathname = usePathname();
-  const isExec = props.user.isAdmin || props.user.roleKeys.includes("DIRECTOR");
-  const canViewBizsafe = props.user.roleKeys.some((roleKey) =>
-    ["ADMIN", "DIRECTOR", "PROJECT_MANAGER", "QS", "FINANCE"].includes(roleKey),
-  );
-
   const groups: NavGroup[] = useMemo(() => {
-    const projectContextHint = "Open a project";
-
     return [
       {
-        key: "core",
-        label: "Core",
+        key: "dashboard",
+        label: "Dashboard",
         defaultOpen: true,
         items: [
           { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-          { key: "notifications", label: "Notifications", href: "/notifications", icon: Bell },
-          { key: "leads", label: "Leads", href: "/leads", icon: LifeBuoy },
-          { key: "projects", label: "Projects", href: "/projects", icon: BriefcaseBusiness },
         ],
       },
       {
-        key: "bidding",
-        label: "Bidding",
+        key: "ai-design",
+        label: "AI Design",
         defaultOpen: false,
         items: [
-          { key: "bidding-home", label: "Bidding Home", href: "/bidding", icon: Gavel },
-          { key: "bidding-opportunities", label: "GeBIZ Opportunities", href: "/bidding/opportunities", icon: Gavel },
-          { key: "bidding-pipeline", label: "Bid Pipeline", href: "/bidding/pipeline", icon: Workflow },
-          { key: "bidding-analytics", label: "Director Analytics", href: "/bidding/analytics", icon: LineChart, execOnly: true },
-          { key: "bidding-awarded", label: "Awarded Contracts", href: "/bidding/awarded", icon: ScrollText },
+          { key: "design-briefs", label: "Design Briefs", href: "/design-ai/briefs", icon: LayoutTemplate },
+          { key: "design-concepts", label: "Concepts", href: "/design-ai/concepts", icon: Palette },
+          { key: "ai-boq", label: "AI BOQ", href: "/design-ai/boq", icon: ListChecks },
+          { key: "design-proposals", label: "Proposals", href: "/design-ai/proposals", icon: FileText },
+          { key: "sales-follow-up", label: "Sales Follow-Up", href: "/design-ai/sales", icon: Bot },
         ],
       },
       {
-        key: "design",
-        label: "Design",
+        key: "projects",
+        label: "Projects",
         defaultOpen: false,
         items: [
-          { key: "design-studio", label: "Design Studio", href: "/design-packages", icon: LayoutTemplate },
-          { key: "quotations", label: "Quotations", href: "/projects", icon: NotebookText, description: projectContextHint },
-          { key: "contracts", label: "Contracts", href: "/contracts", icon: ScrollText },
+          { key: "all-projects", label: "All Projects", href: "/projects", icon: BriefcaseBusiness },
+          { key: "project-cost-control", label: "Project Cost Control", href: "/projects/cost-control", icon: Activity },
+          { key: "project-variation-orders", label: "Variation Orders", href: "/projects/variation-orders", icon: Workflow },
+          { key: "project-pnl", label: "Project P&L", href: "/projects/pnl", icon: LineChart },
+        ],
+      },
+      {
+        key: "commercial",
+        label: "Commercial",
+        defaultOpen: false,
+        items: [
+          { key: "commercial-quotations", label: "Quotations", href: "/quotation", icon: NotebookText },
+          { key: "commercial-contracts", label: "Contracts", href: "/contracts", icon: ScrollText },
+          { key: "commercial-invoices", label: "Invoices", href: "/invoices", icon: Receipt },
+          { key: "commercial-receipts", label: "Receipts", href: "/receipts", icon: HandCoins },
+        ],
+      },
+      {
+        key: "procurement",
+        label: "Procurement",
+        defaultOpen: false,
+        items: [
+          { key: "procurement-suppliers", label: "Suppliers", href: "/suppliers", icon: Building2 },
+          { key: "procurement-subcontractors", label: "Subcontractors", href: "/subcontracts", icon: Package },
+          { key: "procurement-purchase-orders", label: "Purchase Orders", href: "/purchase-orders", icon: Workflow },
         ],
       },
       {
@@ -153,62 +156,27 @@ export function PlatformSidebar(props: {
         label: "Finance",
         defaultOpen: false,
         items: [
-          { key: "billing", label: "Billing", href: "/billing", icon: HandCoins },
-          { key: "finance", label: "Finance", href: "/pnl", icon: LineChart, description: "P&L, cashflow, margin control" },
-          { key: "invoices", label: "Invoices", href: "/invoices", icon: Receipt },
-          { key: "collections", label: "Collections", href: "/collections", icon: ListChecks },
-          { key: "cashflow", label: "Cashflow", href: "/cashflow", icon: Wallet },
+          { key: "finance-revenue", label: "Revenue", href: "/finance/revenue", icon: LineChart },
+          { key: "finance-cost-ledger", label: "Cost Ledger", href: "/finance/cost-ledger", icon: ListChecks },
+          { key: "finance-profitability", label: "Profitability", href: "/finance/profitability", icon: Gauge },
+          { key: "finance-gst-xero", label: "GST / Xero", href: "/settings/accounting", icon: Settings },
         ],
       },
       {
-        key: "operations",
-        label: "Operations",
+        key: "settings",
+        label: "Settings",
         defaultOpen: false,
         items: [
-          { key: "suppliers", label: "Suppliers", href: "/suppliers", icon: Building2 },
-          { key: "purchase-orders", label: "Purchase Orders", href: "/purchase-orders", icon: Workflow },
-          { key: "subcontracts", label: "Subcontracts", href: "/subcontracts", icon: Package },
-          { key: "supplier-bills", label: "Supplier Bills", href: "/supplier-bills", icon: Receipt },
-          { key: "variation-orders", label: "Variation Orders", href: "/projects", icon: Activity, description: projectContextHint },
-          { key: "documents", label: "Documents", href: "/documents", icon: FileText },
-        ],
-      },
-      {
-        key: "ai",
-        label: "AI",
-        defaultOpen: false,
-        items: [
-          { key: "command-center", label: "Command Center", href: "/command-center", icon: Gauge, execOnly: true },
-          { key: "ai-actions", label: "AI Actions", href: "/ai-actions", icon: Bot, execOnly: true },
-          { key: "ai-learning", label: "AI Learning", href: "/ai-learning", icon: Command, execOnly: true },
-          { key: "ai-control", label: "AI Control Center", href: "/ai-control-center", icon: Shield, execOnly: true },
-        ],
-      },
-      {
-        key: "compliance",
-        label: "Compliance",
-        defaultOpen: false,
-        items: canViewBizsafe
-          ? [{ key: "bizsafe", label: "BizSAFE", href: "/compliance/bizsafe", icon: ShieldCheck }]
-          : [],
-      },
-      {
-        key: "system",
-        label: "System",
-        defaultOpen: false,
-        items: [
-          { key: "clients", label: "Clients", href: "/clients", icon: Users },
-          { key: "templates", label: "Template Library", href: "/templates", icon: Library, execOnly: true },
-          { key: "audit", label: "Audit Logs", href: "/audit", icon: History, execOnly: true },
-          { key: "settings", label: "Settings", href: "/settings", icon: Settings },
-          { key: "gebiz-settings", label: "GeBIZ Auto-Feed", href: "/settings/gebiz", icon: Gavel, execOnly: true },
-          { key: "role-permissions", label: "Role Permissions", href: "/settings/permissions", icon: Shield, execOnly: true },
-          { key: "security", label: "Security", href: "/settings/security", icon: Lock },
-          { key: "user-access", label: "User Access", href: "/settings/users", icon: Shield, adminOnly: true },
+          { key: "settings-users", label: "Users", href: "/settings/users", icon: Users },
+          { key: "settings-roles-access", label: "Roles & Access", href: "/settings/roles-access", icon: Shield },
+          { key: "settings-company-profile", label: "Company Profile", href: "/settings/company", icon: Building2 },
+          { key: "settings-ai", label: "AI Settings", href: "/ai-control-center", icon: Bot },
+          { key: "settings-whatsapp", label: "WhatsApp Settings", href: "/settings/lead-channels", icon: Settings },
+          { key: "settings-xero", label: "Xero Settings", href: "/settings/accounting", icon: Settings },
         ],
       },
     ];
-  }, [canViewBizsafe]);
+  }, []);
 
   const [groupOpen, setGroupOpen] = useState<Record<string, boolean>>({});
 
@@ -234,10 +202,13 @@ export function PlatformSidebar(props: {
     ...g,
     items: g.items.filter((i) => {
       if (i.adminOnly && !props.user.isAdmin) return false;
-      if (i.execOnly && !isExec) return false;
+      if (i.execOnly && !props.user.isAdmin && !props.user.roleKeys.includes("DIRECTOR")) return false;
       // PermissionRule-based view gating (best-effort). If permissions not provided, keep current behavior.
-      if (props.permissions) {
-        const moduleKey = navKeyToModule(i.key);
+      if (props.moduleAccess?.matrix) {
+        const accessKey = navKeyToAccessModule(i.key);
+        if (accessKey && !props.moduleAccess.matrix[accessKey].canView) return false;
+      } else if (props.permissions) {
+        const moduleKey = navKeyToPermissionModule(i.key);
         if (moduleKey && !canDo(props.permissions, moduleKey, "view")) return false;
       }
       return true;
@@ -265,7 +236,7 @@ export function PlatformSidebar(props: {
         <div className={cx("flex h-full flex-col", props.collapsed ? "px-2" : "px-3")}>
           <div className={cx("flex items-center justify-between gap-2 py-3", props.collapsed ? "px-1" : "px-2")}>
             <div className={cx("flex items-center gap-2", props.collapsed && "justify-center")}>
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-neutral-950 text-xs font-bold text-white">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-950 text-xs font-bold text-white">
                 B
               </span>
               {!props.collapsed ? (
@@ -279,7 +250,7 @@ export function PlatformSidebar(props: {
             <button
               type="button"
               onClick={props.onCloseMobile}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-neutral-700 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 lg:hidden"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-neutral-700 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 lg:hidden"
               aria-label="Close menu"
             >
               <X className="h-4 w-4" />
@@ -294,7 +265,7 @@ export function PlatformSidebar(props: {
                     type="button"
                     onClick={() => toggleGroup(group.key)}
                     className={cx(
-                      "flex w-full items-center justify-between gap-2 rounded-2xl px-2 py-2 text-left transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
+                      "flex w-full items-center justify-between gap-2 rounded-xl px-2 py-2 text-left transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
                       props.collapsed && "justify-center",
                     )}
                     aria-label={props.collapsed ? group.label : undefined}
@@ -341,7 +312,7 @@ export function PlatformSidebar(props: {
                   <p className="truncate text-sm font-semibold text-neutral-950">{props.user.name ?? props.user.email}</p>
                   <p className="truncate text-xs text-neutral-500">{props.user.primaryRoleLabel}</p>
                 </div>
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-stone-50 text-xs font-bold text-neutral-800">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-stone-50 text-xs font-bold text-neutral-800">
                   {(props.user.name ?? props.user.email ?? "U").slice(0, 1).toUpperCase()}
                 </span>
               </div>
@@ -350,7 +321,7 @@ export function PlatformSidebar(props: {
             <div className={cx("mt-3", props.collapsed ? "flex justify-center" : "")}>
               <SignOutButton
                 className={cx(
-                  "inline-flex h-10 items-center justify-center rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
+                  "inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
                   props.collapsed ? "w-10 px-0" : "w-full",
                 )}
                 variant={props.collapsed ? "icon" : "full"}
@@ -364,75 +335,109 @@ export function PlatformSidebar(props: {
   );
 }
 
-function navKeyToModule(navKey: string): PermissionModuleKey | null {
+function navKeyToPermissionModule(navKey: string): PermissionModuleKey | null {
   switch (navKey) {
     case "dashboard":
       return "DASHBOARD";
-    case "notifications":
-      return "NOTIFICATIONS";
-    case "leads":
-      return "LEADS";
-    case "projects":
+    case "all-projects":
       return "PROJECTS";
-    case "bidding-home":
-    case "bidding-opportunities":
-    case "bidding-pipeline":
-    case "bidding-awarded":
-      return "BIDDING";
-    case "design-studio":
+    case "design-briefs":
+    case "design-concepts":
+    case "ai-boq":
+    case "design-proposals":
       return "DESIGN";
-    case "quotations":
-      return "QUOTATIONS";
-    case "contracts":
-      return "CONTRACTS";
-    case "billing":
-      return "INVOICES";
-    case "finance":
+    case "sales-follow-up":
+      return "AI_ACTIONS";
+    case "project-cost-control":
+    case "project-pnl":
       return "PNL";
-    case "invoices":
-      return "INVOICES";
-    case "collections":
-      return "COLLECTIONS";
-    case "cashflow":
-      return "CASHFLOW";
-    case "suppliers":
-      return "SUPPLIERS";
-    case "purchase-orders":
-      return "PURCHASE_ORDERS";
-    case "subcontracts":
-      return "SUBCONTRACTS";
-    case "supplier-bills":
-      return "SUPPLIER_BILLS";
-    case "variation-orders":
+    case "project-variation-orders":
       return "VARIATIONS";
-    case "documents":
-      return "DOCUMENTS";
-    case "bizsafe":
+    case "commercial-quotations":
+      return "QUOTATIONS";
+    case "commercial-contracts":
+      return "CONTRACTS";
+    case "commercial-invoices":
+      return "INVOICES";
+    case "commercial-receipts":
+      return "INVOICES";
+    case "procurement-suppliers":
+      return "SUPPLIERS";
+    case "procurement-purchase-orders":
+      return "PURCHASE_ORDERS";
+    case "procurement-subcontractors":
+      return "SUBCONTRACTS";
+    case "finance-revenue":
+    case "finance-profitability":
+    case "finance-cost-ledger":
+      return "PNL";
+    case "finance-gst-xero":
+      return "SETTINGS";
+    case "settings-users":
+    case "settings-roles-access":
+    case "settings-company-profile":
+    case "settings-ai":
+    case "settings-whatsapp":
+    case "settings-xero":
+      return "SETTINGS";
+    default:
       return null;
-    case "command-center":
-      return "AI_ACTIONS";
-    case "ai-actions":
-      return "AI_ACTIONS";
-    case "ai-learning":
-      return "AI_LEARNING";
-    case "ai-control":
-      return "AI_CONTROL";
-    case "clients":
-      return "CLIENT_PORTAL";
-    case "templates":
-      return "SETTINGS";
-    case "audit":
-      return "AUDIT";
-    case "settings":
-      return "SETTINGS";
-    case "gebiz-settings":
-      return "SETTINGS";
-    case "security":
-      return "SETTINGS";
-    case "user-access":
-      return "SETTINGS";
-    case "role-permissions":
-      return "SETTINGS";
+  }
+}
+
+function navKeyToAccessModule(navKey: string): ModuleAccessKey | null {
+  switch (navKey) {
+    case "dashboard":
+      return "dashboard";
+    case "design-briefs":
+      return "design_briefs";
+    case "design-concepts":
+      return "design_concepts";
+    case "ai-boq":
+      return "design_boq";
+    case "design-proposals":
+      return "design_proposals";
+    case "sales-follow-up":
+      return "sales_followup";
+    case "all-projects":
+      return "projects";
+    case "project-cost-control":
+      return "project_cost_control";
+    case "project-variation-orders":
+      return "variation_orders";
+    case "project-pnl":
+      return "project_profitability";
+    case "commercial-quotations":
+      return "quotations";
+    case "commercial-contracts":
+      return "contracts";
+    case "commercial-invoices":
+      return "invoices";
+    case "commercial-receipts":
+      return "receipts";
+    case "procurement-suppliers":
+      return "suppliers";
+    case "procurement-subcontractors":
+      return "subcontractors";
+    case "procurement-purchase-orders":
+      return "purchase_orders";
+    case "finance-revenue":
+      return "finance";
+    case "finance-cost-ledger":
+      return "cost_ledger";
+    case "finance-profitability":
+      return "project_profitability";
+    case "finance-gst-xero":
+      return "xero";
+    case "settings-users":
+      return "users";
+    case "settings-roles-access":
+      return "roles_access";
+    case "settings-company-profile":
+    case "settings-ai":
+    case "settings-whatsapp":
+    case "settings-xero":
+      return "settings";
     default:
       return null;
   }
@@ -451,7 +456,7 @@ function SidebarItem(props: {
       title={props.collapsed ? props.item.label : undefined}
       onClick={props.onNavigate}
       className={cx(
-        "group flex items-center gap-3 rounded-2xl px-2 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
+        "group flex items-center gap-3 rounded-xl px-2 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
         props.active
           ? "bg-neutral-950 text-white shadow-sm"
           : "text-neutral-700 hover:bg-stone-50 hover:text-neutral-900",
@@ -460,7 +465,7 @@ function SidebarItem(props: {
     >
       <span
         className={cx(
-          "inline-flex h-9 w-9 items-center justify-center rounded-2xl border transition",
+          "inline-flex h-9 w-9 items-center justify-center rounded-xl border transition",
           props.active
             ? "border-white/10 bg-white/10 text-white"
             : "border-slate-200 bg-white text-neutral-600 group-hover:border-slate-300",

@@ -63,7 +63,7 @@ export function BizsafeTaskList(props: {
             </div>
           ) : (
             props.tasks.map((task) => (
-              <div key={task.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div key={task.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -130,7 +130,7 @@ export function BizsafeTaskList(props: {
               <label className="block text-sm font-semibold text-neutral-900">Description</label>
               <textarea
                 name="description"
-                className="mt-2 h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-2 h-24 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               />
             </div>
             <div className="lg:col-span-2 flex justify-end">
@@ -158,7 +158,7 @@ function Field(props: { label: string; name: string; type?: string; required?: b
         name={props.name}
         type={props.type ?? "text"}
         required={props.required}
-        className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       />
     </div>
   );
@@ -176,7 +176,7 @@ function SelectField(props: {
       <select
         name={props.name}
         defaultValue={props.defaultValue}
-        className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       >
         {props.options.map((option) => (
           <option key={option.value} value={option.value}>

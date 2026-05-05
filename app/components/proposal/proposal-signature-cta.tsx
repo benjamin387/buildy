@@ -24,7 +24,7 @@ export function ProposalSignatureCTA(props: {
             {props.primaryCta ? (
               <Link
                 href={props.primaryCta.href}
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-neutral-950 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+                className="inline-flex h-11 items-center justify-center rounded-lg bg-neutral-950 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
               >
                 {props.primaryCta.label}
               </Link>
@@ -32,7 +32,7 @@ export function ProposalSignatureCTA(props: {
             {props.secondaryCta ? (
               <Link
                 href={props.secondaryCta.href}
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+                className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
               >
                 {props.secondaryCta.label}
               </Link>

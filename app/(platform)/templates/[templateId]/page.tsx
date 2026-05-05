@@ -67,7 +67,7 @@ export default async function TemplateDetailPage(props: {
           </div>
 
           {tpl.description ? (
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-stone-50 p-5">
+            <div className="mt-6 rounded-xl border border-slate-200 bg-stone-50 p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-500">Description</p>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-neutral-800">{tpl.description}</p>
             </div>
@@ -90,13 +90,13 @@ export default async function TemplateDetailPage(props: {
         </SectionCard>
 
         <SectionCard title="Preview" description="Raw template preview. Rendering depends on the integration surface.">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <pre className="whitespace-pre-wrap break-words text-sm leading-7 text-neutral-900">
               {tpl.content}
             </pre>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-stone-50 p-5 text-sm leading-7 text-neutral-700">
+          <div className="mt-4 rounded-xl border border-slate-200 bg-stone-50 p-5 text-sm leading-7 text-neutral-700">
             <p className="font-semibold text-neutral-900">Use in modules</p>
             <p className="mt-2">
               This template is available to integrations via <span className="font-mono text-xs">TemplateLibraryItem</span>.

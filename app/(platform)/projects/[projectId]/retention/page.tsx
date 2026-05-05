@@ -80,7 +80,7 @@ export default async function ProjectRetentionPage(props: { params: Promise<{ pr
         <Metric title="Retention Held" value={formatCurrency(summary.held)} />
         <Metric title="Total Deducted" value={formatCurrency(summary.deducted)} />
         <Metric title="Total Released" value={formatCurrency(summary.released)} />
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">DLP Control</p>
           <p className="mt-2 text-lg font-semibold text-neutral-950">
             {dlp ? (dlpActive ? "Active" : "Ended") : "Not Set"}
@@ -103,7 +103,7 @@ export default async function ProjectRetentionPage(props: { params: Promise<{ pr
             <select
               name="entryType"
               defaultValue="RELEASE_PRACTICAL_COMPLETION"
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
             >
               <option value="RELEASE_PRACTICAL_COMPLETION">Release (Practical Completion)</option>
               <option value="RELEASE_FINAL">Release (Final, post-DLP)</option>
@@ -118,14 +118,14 @@ export default async function ProjectRetentionPage(props: { params: Promise<{ pr
               step="0.01"
               min="0.01"
               required
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
             />
           </label>
           <label className="block md:col-span-2">
             <div className="text-sm font-semibold text-neutral-900">Description</div>
             <input
               name="description"
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
               placeholder="Optional"
             />
           </label>
@@ -176,7 +176,7 @@ export default async function ProjectRetentionPage(props: { params: Promise<{ pr
 
 function Metric(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-2 text-2xl font-semibold tabular-nums text-neutral-950">{props.value}</p>
     </div>

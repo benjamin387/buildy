@@ -40,7 +40,7 @@ export default async function EditDesignPackagePage({
         </div>
       </div>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <form action={updateDesignPackageAction} className="grid gap-5 lg:grid-cols-2">
           <input type="hidden" name="packageId" value={pkg.id} />
 
@@ -106,7 +106,7 @@ export default async function EditDesignPackagePage({
             </select>
           </label>
 
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 lg:col-span-2">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 lg:col-span-2">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Estimated Budget Range (Optional)
             </p>

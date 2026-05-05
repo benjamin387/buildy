@@ -9,7 +9,7 @@ function Card(props: { title: string; description: string; href: string }) {
   return (
     <Link
       href={props.href}
-      className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:border-neutral-300 hover:shadow"
+      className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:border-neutral-300 hover:shadow"
     >
       <p className="text-sm font-semibold text-neutral-950">{props.title}</p>
       <p className="mt-2 text-sm leading-6 text-neutral-600">{props.description}</p>
@@ -111,7 +111,7 @@ export default async function SettingsIndexPage() {
           <Card
             title="Role Permissions"
             description="Fine-grained module/action permissions matrix by role."
-            href="/settings/permissions"
+            href="/settings/roles-access"
           />
         ) : null}
       </section>

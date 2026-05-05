@@ -115,7 +115,7 @@ export function SupplierBillCreateFormClient(props: {
         />
       </label>
 
-      <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Lines</p>
         <p className="mt-1 text-sm text-neutral-600">
           GST is {supplier?.gstRegistered ? "applied" : "not applied"} for this supplier.

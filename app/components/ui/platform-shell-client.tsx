@@ -6,6 +6,7 @@ import { PlatformTopbar } from "@/app/components/ui/platform-topbar";
 import { PlatformSidebar } from "@/app/components/ui/platform-sidebar";
 import { MobileNav } from "@/app/components/ui/mobile-nav";
 import type { PermissionMatrix } from "@/lib/auth/permissions-shared";
+import type { CurrentUserAccess } from "@/lib/auth/module-access-shared";
 
 const STORAGE_KEY = "buildy.ui.sidebarCollapsed.v2";
 
@@ -26,7 +27,12 @@ function writeCollapsedToStorage(value: boolean) {
   }
 }
 
-export function PlatformShellClient(props: { user: SessionUser; permissions?: PermissionMatrix | null; children: ReactNode }) {
+export function PlatformShellClient(props: {
+  user: SessionUser;
+  permissions?: PermissionMatrix | null;
+  moduleAccess?: CurrentUserAccess | null;
+  children: ReactNode;
+}) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -73,6 +79,7 @@ export function PlatformShellClient(props: { user: SessionUser; permissions?: Pe
             <PlatformSidebar
               user={props.user}
               permissions={props.permissions ?? null}
+              moduleAccess={props.moduleAccess ?? null}
               collapsed={shell.sidebarCollapsed}
               mobileOpen={shell.mobileOpen}
               onCloseMobile={() => shell.setMobileOpen(false)}

@@ -118,7 +118,7 @@ export default async function NewUserPage() {
             </label>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+          <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Module Permissions
             </p>

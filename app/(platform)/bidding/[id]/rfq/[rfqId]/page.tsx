@@ -65,7 +65,7 @@ export default async function BidRfqDetailPage(props: { params: Promise<{ id: st
             </div>
 
             {(rfq.scopeSummary || rfq.briefingNotes) ? (
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-stone-50 p-4">
+              <div className="mt-4 rounded-xl border border-slate-200 bg-stone-50 p-4">
                 {rfq.scopeSummary ? (
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Scope Summary</p>
@@ -97,7 +97,7 @@ export default async function BidRfqDetailPage(props: { params: Promise<{ id: st
             <form action={`/api/bidding/rfq/${rfq.id}/invite`} method="post" className="grid gap-3">
               <div>
                 <label className="block text-sm font-semibold text-neutral-900">Trade Package</label>
-                <select name="tradePackageId" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
+                <select name="tradePackageId" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
                   <option value="">(Whole RFQ / General)</option>
                   {rfq.tradePackages.map((p: any) => (
                     <option key={p.id} value={p.id}>
@@ -108,7 +108,7 @@ export default async function BidRfqDetailPage(props: { params: Promise<{ id: st
               </div>
               <div>
                 <label className="block text-sm font-semibold text-neutral-900">Supplier</label>
-                <select name="supplierId" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
+                <select name="supplierId" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
                   <option value="">(Manual entry)</option>
                   {vendors.map((v: any) => (
                     <option key={v.id} value={v.id}>
@@ -120,7 +120,7 @@ export default async function BidRfqDetailPage(props: { params: Promise<{ id: st
                 <input
                   name="supplierNameSnapshot"
                   placeholder="Supplier name (if manual)"
-                  className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                  className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 />
               </div>
 
@@ -159,7 +159,7 @@ export default async function BidRfqDetailPage(props: { params: Promise<{ id: st
                 const q = inv.quote;
                 const total = q && String(q.status) === "SUBMITTED" ? quoteTotal(q) : null;
                 return (
-                  <div key={inv.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div key={inv.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-neutral-950">{inv.supplierNameSnapshot}</p>
@@ -207,7 +207,7 @@ export default async function BidRfqDetailPage(props: { params: Promise<{ id: st
                   : null;
                 const preferredId = pkg.preferredQuoteId ?? null;
                 return (
-                  <details key={pkg.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <details key={pkg.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                     <summary className="flex cursor-pointer list-none flex-wrap items-start justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-neutral-950">{pkg.title}</p>
@@ -275,7 +275,7 @@ export default async function BidRfqDetailPage(props: { params: Promise<{ id: st
 
 function Metric(props: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-stone-50 px-4 py-3">
+    <div className="rounded-md border border-slate-200 bg-stone-50 px-4 py-3">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.label}</p>
       <div className="mt-2">{props.value}</div>
     </div>
@@ -289,7 +289,7 @@ function Field(props: { label: string; name: string; placeholder?: string }) {
       <input
         name={props.name}
         placeholder={props.placeholder}
-        className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       />
     </div>
   );

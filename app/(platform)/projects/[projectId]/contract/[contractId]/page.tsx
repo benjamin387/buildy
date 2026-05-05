@@ -98,6 +98,12 @@ export default async function ContractDetailPage({
 
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Link
+          href={`/contracts/${contractId}/signatures`}
+          className="inline-flex h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
+        >
+          Signature Audit
+        </Link>
+        <Link
           href={`/projects/${projectId}/contract/${contractId}/print`}
           className="inline-flex h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
         >
@@ -177,7 +183,7 @@ export default async function ContractDetailPage({
         description="Drafting, clause edits, signature requests and deliveries."
       />
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">E-sign Requests</h2>
         <p className="mt-1 text-sm text-neutral-600">
           Track sent, viewed, and signed states per party.
@@ -188,7 +194,7 @@ export default async function ContractDetailPage({
         ) : (
           <div className="mt-5 space-y-4">
             {signatureRequests.map((req) => (
-              <div key={req.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+              <div key={req.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-5">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-sm font-semibold text-neutral-950">
@@ -243,7 +249,7 @@ export default async function ContractDetailPage({
       </section>
 
       {contract.milestones.length > 0 ? (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Contract Milestones</h2>
           <p className="mt-1 text-sm text-neutral-600">
             Derived from quotation payment terms (used later for invoices).
@@ -275,7 +281,7 @@ export default async function ContractDetailPage({
         </section>
       ) : null}
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Contract Clauses</h2>
         <p className="mt-1 text-sm text-neutral-600">
           Clauses are generated from templates at contract creation and can be edited while draft
@@ -287,7 +293,7 @@ export default async function ContractDetailPage({
         ) : (
           <div className="mt-5 space-y-4">
             {contract.clauses.map((clause, idx) => (
-              <div key={clause.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+              <div key={clause.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-5">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-sm font-semibold text-neutral-950">
@@ -330,7 +336,7 @@ export default async function ContractDetailPage({
         )}
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Legacy Terms Snapshot</h2>
         <p className="mt-1 text-sm text-neutral-600">
           Kept for backward compatibility with earlier contract drafts.

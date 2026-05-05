@@ -13,7 +13,7 @@ import {
 
 function Card(props: { title: string; children: ReactNode; description?: string }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold text-neutral-950">{props.title}</h2>
         {props.description ? <p className="text-sm text-neutral-600">{props.description}</p> : null}
@@ -165,7 +165,7 @@ export default async function UpsellEnginePage({
         {recommendations.length === 0 ? (
           <p className="text-sm text-neutral-700">No upsell recommendations yet.</p>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-neutral-200">
+          <div className="overflow-x-auto rounded-xl border border-neutral-200">
             <table className="min-w-[980px] w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -250,7 +250,7 @@ export default async function UpsellEnginePage({
 
 function MetricCard(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-3 text-base font-semibold text-neutral-950">{props.value}</p>
     </div>

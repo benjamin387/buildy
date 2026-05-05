@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PermissionLevel, PlatformModule, UserStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requirePlatformAdmin } from "@/lib/rbac/admin";
+import { requireModuleAccess, getCurrentUserAccess } from "@/lib/auth/module-access";
 import { getPrimaryRoleKey, getRoleLabel, ROLE_DEFINITIONS, type AppRoleKey } from "@/lib/rbac/permissions";
 import { PendingSubmitButton } from "@/app/(platform)/components/pending-submit-button";
 import { updateUserAction } from "@/app/(platform)/settings/users/actions";
@@ -54,6 +55,9 @@ export default async function EditUserPage({
   params: Promise<{ userId: string }>;
 }) {
   await requirePlatformAdmin();
+  await requireModuleAccess("users", "edit");
+  const access = await getCurrentUserAccess();
+  const canEdit = access.isAdmin || access.matrix.users.canEdit;
 
   const { userId } = await params;
 
@@ -76,7 +80,7 @@ export default async function EditUserPage({
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -100,7 +104,7 @@ export default async function EditUserPage({
             <p className="mt-2 text-sm text-neutral-700">{user.email}</p>
           </div>
 
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm">
+          <div className="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
               Current Role
             </p>
@@ -109,7 +113,7 @@ export default async function EditUserPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">User Details</h2>
           <p className="mt-1 text-sm text-neutral-600">
@@ -118,6 +122,7 @@ export default async function EditUserPage({
         </div>
 
         <form action={updateUserAction} className="space-y-6 p-6">
+          <fieldset disabled={!canEdit} className="space-y-6 disabled:cursor-not-allowed disabled:opacity-60">
           <input type="hidden" name="userId" value={user.id} />
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -176,7 +181,7 @@ export default async function EditUserPage({
             </label>
           </div>
 
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Module Permissions
             </p>
@@ -206,9 +211,9 @@ export default async function EditUserPage({
           <div className="flex justify-end">
             <PendingSubmitButton pendingText="Saving...">Save Changes</PendingSubmitButton>
           </div>
+          </fieldset>
         </form>
       </section>
     </main>
   );
 }
-

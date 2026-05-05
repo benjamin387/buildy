@@ -37,7 +37,7 @@ export default async function ClientPortalProgressPage({
         ) : (
           <div className="space-y-3">
             {milestones.map((m) => (
-              <div key={m.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+              <div key={m.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-sm font-semibold text-neutral-950">{m.title}</p>

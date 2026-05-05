@@ -160,12 +160,12 @@ export default async function GebizSettingsPage(props: {
         description="Configure your scheduler (Vercel Cron / external) to call this endpoint with Authorization Bearer token (CRON_SECRET). x-cron-secret header is also accepted for backward compatibility."
       >
         <div className="grid gap-4 lg:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Endpoint</p>
             <p className="mt-2 break-all font-mono text-xs text-neutral-900">{webhookUrl}</p>
             <p className="mt-3 text-xs text-neutral-600">Method: GET/POST. Query: `?dryRun=true` supported.</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Security</p>
             <p className="mt-2 text-sm text-neutral-800">
               Header: <span className="font-mono text-xs">Authorization: Bearer</span>
@@ -174,7 +174,7 @@ export default async function GebizSettingsPage(props: {
               Must match <span className="font-mono">CRON_SECRET</span>. No secrets are exposed to client UI.
             </p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Manual Run</p>
             <p className="mt-2 text-sm text-neutral-600">Exec-only action to fetch and import now.</p>
             <form action={runGebizImportNowAction} className="mt-3">
@@ -190,7 +190,7 @@ export default async function GebizSettingsPage(props: {
       >
         {latestRun ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Status</p>
               <div className="mt-2 flex items-center gap-2">
                 <StatusPill tone={pillToneForRun(String(latestRun.status))}>{String(latestRun.status)}</StatusPill>
@@ -198,17 +198,17 @@ export default async function GebizSettingsPage(props: {
               </div>
               <p className="mt-2 text-xs text-neutral-600">{latestRun.message ?? "-"}</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Fetched</p>
               <p className="mt-2 text-2xl font-semibold tabular-nums text-neutral-950">{latestRun.itemsFetched}</p>
               <p className="mt-2 text-xs text-neutral-500">Started {formatDateTime(latestRun.startedAt)}</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Imported</p>
               <p className="mt-2 text-2xl font-semibold tabular-nums text-neutral-950">{latestRun.itemsCreated}</p>
               <p className="mt-2 text-xs text-neutral-500">Finished {formatDateTime(latestRun.finishedAt)}</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Skipped</p>
               <p className="mt-2 text-2xl font-semibold tabular-nums text-neutral-950">{latestRun.itemsSkipped}</p>
               <p className="mt-2 text-xs text-neutral-500">Duplicates/filters tracked in run JSON.</p>
@@ -221,7 +221,7 @@ export default async function GebizSettingsPage(props: {
 
       <SectionCard title="Feed Sources" description="Add RSS feeds per procurement category. Auto-import can be disabled to review before converting.">
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+          <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
             <p className="text-sm font-semibold text-neutral-950">Add Feed Source</p>
             <form action={upsertGebizFeedSourceAction} className="mt-4 grid gap-3 sm:grid-cols-2">
               <input type="hidden" name="id" value="" />
@@ -233,7 +233,7 @@ export default async function GebizSettingsPage(props: {
               <Field label="Minimum Est. Value (SGD)" name="minimumEstimatedValue" placeholder="e.g. 80000" inputMode="decimal" />
               <div>
                 <label className="block text-sm font-semibold text-neutral-900">Default Owner</label>
-                <select name="defaultOwnerUserId" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
+                <select name="defaultOwnerUserId" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
                   <option value="">(None)</option>
                   {users.map((u: any) => (
                     <option key={u.id} value={u.id}>
@@ -248,11 +248,11 @@ export default async function GebizSettingsPage(props: {
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-neutral-900">Keywords Include (optional)</label>
-                <textarea name="keywordsInclude" className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="One per line (or comma-separated)" />
+                <textarea name="keywordsInclude" className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="One per line (or comma-separated)" />
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-neutral-900">Keywords Exclude (optional)</label>
-                <textarea name="keywordsExclude" className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="One per line (or comma-separated)" />
+                <textarea name="keywordsExclude" className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="One per line (or comma-separated)" />
               </div>
               <div className="sm:col-span-2 flex justify-end">
                 <ActionButton type="submit">Add Feed</ActionButton>
@@ -265,7 +265,7 @@ export default async function GebizSettingsPage(props: {
               <EmptyState title="No feed sources" description="Add your first RSS feed to enable GeBIZ auto-import." />
             ) : (
               sources.map((s: any) => (
-                <div key={s.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div key={s.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-neutral-950">{s.name}</p>
@@ -300,7 +300,7 @@ export default async function GebizSettingsPage(props: {
                       <Field label="Minimum Est. Value (SGD)" name="minimumEstimatedValue" defaultValue={s.minimumEstimatedValue ? String(s.minimumEstimatedValue) : ""} inputMode="decimal" />
                       <div>
                         <label className="block text-sm font-semibold text-neutral-900">Default Owner</label>
-                        <select name="defaultOwnerUserId" defaultValue={s.defaultOwnerUserId ?? ""} className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
+                        <select name="defaultOwnerUserId" defaultValue={s.defaultOwnerUserId ?? ""} className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
                           <option value="">(None)</option>
                           {users.map((u: any) => (
                             <option key={u.id} value={u.id}>
@@ -315,11 +315,11 @@ export default async function GebizSettingsPage(props: {
                       </div>
                       <div className="sm:col-span-2">
                         <label className="block text-sm font-semibold text-neutral-900">Keywords Include</label>
-                        <textarea name="keywordsInclude" defaultValue={s.keywordsInclude ?? ""} className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" />
+                        <textarea name="keywordsInclude" defaultValue={s.keywordsInclude ?? ""} className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" />
                       </div>
                       <div className="sm:col-span-2">
                         <label className="block text-sm font-semibold text-neutral-900">Keywords Exclude</label>
-                        <textarea name="keywordsExclude" defaultValue={s.keywordsExclude ?? ""} className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" />
+                        <textarea name="keywordsExclude" defaultValue={s.keywordsExclude ?? ""} className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" />
                       </div>
                       <div className="sm:col-span-2 flex justify-between gap-2">
                         <ActionButton
@@ -464,7 +464,7 @@ function Field(props: {
         defaultValue={props.defaultValue}
         placeholder={props.placeholder}
         inputMode={props.inputMode}
-        className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       />
     </div>
   );
@@ -472,7 +472,7 @@ function Field(props: {
 
 function Toggle(props: { name: string; label: string; defaultChecked?: boolean }) {
   return (
-    <label className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+    <label className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
       <span className="text-sm font-semibold text-neutral-900">{props.label}</span>
       <input
         type="checkbox"

@@ -46,7 +46,7 @@ export default async function ClientPortalInvoicesPage({
         {invoices.length === 0 ? (
           <p className="mt-4 text-sm text-neutral-700">No invoices yet.</p>
         ) : (
-          <div className="mt-5 overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="mt-5 overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>

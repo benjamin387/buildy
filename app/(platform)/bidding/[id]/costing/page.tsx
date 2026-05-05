@@ -79,7 +79,7 @@ export default async function BidCostingPage(props: { params: Promise<{ id: stri
             const catSell = items.reduce((sum, r) => sum + Number(r.totalSell ?? 0), 0);
 
             return (
-              <div key={cat} className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div key={cat} className="rounded-xl border border-slate-200 bg-white shadow-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-stone-50 px-4 py-3">
                   <div>
                     <p className="text-sm font-semibold text-neutral-950">{cat.replaceAll("_", " ")}</p>
@@ -185,7 +185,7 @@ export default async function BidCostingPage(props: { params: Promise<{ id: stri
           <input type="hidden" name="opportunityId" value={opp.id} />
           <div className="sm:col-span-2">
             <label className="block text-sm font-semibold text-neutral-900">Category</label>
-            <select name="category" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" defaultValue="MATERIAL">
+            <select name="category" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" defaultValue="MATERIAL">
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {c.replaceAll("_", " ")}
@@ -195,23 +195,23 @@ export default async function BidCostingPage(props: { params: Promise<{ id: stri
           </div>
           <div className="sm:col-span-4">
             <label className="block text-sm font-semibold text-neutral-900">Description</label>
-            <input name="description" required className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="e.g. Ceiling works / Wiring / Carpentry package" />
+            <input name="description" required className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="e.g. Ceiling works / Wiring / Carpentry package" />
           </div>
           <div className="sm:col-span-1">
             <label className="block text-sm font-semibold text-neutral-900">Unit</label>
-            <input name="unit" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="lot" />
+            <input name="unit" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" placeholder="lot" />
           </div>
           <div className="sm:col-span-1">
             <label className="block text-sm font-semibold text-neutral-900">Qty</label>
-            <input name="quantity" defaultValue="1" inputMode="decimal" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-right text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" />
+            <input name="quantity" defaultValue="1" inputMode="decimal" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-right text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" />
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-semibold text-neutral-900">Unit Cost</label>
-            <input name="unitCost" defaultValue="0" inputMode="decimal" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-right text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" />
+            <input name="unitCost" defaultValue="0" inputMode="decimal" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-right text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" />
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-semibold text-neutral-900">Unit Sell</label>
-            <input name="unitSell" defaultValue="0" inputMode="decimal" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-right text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" />
+            <input name="unitSell" defaultValue="0" inputMode="decimal" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-right text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200" />
           </div>
           <div className="sm:col-span-6 flex justify-end">
             <ActionButton type="submit">Add Line</ActionButton>
@@ -232,7 +232,7 @@ function Kpi(props: { title: string; value: string; hint: string; tone?: "neutra
         : "border-slate-200 bg-white text-neutral-700";
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>

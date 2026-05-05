@@ -141,7 +141,7 @@ export async function ActivityTimeline(props: {
       }
     >
       {mapped.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-stone-50 p-6 text-sm text-neutral-700">
+        <div className="rounded-xl border border-slate-200 bg-stone-50 p-6 text-sm text-neutral-700">
           No activity recorded yet.
         </div>
       ) : (
@@ -165,11 +165,11 @@ export async function ActivityTimeline(props: {
                   return (
                     <details
                       key={item.id}
-                      className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm open:shadow-[0_1px_0_rgba(16,24,40,0.04),0_12px_28px_rgba(16,24,40,0.06)]"
+                      className="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm open:shadow-[0_1px_0_rgba(16,24,40,0.04),0_12px_28px_rgba(16,24,40,0.06)]"
                     >
                       <summary className="flex cursor-pointer list-none items-start justify-between gap-4">
                         <div className="flex min-w-0 items-start gap-3">
-                          <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-stone-50 text-neutral-800">
+                          <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-stone-50 text-neutral-800">
                             <Icon className="h-5 w-5" />
                           </span>
                           <div className="min-w-0">
@@ -215,7 +215,7 @@ export async function ActivityTimeline(props: {
 
                       <div className="mt-4 space-y-3 border-t border-slate-200/70 pt-4">
                         {item.metadataJson ? (
-                          <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+                          <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
                             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-500">
                               Metadata
                             </p>
@@ -225,7 +225,7 @@ export async function ActivityTimeline(props: {
                           </div>
                         ) : null}
                         {!item.metadataJson ? (
-                          <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4 text-sm text-neutral-700">
+                          <div className="rounded-xl border border-slate-200 bg-stone-50 p-4 text-sm text-neutral-700">
                             No additional details recorded.
                           </div>
                         ) : null}

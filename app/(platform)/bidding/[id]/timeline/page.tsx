@@ -58,7 +58,7 @@ export default async function BidTimelinePage(props: { params: Promise<{ id: str
                       : "neutral";
 
               return (
-                <div key={m.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div key={m.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-neutral-950">{m.title}</p>
@@ -82,7 +82,7 @@ export default async function BidTimelinePage(props: { params: Promise<{ id: str
                         <input
                           name="title"
                           defaultValue={m.title}
-                          className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                          className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                         />
                       </div>
                       <div>
@@ -91,7 +91,7 @@ export default async function BidTimelinePage(props: { params: Promise<{ id: str
                           name="dueDate"
                           defaultValue={m.dueDate ? String(m.dueDate).slice(0, 10) : ""}
                           placeholder="YYYY-MM-DD"
-                          className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                          className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                         />
                       </div>
                       <div>
@@ -99,7 +99,7 @@ export default async function BidTimelinePage(props: { params: Promise<{ id: str
                         <select
                           name="status"
                           defaultValue={m.status}
-                          className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                          className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                         >
                           <option value="PENDING">Pending</option>
                           <option value="COMPLETED">Completed</option>
@@ -111,7 +111,7 @@ export default async function BidTimelinePage(props: { params: Promise<{ id: str
                         <textarea
                           name="notes"
                           defaultValue={m.notes ?? ""}
-                          className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                          className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                         />
                       </div>
                       <div className="sm:col-span-2 flex justify-end">
@@ -139,7 +139,7 @@ export default async function BidTimelinePage(props: { params: Promise<{ id: str
               name="title"
               required
               placeholder="e.g. Site walk-through / Internal pricing review"
-              className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+              className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
             />
           </div>
           <div>
@@ -147,7 +147,7 @@ export default async function BidTimelinePage(props: { params: Promise<{ id: str
             <input
               name="dueDate"
               placeholder="YYYY-MM-DD"
-              className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+              className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
             />
           </div>
           <div>
@@ -155,7 +155,7 @@ export default async function BidTimelinePage(props: { params: Promise<{ id: str
             <select
               name="status"
               defaultValue="PENDING"
-              className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+              className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
             >
               <option value="PENDING">Pending</option>
               <option value="COMPLETED">Completed</option>
@@ -166,7 +166,7 @@ export default async function BidTimelinePage(props: { params: Promise<{ id: str
             <label className="block text-sm font-semibold text-neutral-900">Notes</label>
             <textarea
               name="notes"
-              className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+              className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
             />
           </div>
           <div className="sm:col-span-2 flex justify-end">

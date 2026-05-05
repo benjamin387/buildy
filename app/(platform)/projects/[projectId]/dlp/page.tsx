@@ -90,7 +90,7 @@ export default async function ProjectDlpPage(props: { params: Promise<{ projectI
         <Metric title="DLP Start" value={dlp ? formatDate(dlp.startDate) : "-"} />
         <Metric title="DLP End" value={dlp ? formatDate(dlp.endDate) : "-"} />
         <Metric title="Days Left" value={dlpDaysLeft == null ? "-" : String(dlpDaysLeft)} />
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Risk</p>
           <p className="mt-2 text-lg font-semibold text-neutral-950">
             {nearingExpiry ? "Expiry Near" : dlp ? "Normal" : "Not Set"}
@@ -112,7 +112,7 @@ export default async function ProjectDlpPage(props: { params: Promise<{ projectI
               type="date"
               required
               defaultValue={toDateInputValue(defaultStart)}
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
             />
           </label>
           <label className="block">
@@ -122,7 +122,7 @@ export default async function ProjectDlpPage(props: { params: Promise<{ projectI
               type="date"
               required
               defaultValue={toDateInputValue(defaultEnd)}
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
             />
           </label>
           <label className="block md:col-span-2">
@@ -130,7 +130,7 @@ export default async function ProjectDlpPage(props: { params: Promise<{ projectI
             <input
               name="notes"
               defaultValue={dlp?.notes ?? ""}
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
               placeholder="Optional"
             />
           </label>
@@ -151,7 +151,7 @@ export default async function ProjectDlpPage(props: { params: Promise<{ projectI
             <input
               name="title"
               required
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
               placeholder="e.g. Hairline cracks at living room wall"
             />
           </label>
@@ -159,7 +159,7 @@ export default async function ProjectDlpPage(props: { params: Promise<{ projectI
             <div className="text-sm font-semibold text-neutral-900">Description</div>
             <input
               name="description"
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
               placeholder="Optional details"
             />
           </label>
@@ -198,7 +198,7 @@ export default async function ProjectDlpPage(props: { params: Promise<{ projectI
                       <select
                         name="status"
                         defaultValue={d.status}
-                        className="h-10 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+                        className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
                       >
                         <option value="OPEN">OPEN</option>
                         <option value="IN_PROGRESS">IN PROGRESS</option>
@@ -229,7 +229,7 @@ export default async function ProjectDlpPage(props: { params: Promise<{ projectI
 
 function Metric(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-2 text-2xl font-semibold tabular-nums text-neutral-950">{props.value}</p>
     </div>

@@ -124,7 +124,7 @@ export default async function ProjectReceiptsPage({
         </div>
       </div>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-neutral-950">Record New Receipt</h3>
         <p className="mt-1 text-sm text-neutral-600">
           Link the receipt to an invoice (required for now). Overpayment is prevented by default.
@@ -208,13 +208,13 @@ export default async function ProjectReceiptsPage({
         </form>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-neutral-950">Receipt Register</h3>
 
         {receipts.length === 0 ? (
           <p className="mt-4 text-sm text-neutral-600">No receipts recorded yet.</p>
         ) : (
-          <div className="mt-6 overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="mt-6 overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>

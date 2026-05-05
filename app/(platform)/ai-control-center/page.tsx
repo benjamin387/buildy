@@ -90,7 +90,7 @@ export default async function AIControlCenterPage() {
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -134,7 +134,7 @@ export default async function AIControlCenterPage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-neutral-950">Safety Summary</h2>
             <p className="mt-1 text-sm text-neutral-600">
@@ -161,7 +161,7 @@ export default async function AIControlCenterPage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-neutral-950">Configuration</h2>
             <p className="mt-1 text-sm text-neutral-600">
@@ -196,7 +196,7 @@ export default async function AIControlCenterPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Allowed Categories</p>
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 <Toggle name="allowLeadFollowUp" label="Lead follow-up drafts" defaultChecked={setting.allowLeadFollowUp} />
@@ -208,7 +208,7 @@ export default async function AIControlCenterPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <div className="rounded-xl border border-neutral-200 bg-white p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Approval Requirements (Additional)</p>
               <p className="mt-2 text-sm text-neutral-600">
                 These can only add approval requirements. Hard safety rules still apply even if a checkbox is unchecked.
@@ -234,7 +234,7 @@ export default async function AIControlCenterPage() {
         </section>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Recent AI Actions</h2>
           <p className="mt-1 text-sm text-neutral-600">
@@ -300,7 +300,7 @@ export default async function AIControlCenterPage() {
 
 function SummaryCard(props: { title: string; value: string; emphasis?: boolean }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className={`mt-2 text-2xl font-semibold tracking-tight ${props.emphasis ? "text-neutral-950" : "text-neutral-900"}`}>
         {props.value}

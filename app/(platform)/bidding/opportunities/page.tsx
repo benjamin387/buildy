@@ -124,7 +124,7 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
             <label className="block text-sm font-semibold text-neutral-900">Paste GeBIZ Text (optional)</label>
             <textarea
               name="importText"
-              className="h-44 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+              className="h-44 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               placeholder="Paste GeBIZ opportunity details here (copied text)..."
             />
             <p className="text-xs text-neutral-600">Tip: Paste first, then fill missing fields below if needed.</p>
@@ -140,7 +140,7 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
               <label className="block text-sm font-semibold text-neutral-900">Procurement Type</label>
               <select
                 name="procurementType"
-                className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 defaultValue="QUOTATION"
               >
                 <option value="QUOTATION">Quotation</option>
@@ -158,7 +158,7 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
               <label className="block text-sm font-semibold text-neutral-900">Remarks</label>
               <textarea
                 name="remarks"
-                className="mt-1 h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-24 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 placeholder="Notes for bid/no-bid decision, constraints, etc."
               />
             </div>
@@ -179,19 +179,19 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
               name="q"
               defaultValue={q}
               placeholder="Search opportunity no, title, agency…"
-              className="h-11 w-64 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+              className="h-11 w-64 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
             />
-            <select name="source" defaultValue={source} className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
+            <select name="source" defaultValue={source} className="h-11 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
               {SOURCES.map((s) => (
                 <option key={s} value={s}>{s === "ALL" ? "All sources" : s === "MANUAL" ? "Manual" : "GeBIZ"}</option>
               ))}
             </select>
-            <select name="fit" defaultValue={fit} className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
+            <select name="fit" defaultValue={fit} className="h-11 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
               {FITS.map((f) => (
                 <option key={f} value={f}>{f === "ALL" ? "All fit" : `Fit: ${f}`}</option>
               ))}
             </select>
-            <select name="status" defaultValue={status} className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
+            <select name="status" defaultValue={status} className="h-11 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
               {STATUSES.map((s) => (
                 <option key={s} value={s}>{s === "ALL" ? "All statuses" : s.replaceAll("_", " ")}</option>
               ))}
@@ -219,7 +219,7 @@ export default async function BidOpportunitiesPage(props: { searchParams: Promis
                 const fitScoreNum = Number(o.fitScore ?? 0);
 
                 return (
-                  <div key={o.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
+                  <div key={o.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="min-w-0">
                         <Link href={`/bidding/${o.id}`} className="text-sm font-semibold text-neutral-950 hover:underline">{o.opportunityNo}</Link>
@@ -351,7 +351,7 @@ function Field(props: { label: string; name: string; placeholder?: string; requi
         required={props.required}
         placeholder={props.placeholder}
         inputMode={props.inputMode}
-        className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       />
     </div>
   );

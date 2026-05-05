@@ -4,6 +4,11 @@ type WhatsAppSendResult =
   | { ok: true; provider: "meta"; messageId: string | null }
   | { ok: false; provider: "meta"; error: string };
 
+type MetaSendResponse = {
+  error?: { message?: string };
+  messages?: Array<{ id?: string }>;
+};
+
 function getEnv(name: string): string | null {
   const value = process.env[name];
   return value && value.trim() ? value.trim() : null;
@@ -51,16 +56,13 @@ export async function sendWhatsAppText(to: string, message: string): Promise<Wha
       body: JSON.stringify(payload),
     });
 
-    const json = (await res.json().catch(() => null)) as any;
+    const json = (await res.json().catch(() => null)) as MetaSendResponse | null;
     if (!res.ok) {
       const err = typeof json?.error?.message === "string" ? json.error.message : `HTTP ${res.status}`;
       return { ok: false, provider: "meta", error: err };
     }
 
-    const messageId =
-      Array.isArray(json?.messages) && typeof json.messages?.[0]?.id === "string"
-        ? (json.messages[0].id as string)
-        : null;
+    const messageId = typeof json?.messages?.[0]?.id === "string" ? json.messages[0].id : null;
 
     return { ok: true, provider: "meta", messageId };
   } catch (error) {
@@ -68,4 +70,3 @@ export async function sendWhatsAppText(to: string, message: string): Promise<Wha
     return { ok: false, provider: "meta", error: messageText };
   }
 }
-

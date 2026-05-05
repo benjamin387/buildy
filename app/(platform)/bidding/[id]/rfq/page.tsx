@@ -61,7 +61,7 @@ export default async function BidRfqCenterPage(props: { params: Promise<{ id: st
                   <Link
                     key={r.id}
                     href={`/bidding/${opp.id}/rfq/${r.id}`}
-                    className="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50"
+                    className="block rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -100,7 +100,7 @@ export default async function BidRfqCenterPage(props: { params: Promise<{ id: st
                 <label className="block text-sm font-semibold text-neutral-900">Briefing Notes</label>
                 <textarea
                   name="briefingNotes"
-                  className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                  className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                   placeholder="Site constraints, access timing, briefing takeaways..."
                 />
               </div>
@@ -108,7 +108,7 @@ export default async function BidRfqCenterPage(props: { params: Promise<{ id: st
                 <label className="block text-sm font-semibold text-neutral-900">Scope Summary</label>
                 <textarea
                   name="scopeSummary"
-                  className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                  className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                   placeholder="High-level scope for suppliers..."
                 />
               </div>
@@ -156,7 +156,7 @@ export default async function BidRfqCenterPage(props: { params: Promise<{ id: st
               <label className="block text-sm font-semibold text-neutral-900">Notes</label>
               <textarea
                 name="notes"
-                className="mt-1 h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-1 h-24 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 placeholder="Scope assumptions, exclusions, warranty, payment terms, etc."
               />
             </div>
@@ -184,7 +184,7 @@ function ManualQuoteList(props: { opportunityId: string; quotes: any[] }) {
         const amount = Number(q.quoteAmount ?? 0);
         const isBest = lowest != null && amount === lowest;
         return (
-          <details key={q.id} className="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <details key={q.id} className="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <summary className="flex cursor-pointer list-none flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-neutral-950">
@@ -219,7 +219,7 @@ function ManualQuoteList(props: { opportunityId: string; quotes: any[] }) {
                   <textarea
                     name="notes"
                     defaultValue={q.notes ?? ""}
-                    className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                    className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                   />
                 </div>
                 <div className="sm:col-span-2 flex justify-end gap-2">
@@ -264,7 +264,7 @@ function Field(props: {
         defaultValue={props.defaultValue}
         placeholder={props.placeholder}
         inputMode={props.inputMode}
-        className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       />
     </div>
   );

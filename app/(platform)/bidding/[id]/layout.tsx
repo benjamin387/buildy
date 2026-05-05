@@ -59,7 +59,7 @@ export default async function BidWorkspaceLayout(props: {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -77,15 +77,15 @@ export default async function BidWorkspaceLayout(props: {
             <p className="mt-2 text-sm text-neutral-600">{opp.agency} · {String(opp.procurementType).replaceAll("_", " ")}</p>
 
             <div className="mt-4 grid gap-2 text-sm text-neutral-700 sm:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-stone-50 px-4 py-3">
+              <div className="rounded-md border border-slate-200 bg-stone-50 px-4 py-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Closing</p>
                 <p className="mt-1 font-semibold text-neutral-950">{formatDate(opp.closingDate)}</p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-stone-50 px-4 py-3">
+              <div className="rounded-md border border-slate-200 bg-stone-50 px-4 py-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Briefing</p>
                 <p className="mt-1 font-semibold text-neutral-950">{formatDate(opp.briefingDate)}</p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-stone-50 px-4 py-3">
+              <div className="rounded-md border border-slate-200 bg-stone-50 px-4 py-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Margin</p>
                 <p className="mt-1 font-semibold text-neutral-950">{opp.finalMargin != null ? `${(Number(opp.finalMargin) * 100).toFixed(1)}%` : "-"}</p>
               </div>

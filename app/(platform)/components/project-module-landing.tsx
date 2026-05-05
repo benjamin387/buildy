@@ -6,7 +6,7 @@ export function ProjectModuleLanding(props: {
 }) {
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
           Project Module
         </p>

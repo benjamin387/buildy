@@ -91,7 +91,7 @@ export default async function BiddingAnalyticsPage() {
           ) : (
             <div className="space-y-2">
               {agencies.map((a: any) => (
-                <div key={a.agencyName} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <div key={a.agencyName} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-neutral-950">{a.agencyName}</p>
                     <p className="mt-0.5 text-xs text-neutral-500">
@@ -113,7 +113,7 @@ export default async function BiddingAnalyticsPage() {
           ) : (
             <div className="space-y-2">
               {competitors.map((c: any) => (
-                <div key={c.competitorName} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <div key={c.competitorName} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-neutral-950">{c.competitorName}</p>
                     <p className="mt-0.5 text-xs text-neutral-500">{c.appearances} appearance(s)</p>
@@ -133,7 +133,7 @@ export default async function BiddingAnalyticsPage() {
           <div className="space-y-3">
             <div className="grid gap-3 lg:hidden">
               {recent.map((r: any) => (
-                <Link key={r.id} href={`/bidding/${r.id}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
+                <Link key={r.id} href={`/bidding/${r.id}`} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:bg-stone-50">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-neutral-950">{r.opportunityNo}</p>
@@ -208,7 +208,7 @@ function KpiCard(props: { title: string; value: string; hint: string; tone?: "ne
           : "border-slate-200 bg-white text-neutral-700";
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
@@ -230,7 +230,7 @@ function RiskCard(props: { title: string; value: number; hint: string; tone: "da
         : "border-slate-200 bg-white text-neutral-700";
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>

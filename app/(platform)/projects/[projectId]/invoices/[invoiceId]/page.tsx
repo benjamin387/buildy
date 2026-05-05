@@ -184,7 +184,7 @@ export default async function InvoiceDetailPage({
       />
 
       <section className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm lg:col-span-2">
+        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm lg:col-span-2">
           <h2 className="text-lg font-semibold text-neutral-950">Line Items</h2>
           <div className="mt-5 overflow-x-auto">
             <table className="min-w-full text-sm">
@@ -230,7 +230,7 @@ export default async function InvoiceDetailPage({
         </div>
 
         <div className="space-y-6">
-          <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+          <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-neutral-950">Totals</h2>
             <div className="mt-5 grid gap-2 text-sm">
               <Row label="Subtotal" value={formatCurrency(Number(invoice.subtotal))} />
@@ -243,7 +243,7 @@ export default async function InvoiceDetailPage({
             </div>
           </section>
 
-          <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+          <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-neutral-950">Links</h2>
             <div className="mt-5 grid gap-2 text-sm text-neutral-700">
               <Row label="Project" value={invoice.project.name} />
@@ -262,7 +262,7 @@ export default async function InvoiceDetailPage({
           </section>
 
           {canSyncAccounting ? (
-            <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-neutral-950">Accounting Sync</h2>
               <p className="mt-1 text-sm text-neutral-600">
                 Xero-ready foundation. Sync runs in dry-run mode until Xero env and OAuth are implemented.
@@ -293,7 +293,7 @@ export default async function InvoiceDetailPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-neutral-950">Receipts</h2>
@@ -306,7 +306,7 @@ export default async function InvoiceDetailPage({
         {invoice.receipts.length === 0 ? (
           <p className="mt-4 text-sm text-neutral-600">No receipts recorded yet.</p>
         ) : (
-          <div className="mt-5 overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="mt-5 overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -335,7 +335,7 @@ export default async function InvoiceDetailPage({
         )}
 
         {!isLocked ? (
-          <div className="mt-6 rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+          <div className="mt-6 rounded-xl border border-neutral-200 bg-neutral-50 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Record Receipt
             </p>
@@ -404,7 +404,7 @@ export default async function InvoiceDetailPage({
         ) : null}
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Credit Notes</h2>
         <p className="mt-1 text-sm text-neutral-600">
           Create a credit note to reduce outstanding amount (basic workflow; later extend for full credit allocations).
@@ -413,7 +413,7 @@ export default async function InvoiceDetailPage({
         {invoice.creditNotes.length === 0 ? (
           <p className="mt-4 text-sm text-neutral-600">No credit notes.</p>
         ) : (
-          <div className="mt-5 overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="mt-5 overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>

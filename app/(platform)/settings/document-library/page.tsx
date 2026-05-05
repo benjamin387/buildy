@@ -74,7 +74,7 @@ export default async function DocumentLibrarySettingsPage() {
               <select
                 name="category"
                 defaultValue={ComplianceDocumentCategory.OTHER}
-                className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               >
                 {Object.values(ComplianceDocumentCategory).map((c) => (
                   <option key={c} value={c}>
@@ -91,7 +91,7 @@ export default async function DocumentLibrarySettingsPage() {
               <select
                 name="status"
                 defaultValue={ComplianceDocumentStatus.ACTIVE}
-                className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
               >
                 {Object.values(ComplianceDocumentStatus).map((s) => (
                   <option key={s} value={s}>
@@ -104,7 +104,7 @@ export default async function DocumentLibrarySettingsPage() {
               <label className="block text-sm font-semibold text-neutral-900">Description</label>
               <textarea
                 name="description"
-                className="mt-2 h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                className="mt-2 h-24 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 placeholder="Notes, scope, policy details, tender usage..."
               />
             </div>
@@ -120,7 +120,7 @@ export default async function DocumentLibrarySettingsPage() {
           ) : (
             <div className="space-y-2">
               {docs.map((d: any) => (
-                <details key={d.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <details key={d.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                   <summary className="flex cursor-pointer list-none flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-neutral-950">{d.title}</p>
@@ -140,7 +140,7 @@ export default async function DocumentLibrarySettingsPage() {
                         <select
                           name="category"
                           defaultValue={d.category}
-                          className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                          className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                         >
                           {Object.values(ComplianceDocumentCategory).map((c) => (
                             <option key={c} value={c}>
@@ -157,7 +157,7 @@ export default async function DocumentLibrarySettingsPage() {
                         <select
                           name="status"
                           defaultValue={d.status}
-                          className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                          className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                         >
                           {Object.values(ComplianceDocumentStatus).map((s) => (
                             <option key={s} value={s}>
@@ -171,7 +171,7 @@ export default async function DocumentLibrarySettingsPage() {
                         <textarea
                           name="description"
                           defaultValue={d.description ?? ""}
-                          className="mt-2 h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                          className="mt-2 h-24 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                         />
                       </div>
                       <div className="sm:col-span-2 flex justify-end gap-2">
@@ -214,7 +214,7 @@ function Field(props: {
         required={props.required}
         defaultValue={props.defaultValue}
         placeholder={props.placeholder}
-        className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+        className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
       />
     </div>
   );

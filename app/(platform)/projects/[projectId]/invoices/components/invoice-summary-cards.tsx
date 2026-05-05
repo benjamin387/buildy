@@ -8,7 +8,7 @@ function formatCurrency(value: number): string {
 
 function Card(props: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
         {props.label}
       </p>

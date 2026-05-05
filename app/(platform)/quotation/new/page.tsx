@@ -299,7 +299,7 @@ export default function NewRenovationQuotationPage() {
         </div>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-neutral-300 bg-white p-6 shadow-md">
+      <div className="mb-6 rounded-xl border border-neutral-300 bg-white p-6 shadow-md">
           <h2 className="text-xl font-semibold text-neutral-950">
             AI Brief Generator
           </h2>
@@ -391,7 +391,7 @@ export default function NewRenovationQuotationPage() {
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-6">
-            <section className="rounded-2xl border border-neutral-300 bg-white p-6 shadow-md">
+            <section className="rounded-xl border border-neutral-300 bg-white p-6 shadow-md">
               <h2 className="text-xl font-semibold text-neutral-950">
                 Project & Client Details
               </h2>
@@ -526,7 +526,7 @@ export default function NewRenovationQuotationPage() {
                 return (
                   <div
                     key={`${section.category}-${sectionIndex}`}
-                    className="rounded-2xl border border-neutral-300 bg-white p-6 shadow-md"
+                    className="rounded-xl border border-neutral-300 bg-white p-6 shadow-md"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div>
@@ -801,7 +801,7 @@ export default function NewRenovationQuotationPage() {
           </div>
 
           <aside className="space-y-6">
-            <section className="rounded-2xl border border-neutral-300 bg-white p-6 shadow-md">
+            <section className="rounded-xl border border-neutral-300 bg-white p-6 shadow-md">
               <h2 className="text-lg font-semibold text-neutral-950">
                 Quote Summary
               </h2>
@@ -854,7 +854,7 @@ export default function NewRenovationQuotationPage() {
               ) : null}
             </section>
 
-            <section className="rounded-2xl border border-neutral-300 bg-white p-6 shadow-md">
+            <section className="rounded-xl border border-neutral-300 bg-white p-6 shadow-md">
               <h2 className="text-lg font-semibold text-neutral-950">
                 Included Scope Categories
               </h2>

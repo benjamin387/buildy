@@ -131,7 +131,7 @@ export default async function TemplateLibraryIndexPage(props: {
       >
         <div className="space-y-4">
         {templates.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-stone-50 p-6 text-sm text-neutral-700">
+          <div className="rounded-xl border border-slate-200 bg-stone-50 p-6 text-sm text-neutral-700">
             No templates found. Create one with <span className="font-semibold">New Template</span>.
           </div>
         ) : (

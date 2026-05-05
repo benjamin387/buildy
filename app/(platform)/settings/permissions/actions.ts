@@ -7,6 +7,7 @@ import { requireExecutive } from "@/lib/rbac/executive";
 import { auditLog } from "@/lib/audit";
 import { DEFAULT_PERMISSION_RULES_BY_ROLE } from "@/lib/auth/permission-defaults";
 import { PERMISSION_MODULE_KEYS } from "@/lib/auth/permission-keys";
+import { permissionToModuleAccessKey } from "@/lib/auth/module-access-mapping";
 
 const RoleKeySchema = z.string().min(1).max(64);
 
@@ -51,6 +52,27 @@ export async function saveRolePermissionMatrixAction(formData: FormData) {
           canExport: u.canExport,
         },
       });
+
+      const mappedModuleKeys = permissionToModuleAccessKey(u.moduleKey);
+      for (const moduleKey of mappedModuleKeys) {
+        await tx.roleModuleAccess.upsert({
+          where: { role_moduleKey: { role: u.roleKey, moduleKey } },
+          create: {
+            role: u.roleKey,
+            moduleKey,
+            canView: u.canView,
+            canCreate: u.canCreate,
+            canEdit: u.canEdit,
+            canDelete: u.canDelete,
+          },
+          update: {
+            canView: u.canView,
+            canCreate: u.canCreate,
+            canEdit: u.canEdit,
+            canDelete: u.canDelete,
+          },
+        });
+      }
     }
   });
 
@@ -113,9 +135,11 @@ export async function resetRolePermissionMatrixAction(formData: FormData) {
   if (!defaults) {
     // Unknown role key: clear only.
     await prisma.permissionRule.deleteMany({ where: { roleKey } });
+    await prisma.roleModuleAccess.deleteMany({ where: { role: roleKey } });
   } else {
     await prisma.$transaction(async (tx) => {
       await tx.permissionRule.deleteMany({ where: { roleKey } });
+      await tx.roleModuleAccess.deleteMany({ where: { role: roleKey } });
       for (const d of defaults) {
         await tx.permissionRule.create({
           data: {
@@ -130,6 +154,20 @@ export async function resetRolePermissionMatrixAction(formData: FormData) {
             canExport: d.canExport,
           },
         });
+
+        const mappedModuleKeys = permissionToModuleAccessKey(d.moduleKey);
+        for (const moduleKey of mappedModuleKeys) {
+          await tx.roleModuleAccess.create({
+            data: {
+              role: roleKey,
+              moduleKey,
+              canView: d.canView,
+              canCreate: d.canCreate,
+              canEdit: d.canEdit,
+              canDelete: d.canDelete,
+            },
+          });
+        }
       }
     });
   }

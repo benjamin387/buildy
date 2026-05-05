@@ -83,7 +83,7 @@ export async function AISalesAssistantPanel(props: {
   return (
     <section
       id="ai-sales"
-      className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm scroll-mt-24"
+      className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm scroll-mt-24"
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>

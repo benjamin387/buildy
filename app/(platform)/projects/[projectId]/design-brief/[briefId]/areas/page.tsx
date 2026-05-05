@@ -45,7 +45,7 @@ export default async function DesignAreasIndexPage({
         </div>
       </div>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Add Area</h2>
         <form action={addDesignAreaAction} className="mt-5 grid gap-3 lg:grid-cols-12">
           <input type="hidden" name="projectId" value={projectId} />
@@ -93,7 +93,7 @@ export default async function DesignAreasIndexPage({
         </form>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">All Areas</h2>
         </div>
@@ -101,7 +101,7 @@ export default async function DesignAreasIndexPage({
         {brief.areas.length === 0 ? (
           <div className="px-6 py-6 text-sm text-neutral-600">No areas yet.</div>
         ) : (
-          <div className="overflow-hidden rounded-2xl">
+          <div className="overflow-hidden rounded-xl">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>

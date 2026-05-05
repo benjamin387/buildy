@@ -39,7 +39,7 @@ export async function MessagingPanel(props: {
     defaultChannel === "WHATSAPP" ? props.defaultRecipientPhone : props.defaultRecipientEmail;
 
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
       <div className="border-b border-neutral-200 px-6 py-4">
         <h2 className="text-lg font-semibold text-neutral-950">Send &amp; Delivery</h2>
         <p className="mt-1 text-sm text-neutral-600">
@@ -113,7 +113,7 @@ export async function MessagingPanel(props: {
             </label>
           </div>
 
-          <div className="grid gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm">
+          <div className="grid gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm">
             <label className="flex items-center justify-between gap-3">
               <span className="text-neutral-800">Include secure link</span>
               <input name="includeSecureLink" type="checkbox" defaultChecked className="h-4 w-4" />

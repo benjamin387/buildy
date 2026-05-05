@@ -114,7 +114,7 @@ export default async function SubcontractDetailPage({
         </div>
       </div>
 
-      <section className="grid gap-4 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sm:grid-cols-3">
+      <section className="grid gap-4 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm sm:grid-cols-3">
         <Metric title="Claimed" value={formatCurrency(claimedTotal)} />
         <Metric title="Certified" value={formatCurrency(certifiedTotal)} />
         <Metric title="Paid (Certified)" value={formatCurrency(paidTotal)} />
@@ -135,7 +135,7 @@ export default async function SubcontractDetailPage({
         defaultChannel="EMAIL"
       />
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Controls</h2>
         <div className="mt-5 space-y-4 text-sm text-neutral-700">
           <Block title="Scope of Work" value={subcontract.scopeOfWork} />
@@ -148,7 +148,7 @@ export default async function SubcontractDetailPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Claims</h2>
           <p className="mt-1 text-sm text-neutral-600">
@@ -286,14 +286,14 @@ export default async function SubcontractDetailPage({
         )}
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Linked Supplier Bills</h2>
         </div>
         {linkedBills.length === 0 ? (
           <div className="px-6 py-6 text-sm text-neutral-600">No bills linked to this subcontract.</div>
         ) : (
-          <div className="overflow-hidden rounded-2xl">
+          <div className="overflow-hidden rounded-xl">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>

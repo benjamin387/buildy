@@ -107,7 +107,7 @@ export default async function ProjectClaimsIndexPage(props: { params: Promise<{ 
               name="claimDate"
               type="date"
               required
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
             />
           </label>
           <label className="block">
@@ -115,7 +115,7 @@ export default async function ProjectClaimsIndexPage(props: { params: Promise<{ 
             <select
               name="claimMethod"
               defaultValue={ProgressClaimMethod.MANUAL}
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
             >
               <option value={ProgressClaimMethod.MANUAL}>Manual</option>
               <option value={ProgressClaimMethod.MILESTONE}>Milestone</option>
@@ -132,7 +132,7 @@ export default async function ProjectClaimsIndexPage(props: { params: Promise<{ 
               min="0"
               max="1"
               placeholder="0.25"
-              className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
             />
           </label>
           <div className="flex items-end">
@@ -145,7 +145,7 @@ export default async function ProjectClaimsIndexPage(props: { params: Promise<{ 
             <textarea
               name="remarks"
               rows={3}
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+              className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
               placeholder="Optional notes for this claim."
             />
           </label>
@@ -226,7 +226,7 @@ export default async function ProjectClaimsIndexPage(props: { params: Promise<{ 
 
 function Metric(props: { title: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-2 text-2xl font-semibold tabular-nums text-neutral-950">{props.value}</p>
       {props.hint ? <p className="mt-2 text-sm text-neutral-600">{props.hint}</p> : null}

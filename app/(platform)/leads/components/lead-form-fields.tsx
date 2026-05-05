@@ -346,7 +346,7 @@ export function LeadFormFields(props: { defaults?: LeadFormDefaults; showStatus?
 
 function Section(props: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-neutral-950">{props.title}</h2>
       {props.description ? (
         <p className="mt-1 text-sm text-neutral-600">{props.description}</p>

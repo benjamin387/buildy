@@ -51,7 +51,7 @@ export default async function ProjectCashflowPage({
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -87,11 +87,11 @@ export default async function ProjectCashflowPage({
         <SummaryCard title="Overdue Payables" value={formatCurrency(forecast.overduePayables)} />
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Forecast Windows</h2>
         <div className="mt-5 grid gap-4 md:grid-cols-4">
           {forecast.windows.map((w) => (
-            <div key={w.days} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+            <div key={w.days} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
                 Next {w.days} days
               </p>
@@ -106,13 +106,13 @@ export default async function ProjectCashflowPage({
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Remaining Billing / Collections</h2>
           <p className="mt-1 text-sm text-neutral-600">Invoices outstanding and future billing stages.</p>
           <LinesTable lines={remainingMilestones} />
         </section>
 
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Supplier Exposure</h2>
           <p className="mt-1 text-sm text-neutral-600">Supplier bills, PO commitments, and subcontract claims.</p>
           <LinesTable lines={exposure} />
@@ -124,7 +124,7 @@ export default async function ProjectCashflowPage({
 
 function SummaryCard(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-3 text-2xl font-semibold tracking-tight text-neutral-950">{props.value}</p>
     </div>
@@ -143,7 +143,7 @@ function LinesTable(props: {
 }) {
   if (props.lines.length === 0) return <p className="mt-4 text-sm text-neutral-600">No lines.</p>;
   return (
-    <div className="mt-5 overflow-hidden rounded-2xl border border-neutral-200">
+    <div className="mt-5 overflow-hidden rounded-xl border border-neutral-200">
       <table className="min-w-full text-sm">
         <thead className="bg-neutral-100 text-neutral-800">
           <tr>

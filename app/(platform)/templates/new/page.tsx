@@ -72,7 +72,7 @@ export default async function NewTemplatePage() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-500">Status</p>
-              <label className="mt-2 flex items-center gap-3 rounded-2xl border border-slate-200 bg-stone-50 px-4 py-3">
+              <label className="mt-2 flex items-center gap-3 rounded-md border border-slate-200 bg-stone-50 px-4 py-3">
                 <input type="checkbox" name="isActive" defaultChecked className="h-4 w-4" />
                 <span className="text-sm font-semibold text-neutral-900">Active</span>
               </label>

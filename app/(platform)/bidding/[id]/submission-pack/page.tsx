@@ -106,7 +106,7 @@ export default async function TenderSubmissionPackPage(props: { params: Promise<
                 <input
                   name="title"
                   placeholder="e.g. Submission Pack v1"
-                  className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                  className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                 />
               </div>
               <div className="flex items-end justify-end">
@@ -149,7 +149,7 @@ export default async function TenderSubmissionPackPage(props: { params: Promise<
                   <input type="hidden" name="opportunityId" value={opportunityId} />
                   <input type="hidden" name="packId" value={pack.id} />
                   {pack.items.map((it: any) => (
-                    <div key={it.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div key={it.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-neutral-950">{it.title}</p>
@@ -211,7 +211,7 @@ export default async function TenderSubmissionPackPage(props: { params: Promise<
                     <input
                       name="remarks"
                       placeholder="Approval remarks (optional)"
-                      className="h-11 w-64 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                      className="h-11 w-64 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                     />
                     <ActionButton type="submit">Approve</ActionButton>
                   </form>
@@ -238,7 +238,7 @@ export default async function TenderSubmissionPackPage(props: { params: Promise<
                   <select
                     name="sourceType"
                     defaultValue="COMPLIANCE_DOCUMENT"
-                    className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                    className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                   >
                     <option value="COMPLIANCE_DOCUMENT">Compliance document</option>
                     <option value="GENERATED_DOCUMENT">Generated document</option>
@@ -248,7 +248,7 @@ export default async function TenderSubmissionPackPage(props: { params: Promise<
 
                 <div>
                   <label className="block text-sm font-semibold text-neutral-900">Compliance Document</label>
-                  <select name="complianceDocumentId" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
+                  <select name="complianceDocumentId" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
                     <option value="">(Select)</option>
                     {complianceDocs.map((d: any) => (
                       <option key={d.id} value={d.id}>
@@ -260,7 +260,7 @@ export default async function TenderSubmissionPackPage(props: { params: Promise<
 
                 <div>
                   <label className="block text-sm font-semibold text-neutral-900">Generated Document</label>
-                  <select name="generatedDocumentId" className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
+                  <select name="generatedDocumentId" className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200">
                     <option value="">(Select)</option>
                     {generatedDocs.map((d: any) => (
                       <option key={d.id} value={d.id}>
@@ -275,7 +275,7 @@ export default async function TenderSubmissionPackPage(props: { params: Promise<
                   <input
                     name="manualUrl"
                     placeholder="https://..."
-                    className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                    className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                   />
                 </div>
 
@@ -285,7 +285,7 @@ export default async function TenderSubmissionPackPage(props: { params: Promise<
                     name="title"
                     required
                     placeholder="e.g. BizSAFE Certificate"
-                    className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                    className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                   />
                 </div>
 
@@ -294,7 +294,7 @@ export default async function TenderSubmissionPackPage(props: { params: Promise<
                   <input
                     name="category"
                     placeholder="e.g. Compliance / Technical"
-                    className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                    className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                   />
                 </div>
 
@@ -310,7 +310,7 @@ export default async function TenderSubmissionPackPage(props: { params: Promise<
               ) : (
                 <div className="space-y-2">
                   {pack.approvals.map((a: any) => (
-                    <div key={a.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div key={a.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-neutral-950">{a.approverName}</p>

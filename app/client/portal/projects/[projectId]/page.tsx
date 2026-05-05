@@ -108,7 +108,7 @@ export default async function ClientPortalProjectOverviewPage({
         {messages.length === 0 ? (
           <p className="mt-4 text-sm text-neutral-700">No messages yet.</p>
         ) : (
-          <div className="mt-5 divide-y divide-neutral-200 rounded-2xl border border-neutral-200">
+          <div className="mt-5 divide-y divide-neutral-200 rounded-xl border border-neutral-200">
             {messages.map((m) => (
               <div key={m.id} className="px-4 py-4">
                 <div className="flex items-start justify-between gap-3">

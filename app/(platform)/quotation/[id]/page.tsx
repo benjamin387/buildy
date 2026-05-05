@@ -127,7 +127,7 @@ export default async function QuotationDetailPage({
 
       <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
         <aside className="space-y-6">
-          <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+          <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-neutral-950">
                 Quotation Summary
               </h2>
@@ -172,7 +172,7 @@ export default async function QuotationDetailPage({
               </div>
             </section>
 
-            <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-neutral-950">
                 Client Details
               </h2>
@@ -201,7 +201,7 @@ export default async function QuotationDetailPage({
               </div>
             </section>
 
-            <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-neutral-950">
                 Project Details
               </h2>
@@ -226,7 +226,7 @@ export default async function QuotationDetailPage({
               </div>
             </section>
 
-            <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-neutral-950">
                 Pricing Summary
               </h2>
@@ -254,7 +254,7 @@ export default async function QuotationDetailPage({
           </aside>
 
           <section className="space-y-6">
-            <section className="rounded-2xl border border-neutral-300 bg-white p-6 shadow-md">
+            <section className="rounded-xl border border-neutral-300 bg-white p-6 shadow-md">
               <h2 className="text-xl font-semibold text-neutral-950">
                 Scope of Work
               </h2>
@@ -391,7 +391,7 @@ export default async function QuotationDetailPage({
             </section>
 
             <section className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-2xl border border-neutral-300 bg-white p-6 shadow-md">
+              <div className="rounded-xl border border-neutral-300 bg-white p-6 shadow-md">
                 <h2 className="text-lg font-semibold text-neutral-950">
                   Exclusions
                 </h2>
@@ -400,7 +400,7 @@ export default async function QuotationDetailPage({
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-neutral-300 bg-white p-6 shadow-md">
+              <div className="rounded-xl border border-neutral-300 bg-white p-6 shadow-md">
                 <h2 className="text-lg font-semibold text-neutral-950">
                   Payment Terms
                 </h2>
@@ -411,7 +411,7 @@ export default async function QuotationDetailPage({
             </section>
 
             <section className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-2xl border border-neutral-300 bg-white p-6 shadow-md">
+              <div className="rounded-xl border border-neutral-300 bg-white p-6 shadow-md">
                 <h2 className="text-lg font-semibold text-neutral-950">
                   Notes
                 </h2>
@@ -420,7 +420,7 @@ export default async function QuotationDetailPage({
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-neutral-300 bg-white p-6 shadow-md">
+              <div className="rounded-xl border border-neutral-300 bg-white p-6 shadow-md">
                 <h2 className="text-lg font-semibold text-neutral-950">
                   Acceptance
                 </h2>

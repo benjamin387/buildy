@@ -50,7 +50,7 @@ export default async function TenderGeneratedDocPreviewPage(props: { params: Pro
         </div>
       </SectionCard>
 
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm print:border-0 print:shadow-none">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm print:border-0 print:shadow-none">
         <div className="p-0 print:p-0" dangerouslySetInnerHTML={{ __html: doc.contentHtml }} />
       </div>
     </main>

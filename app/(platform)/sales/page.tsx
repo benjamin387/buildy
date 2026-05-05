@@ -9,7 +9,7 @@ function formatPct(value: number): string {
 
 function MetricCard(props: { title: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-3 text-2xl font-semibold tracking-tight text-neutral-950">{props.value}</p>
       {props.hint ? <p className="mt-2 text-sm text-neutral-600">{props.hint}</p> : null}
@@ -128,7 +128,7 @@ export default async function SalesDashboardPage() {
           <Link
             key={s.label}
             href={s.href}
-            className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:border-neutral-300 hover:bg-neutral-50"
+            className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:border-neutral-300 hover:bg-neutral-50"
           >
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{s.label}</p>
             <p className="mt-3 text-3xl font-semibold tracking-tight text-neutral-950">{s.value}</p>
@@ -148,7 +148,7 @@ export default async function SalesDashboardPage() {
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           {leadSummary.map((s) => (
-            <div key={s.label} className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+            <div key={s.label} className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{s.label}</p>
               <p className="mt-3 text-2xl font-semibold tracking-tight text-neutral-950">{s.value}</p>
             </div>
@@ -165,7 +165,7 @@ export default async function SalesDashboardPage() {
             Latest design briefs that are ready for quotation, sales package, or client sending.
           </p>
         </div>
-        <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
           <table className="min-w-full text-sm">
             <thead className="bg-neutral-100 text-neutral-800">
               <tr>

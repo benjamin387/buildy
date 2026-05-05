@@ -72,7 +72,7 @@ export default async function FinanceSettingsPage() {
           description="Default tax settings. Invoices store tax amounts explicitly; these defaults guide document headers and future tax mappings."
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-stone-50 px-4 py-3">
+            <label className="flex items-center gap-3 rounded-md border border-slate-200 bg-stone-50 px-4 py-3">
               <input
                 type="checkbox"
                 name="gstRegistered"

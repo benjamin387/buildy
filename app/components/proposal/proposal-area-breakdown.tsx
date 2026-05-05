@@ -39,7 +39,7 @@ export function ProposalAreaBreakdown(props: { areas: ProposalArea[] }) {
                   </h3>
                 </div>
                 {a.layoutTitle ? (
-                  <div className="rounded-2xl border border-slate-200 bg-stone-50 px-4 py-3 text-sm">
+                  <div className="rounded-md border border-slate-200 bg-stone-50 px-4 py-3 text-sm">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Layout</p>
                     <p className="mt-1 font-semibold text-neutral-950">{a.layoutTitle}</p>
                   </div>

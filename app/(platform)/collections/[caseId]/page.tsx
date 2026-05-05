@@ -170,7 +170,7 @@ export default async function CollectionCaseDetailPage({
       />
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-neutral-950">Action Timeline</h2>
             <p className="mt-1 text-sm text-neutral-600">
@@ -307,7 +307,7 @@ export default async function CollectionCaseDetailPage({
 
 function Card(props: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-neutral-950">{props.title}</h2>
       <div className="mt-4">{props.children}</div>
     </section>

@@ -12,7 +12,7 @@ function TabLink(props: { href: string; label: string; active?: boolean }) {
     <Link
       href={props.href}
       className={cx(
-        "inline-flex h-10 shrink-0 items-center justify-center rounded-2xl border px-4 text-sm font-semibold shadow-sm transition",
+        "inline-flex h-10 shrink-0 items-center justify-center rounded-xl border px-4 text-sm font-semibold shadow-sm transition",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400",
         props.active
           ? "border-neutral-900 bg-neutral-900 text-white"

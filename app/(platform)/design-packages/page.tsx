@@ -90,7 +90,7 @@ export default async function DesignPackagesIndexPage({
         <SummaryCard title="Rooms (page)" value={`${packages.reduce((sum, p) => sum + p.rooms.length, 0)}`} />
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
         <form className="grid gap-4 sm:grid-cols-6">
           <label className="block sm:col-span-2">
             <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -170,7 +170,7 @@ export default async function DesignPackagesIndexPage({
         </form>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         {packages.length === 0 ? (
           <EmptyState
             title="No design packages yet"
@@ -179,7 +179,7 @@ export default async function DesignPackagesIndexPage({
             ctaHref="/design-packages/new"
           />
         ) : (
-          <div className="overflow-hidden rounded-2xl">
+          <div className="overflow-hidden rounded-xl">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -245,7 +245,7 @@ export default async function DesignPackagesIndexPage({
 
 function SummaryCard(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
         {props.title}
       </p>

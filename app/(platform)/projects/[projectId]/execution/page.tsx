@@ -158,7 +158,7 @@ export default async function ProjectExecutionPage(props: { params: Promise<{ pr
       <section className="grid gap-4 lg:grid-cols-3">
         <Metric title="Procurement Committed" value={formatCurrency(procurementCommitted)} />
         <Metric title="Remaining to Commit" value={formatCurrency(remainingToCommit)} />
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Execution Alerts</p>
           <p className="mt-2 text-lg font-semibold tabular-nums text-neutral-950">{alerts.length}</p>
           <p className="mt-2 text-sm text-neutral-600">Active risk items</p>
@@ -183,7 +183,7 @@ export default async function ProjectExecutionPage(props: { params: Promise<{ pr
         <SectionCard title="Execution Risk Alerts" description="Strict controls and risk detections for post-award delivery.">
           <div className="space-y-2">
             {alerts.map((a: any) => (
-              <div key={a.id} className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-start sm:justify-between">
+              <div key={a.id} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusPill
@@ -286,7 +286,7 @@ export default async function ProjectExecutionPage(props: { params: Promise<{ pr
 
               <div className="mt-5 space-y-3">
                 {(procurementPlan.items ?? []).slice(0, 20).map((it: any) => (
-                  <div key={it.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <div key={it.id} className="rounded-xl border border-slate-200 bg-white p-4">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-semibold text-neutral-950">{tradeLabel(String(it.tradeKey))}</p>
                       <StatusPill tone={it.status === "COMPLETED" ? "success" : it.status === "CANCELLED" ? "danger" : "neutral"}>
@@ -308,7 +308,7 @@ export default async function ProjectExecutionPage(props: { params: Promise<{ pr
                         <select
                           name="vendorId"
                           defaultValue={it.plannedVendorId ?? ""}
-                          className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                          className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-neutral-900 shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                         >
                           <option value="">Not set</option>
                           {vendors.map((v: any) => (
@@ -324,7 +324,7 @@ export default async function ProjectExecutionPage(props: { params: Promise<{ pr
                         </div>
                       </form>
 
-                      <div className="rounded-2xl border border-slate-200 bg-stone-50 p-3">
+                      <div className="rounded-md border border-slate-200 bg-stone-50 p-3">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Committed</p>
                         <p className="mt-2 text-sm font-semibold tabular-nums text-neutral-950">
                           {formatCurrency(Number(it.committedAmount ?? 0))}
@@ -348,12 +348,12 @@ export default async function ProjectExecutionPage(props: { params: Promise<{ pr
                             type="date"
                             name="issueDate"
                             defaultValue={new Date().toISOString().slice(0, 10)}
-                            className="h-10 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-neutral-200"
+                            className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-neutral-200"
                           />
                           <input
                             type="date"
                             name="expectedDeliveryDate"
-                            className="h-10 rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-neutral-200"
+                            className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-neutral-200"
                           />
                           <ActionButton size="sm" type="submit">
                             Create PO
@@ -414,7 +414,7 @@ export default async function ProjectExecutionPage(props: { params: Promise<{ pr
               type="text"
               name="note"
               placeholder="Revision note (optional)"
-              className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200 sm:w-[360px]"
+              className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200 sm:w-[360px]"
             />
             <ActionButton type="submit" variant="secondary">
               Create Revision
@@ -477,7 +477,7 @@ export default async function ProjectExecutionPage(props: { params: Promise<{ pr
                             type="text"
                             name="reason"
                             placeholder="Unlock reason (Director only)"
-                            className="h-10 w-[240px] rounded-2xl border border-slate-200 bg-white px-3 text-xs shadow-sm outline-none focus:ring-2 focus:ring-neutral-200"
+                            className="h-10 w-[240px] rounded-lg border border-slate-200 bg-white px-3 text-xs shadow-sm outline-none focus:ring-2 focus:ring-neutral-200"
                           />
                           <ActionButton size="sm" variant="secondary" type="submit">
                             Unlock
@@ -505,7 +505,7 @@ export default async function ProjectExecutionPage(props: { params: Promise<{ pr
 
 function Metric(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-stone-50 p-4">
+    <div className="rounded-xl border border-slate-200 bg-stone-50 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-2 text-lg font-semibold tabular-nums text-neutral-950">{props.value}</p>
     </div>

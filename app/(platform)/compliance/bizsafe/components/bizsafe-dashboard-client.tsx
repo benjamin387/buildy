@@ -214,7 +214,7 @@ export function BizsafeDashboardClient(props: {
 
 function AuditMetric(props: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3">
+    <div className="rounded-md border border-slate-200 bg-slate-50/70 px-4 py-3">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.label}</p>
       <p className="mt-2 text-sm font-semibold text-neutral-950">{props.value}</p>
     </div>

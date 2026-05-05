@@ -147,7 +147,7 @@ export default async function ProgressClaimDetailPage(props: {
             ) : null}
           </div>
 
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-stone-50 p-4 text-sm text-neutral-700">
+          <div className="mt-4 rounded-xl border border-slate-200 bg-stone-50 p-4 text-sm text-neutral-700">
             <p className="font-semibold text-neutral-900">Strict Controls</p>
             <ul className="mt-2 list-disc space-y-1 pl-5">
               <li>Claims require an active locked budget baseline (Execution).</li>
@@ -163,7 +163,7 @@ export default async function ProgressClaimDetailPage(props: {
           ) : (
             <div className="space-y-2">
               {invoices.map((inv: any) => (
-                <div key={inv.id} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <div key={inv.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
                   <div className="min-w-0">
                     <Link
                       href={`/projects/${projectId}/invoices/${inv.id}`}
@@ -197,7 +197,7 @@ export default async function ProgressClaimDetailPage(props: {
                   min="0"
                   required
                   defaultValue={Number(claim.certifiedAmount ?? 0)}
-                  className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+                  className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
                 />
               </label>
               <label className="block">
@@ -209,7 +209,7 @@ export default async function ProgressClaimDetailPage(props: {
                   min="0"
                   max="1"
                   placeholder={claim.contract ? String(Number(claim.contract.retentionPercent ?? 0)) : "0.00"}
-                  className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+                  className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
                 />
               </label>
               <ActionButton type="submit" className="w-full">
@@ -233,7 +233,7 @@ export default async function ProgressClaimDetailPage(props: {
               <textarea
                 name="remarks"
                 rows={3}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+                className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
                 placeholder="Reason for rejection / required changes."
               />
             </label>
@@ -254,7 +254,7 @@ export default async function ProgressClaimDetailPage(props: {
               <input
                 name="title"
                 required
-                className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+                className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
                 placeholder="e.g. Carpentry progress claim"
               />
             </label>
@@ -266,7 +266,7 @@ export default async function ProgressClaimDetailPage(props: {
                 min="0"
                 step="0.01"
                 required
-                className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+                className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
               />
             </label>
             <div className="flex items-end">
@@ -279,7 +279,7 @@ export default async function ProgressClaimDetailPage(props: {
               <select
                 name="budgetLineId"
                 defaultValue=""
-                className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+                className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
               >
                 <option value="">—</option>
                 {budgetLines.map((l: any) => (
@@ -294,7 +294,7 @@ export default async function ProgressClaimDetailPage(props: {
               <select
                 name="contractMilestoneId"
                 defaultValue=""
-                className="mt-2 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+                className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
               >
                 <option value="">—</option>
                 {milestones.map((m: any) => (
@@ -309,7 +309,7 @@ export default async function ProgressClaimDetailPage(props: {
               <textarea
                 name="description"
                 rows={2}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
+                className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none ring-neutral-400 transition focus:ring-2"
                 placeholder="Optional supporting notes for this line."
               />
             </label>
@@ -372,7 +372,7 @@ export default async function ProgressClaimDetailPage(props: {
             <p className="text-sm text-neutral-600">No approval records yet. They will be created when you submit the claim.</p>
           ) : (
             claim.approvals.map((a: any) => (
-              <div key={a.id} className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-start sm:justify-between">
+              <div key={a.id} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusPill tone={a.status === "APPROVED" ? "success" : a.status === "REJECTED" ? "danger" : "neutral"}>
@@ -397,7 +397,7 @@ export default async function ProgressClaimDetailPage(props: {
 
 function Metric(props: { title: string; value: string | React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <div className="mt-2 text-2xl font-semibold tabular-nums text-neutral-950">{props.value}</div>
     </div>

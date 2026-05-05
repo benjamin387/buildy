@@ -193,7 +193,7 @@ export default async function PresentationBuilderPage({
         defaultChannel="EMAIL"
       />
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-neutral-950">Presentation Deck Builder</h2>
@@ -377,7 +377,7 @@ export default async function PresentationBuilderPage({
         </form>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="border-b border-neutral-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-neutral-950">Pulled Content Preview</h2>
           <p className="mt-1 text-sm text-neutral-600">
@@ -400,19 +400,19 @@ export default async function PresentationBuilderPage({
                 </Link>
               </div>
               <div className="mt-3 grid gap-3 lg:grid-cols-3">
-                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Layout</p>
                   <p className="mt-2 text-sm text-neutral-700">
                     {a.layoutPlans[0]?.title ?? "No layout plan yet."}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">3D</p>
                   <p className="mt-2 text-sm text-neutral-700">
                     {a.visualRenders[0]?.title ?? "No renders yet."}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">FF&amp;E</p>
                   <p className="mt-2 text-sm text-neutral-700">
                     {a.ffeProposals.length} items
@@ -427,7 +427,7 @@ export default async function PresentationBuilderPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-neutral-500">Client preview</p>

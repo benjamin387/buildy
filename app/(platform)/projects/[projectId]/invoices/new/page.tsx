@@ -76,7 +76,7 @@ export default async function NewInvoicePage({
         </Link>
       </div>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">From Payment Schedule</h2>
         <p className="mt-1 text-sm text-neutral-600">
           Generate a draft invoice from a schedule stage (contract milestone or quotation payment term).
@@ -159,7 +159,7 @@ export default async function NewInvoicePage({
         )}
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-neutral-950">Manual Invoice</h2>
         <p className="mt-1 text-sm text-neutral-600">
           Build a draft invoice (ad-hoc billing, variations, additional works). You can link it to a contract/quotation/VO for audit and later accounting export.
@@ -274,7 +274,7 @@ export default async function NewInvoicePage({
             />
           </label>
 
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Line Items
             </p>

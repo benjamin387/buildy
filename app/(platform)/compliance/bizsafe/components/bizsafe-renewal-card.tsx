@@ -71,7 +71,7 @@ export function BizsafeRenewalCard(props: { profile: BizsafeProfileDto }) {
 
 function TimelineRow(props: { label: string; value: string; note?: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm font-semibold text-neutral-950">{props.label}</p>
         <StatusPill tone="neutral">{props.value}</StatusPill>
@@ -87,7 +87,7 @@ function Notice(props: { tone: "warning" | "neutral"; title: string; body: strin
       className={
         props.tone === "warning"
           ? "rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3"
-          : "rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
+          : "rounded-md border border-slate-200 bg-slate-50 px-4 py-3"
       }
     >
       <p className="text-sm font-semibold text-neutral-950">{props.title}</p>

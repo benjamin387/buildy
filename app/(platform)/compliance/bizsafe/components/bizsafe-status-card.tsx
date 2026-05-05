@@ -104,7 +104,7 @@ export function BizsafeStatusCard(props: {
 
 function Metric(props: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3">
+    <div className="rounded-md border border-slate-200 bg-slate-50/70 px-4 py-3">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.label}</p>
       <p className="mt-2 text-sm font-semibold text-neutral-950">{props.value}</p>
     </div>
@@ -118,7 +118,7 @@ function ContactBlock(props: {
   phone: string | null;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
       <p className="text-sm font-semibold text-neutral-950">{props.title}</p>
       <div className="mt-3 space-y-1 text-sm text-neutral-600">
         <p>{props.name ?? "-"}</p>

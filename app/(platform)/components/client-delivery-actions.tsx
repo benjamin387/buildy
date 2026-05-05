@@ -42,7 +42,7 @@ export async function ClientDeliveryActions(props: {
   const url = link ? buildPublicUrlForDocument({ documentType: link.documentType, token: link.token }) : null;
 
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
       <div className="border-b border-neutral-200 px-6 py-4">
         <h2 className="text-lg font-semibold text-neutral-950">Client Delivery</h2>
         <p className="mt-1 text-sm text-neutral-600">

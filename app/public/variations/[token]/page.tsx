@@ -54,7 +54,7 @@ export default async function PublicVariationPage({
   return (
     <main className="min-h-screen bg-neutral-100 px-4 py-10 text-neutral-900 sm:px-6">
       <div className="mx-auto max-w-5xl space-y-6">
-        <header className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <header className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
             Variation Order Approval
           </p>
@@ -78,7 +78,7 @@ export default async function PublicVariationPage({
         </header>
 
         {result ? (
-          <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+          <section className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
             <p className="text-sm font-semibold text-neutral-900">
               {result === "approved" ? "Thank you. Your approval has been recorded." : "Your rejection has been recorded."}
             </p>
@@ -88,7 +88,7 @@ export default async function PublicVariationPage({
           </section>
         ) : null}
 
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Work Description</p>
@@ -110,7 +110,7 @@ export default async function PublicVariationPage({
           </div>
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-neutral-950">Items</h2>
           </div>
@@ -140,7 +140,7 @@ export default async function PublicVariationPage({
           </div>
         </section>
 
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Decision</h2>
           <p className="mt-2 text-sm text-neutral-600">
             Approve this Variation Order to confirm the scope and cost change. If you reject, please provide remarks.

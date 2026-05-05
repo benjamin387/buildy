@@ -30,7 +30,7 @@ export default async function NewDesignPackagePage() {
         </div>
       </div>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <form action={createDesignPackageAction} className="grid gap-5 lg:grid-cols-2">
           <label className="grid gap-2 text-sm">
             <span className="font-medium text-neutral-800">Package Code</span>
@@ -94,7 +94,7 @@ export default async function NewDesignPackagePage() {
             </select>
           </label>
 
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 lg:col-span-2">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 lg:col-span-2">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
               Estimated Budget Range (Optional)
             </p>

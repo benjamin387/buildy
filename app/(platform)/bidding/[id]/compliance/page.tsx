@@ -126,7 +126,7 @@ export default async function BidCompliancePage(props: { params: Promise<{ id: s
         <SectionCard title="Risk Control" description="Warnings are generated from company compliance profile, document expiry dates, closing date risk, and cost approval status.">
           <div className="space-y-2">
             {risks.map((r: any, idx: number) => (
-              <div key={idx} className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-start sm:justify-between">
+              <div key={idx} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-neutral-950">{r.title}</p>
                   <p className="mt-1 text-sm text-neutral-600">{r.description}</p>
@@ -152,7 +152,7 @@ export default async function BidCompliancePage(props: { params: Promise<{ id: s
             ) : (
               <div className="space-y-3">
                 {requirements.map((r: any) => (
-                  <details key={r.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <details key={r.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                     <summary className="flex cursor-pointer list-none flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-neutral-950">
@@ -177,7 +177,7 @@ export default async function BidCompliancePage(props: { params: Promise<{ id: s
                           <select
                             name="status"
                             defaultValue={r.status}
-                            className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                            className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                           >
                             <option value="PENDING">Pending</option>
                             <option value="PROVIDED">Provided</option>
@@ -191,7 +191,7 @@ export default async function BidCompliancePage(props: { params: Promise<{ id: s
                           <select
                             name="complianceDocumentId"
                             defaultValue={r.complianceDocumentId ?? ""}
-                            className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                            className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                           >
                             <option value="">(None)</option>
                             {complianceDocs.map((d: any) => (
@@ -207,7 +207,7 @@ export default async function BidCompliancePage(props: { params: Promise<{ id: s
                           <select
                             name="generatedDocumentId"
                             defaultValue={r.generatedDocumentId ?? ""}
-                            className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                            className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                           >
                             <option value="">(None)</option>
                             {generatedDocs.map((d: any) => (
@@ -224,7 +224,7 @@ export default async function BidCompliancePage(props: { params: Promise<{ id: s
                             name="satisfiedByUrl"
                             defaultValue={r.satisfiedByUrl ?? ""}
                             placeholder="https://..."
-                            className="mt-1 h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                            className="mt-1 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                           />
                         </div>
 
@@ -233,7 +233,7 @@ export default async function BidCompliancePage(props: { params: Promise<{ id: s
                           <textarea
                             name="notes"
                             defaultValue={r.notes ?? ""}
-                            className="mt-1 h-20 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+                            className="mt-1 h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
                             placeholder="Clarifications, where this doc is located, exceptions..."
                           />
                         </div>
@@ -262,7 +262,7 @@ export default async function BidCompliancePage(props: { params: Promise<{ id: s
                   const exp = d.expiryDate ? new Date(d.expiryDate) : null;
                   const expSoon = exp && exp.getTime() < nowMs + 30 * 24 * 60 * 60 * 1000;
                   return (
-                    <div key={d.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div key={d.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-neutral-950">{d.title}</p>

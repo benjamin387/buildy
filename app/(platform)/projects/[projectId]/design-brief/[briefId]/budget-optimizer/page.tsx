@@ -13,7 +13,7 @@ import { PendingSubmitButton } from "@/app/(platform)/components/pending-submit-
 
 function Card(props: { title: string; children: ReactNode; description?: string; id?: string }) {
   return (
-    <section id={props.id} className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section id={props.id} className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold text-neutral-950">{props.title}</h2>
         {props.description ? <p className="text-sm text-neutral-600">{props.description}</p> : null}
@@ -175,7 +175,7 @@ export default async function BudgetOptimizerPage({
               </div>
             </div>
 
-            <div className="overflow-x-auto rounded-2xl border border-neutral-200">
+            <div className="overflow-x-auto rounded-xl border border-neutral-200">
               <table className="min-w-[980px] w-full text-sm">
                 <thead className="bg-neutral-100 text-neutral-800">
                   <tr>
@@ -229,7 +229,7 @@ export default async function BudgetOptimizerPage({
               const recommendedCutsCount = Array.isArray(scenarioJson.recommendedCuts) ? scenarioJson.recommendedCuts.length : 0;
               const isSelected = Boolean(s.isSelected);
               return (
-                <div key={s.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <div key={s.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
@@ -278,7 +278,7 @@ export default async function BudgetOptimizerPage({
                   </div>
 
                   {s.id === selectedScenario?.id ? (
-                    <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-4">
+                    <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">Summary</p>
                       <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-neutral-700">{s.recommendationSummary}</p>
                     </div>
@@ -295,7 +295,7 @@ export default async function BudgetOptimizerPage({
 
 function MetricCard(props: { title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       <p className="mt-3 text-base font-semibold text-neutral-950">{props.value}</p>
     </div>

@@ -87,7 +87,7 @@ export default async function ProjectPnlPage({
         }
       />
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h3 className="text-lg font-semibold text-neutral-950">Executive P&amp;L</h3>
@@ -144,7 +144,7 @@ export default async function ProjectPnlPage({
             max={Math.max(metrics.estimatedCost, metrics.committedCost, metrics.actualCost, 1)}
           />
 
-          <div className="mt-4 grid gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm">
+          <div className="mt-4 grid gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm">
             <div className="flex items-center justify-between gap-6">
               <span className="text-neutral-600">PO committed cost</span>
               <span className="font-semibold text-neutral-950 tabular-nums">{formatCurrency(metrics.poCommittedCost)}</span>
@@ -173,7 +173,7 @@ export default async function ProjectPnlPage({
         </ChartCard>
 
         <ChartCard title="Revenue Control" subtitle="Quotation/contract values vs invoicing and collections.">
-          <div className="grid gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm">
+          <div className="grid gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm">
             <div className="flex items-center justify-between gap-6">
               <span className="text-neutral-600">Quotation value (subtotal)</span>
               <span className="font-semibold text-neutral-950 tabular-nums">{formatCurrency(metrics.quotationSubtotal)}</span>
@@ -224,7 +224,7 @@ export default async function ProjectPnlPage({
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-neutral-950">Margin Leakage</h3>
           <p className="mt-1 text-sm text-neutral-600">
             Automated checks for cost overruns, drift vs quotation baseline, and control breaches.
@@ -283,7 +283,7 @@ export default async function ProjectPnlPage({
           ) : null}
         </section>
 
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h3 className="text-lg font-semibold text-neutral-950">P&amp;L Alerts</h3>
@@ -394,7 +394,7 @@ export default async function ProjectPnlPage({
         </section>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-neutral-950">Variation Orders</h3>
         <p className="mt-1 text-sm text-neutral-600">
           Draft and approval workflow for VO that impacts revenue and margin.
@@ -487,7 +487,7 @@ export default async function ProjectPnlPage({
         )}
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-neutral-950">Actual Costs</h3>
         <p className="mt-1 text-sm text-neutral-600">
           Record actual costs (materials, labor, subcontract) for variance tracking.
@@ -595,7 +595,7 @@ function Metric(props: { title: string; value: string }) {
 
 function ChartCard(props: { title: string; subtitle?: string; children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <h3 className="text-lg font-semibold text-neutral-950">{props.title}</h3>
       {props.subtitle ? <p className="mt-1 text-sm text-neutral-600">{props.subtitle}</p> : null}
       <div className="mt-4 space-y-3">{props.children}</div>

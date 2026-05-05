@@ -484,7 +484,7 @@ export default async function CommandCenterPage({
 
   return (
     <main className="space-y-8">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -674,7 +674,7 @@ export default async function CommandCenterPage({
 
       <section className="grid gap-6 lg:grid-cols-2">
         <TablePanel title="Top 10 Projects by Revenue" subtitle="Highest contract value projects (not cancelled).">
-          <div className="overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -706,7 +706,7 @@ export default async function CommandCenterPage({
         </TablePanel>
 
         <TablePanel title="Top 10 At-Risk Projects" subtitle="Next 30 days net cashflow (negative first).">
-          <div className="overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -737,7 +737,7 @@ export default async function CommandCenterPage({
 
       <section className="grid gap-6 lg:grid-cols-2">
         <TablePanel title="Upcoming Cash Inflows/Outflows" subtitle="Next expected cash movements.">
-          <div className="overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -762,7 +762,7 @@ export default async function CommandCenterPage({
         </TablePanel>
 
         <TablePanel title="Overdue Receivables" subtitle="Top overdue invoices by due date.">
-          <div className="overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -797,12 +797,12 @@ export default async function CommandCenterPage({
       </section>
 
       {pnlAlerts.length > 0 ? (
-        <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-neutral-950">Margin Leakage Alerts</h2>
           <p className="mt-1 text-sm text-neutral-600">
             Unresolved high/critical P&amp;L alerts.
           </p>
-          <div className="mt-5 overflow-hidden rounded-2xl border border-neutral-200">
+          <div className="mt-5 overflow-hidden rounded-xl border border-neutral-200">
             <table className="min-w-full text-sm">
               <thead className="bg-neutral-100 text-neutral-800">
                 <tr>
@@ -844,7 +844,7 @@ export default async function CommandCenterPage({
 function KpiCard(props: { title: string; value: string; tone?: "default" | "risk"; badge?: boolean; badgeClass?: string }) {
   const tone = props.tone ?? "default";
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">{props.title}</p>
       {props.badge ? (
         <div className="mt-3">
@@ -863,7 +863,7 @@ function KpiCard(props: { title: string; value: string; tone?: "default" | "risk
 
 function Panel(props: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-neutral-950">{props.title}</h2>
       <p className="mt-1 text-sm text-neutral-600">{props.subtitle}</p>
       <div className="mt-5">{props.children}</div>
@@ -873,7 +873,7 @@ function Panel(props: { title: string; subtitle: string; children: React.ReactNo
 
 function TablePanel(props: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-neutral-950">{props.title}</h2>
       <p className="mt-1 text-sm text-neutral-600">{props.subtitle}</p>
       <div className="mt-5">{props.children}</div>
