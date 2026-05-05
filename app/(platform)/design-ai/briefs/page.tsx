@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
+import { deleteDesignBrief } from "@/app/(platform)/design-ai/actions";
 import { PageHeader } from "@/app/components/ui/page-header";
 import { ActionButton } from "@/app/components/ui/action-button";
 import { SectionCard } from "@/app/components/ui/section-card";
@@ -57,7 +58,7 @@ export default async function DesignAiBriefsPage() {
                   <th className="py-3 pr-4">Budget</th>
                   <th className="py-3 pr-4">AI</th>
                   <th className="py-3 pr-4">Status</th>
-                  <th className="py-3">Action</th>
+                  <th className="py-3">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -74,9 +75,24 @@ export default async function DesignAiBriefsPage() {
                     <td className="py-3 pr-4">{brief.aiSummary ? <StatusPill tone="success">Ready</StatusPill> : <StatusPill tone="warning">Pending</StatusPill>}</td>
                     <td className="py-3 pr-4"><StatusPill>{brief.status.replaceAll("_", " ")}</StatusPill></td>
                     <td className="py-3">
-                      <Link href={`/design-ai/briefs/${brief.id}`} className="text-sm font-semibold text-neutral-900 hover:text-neutral-600">
-                        Open
-                      </Link>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Link href={`/design-ai/briefs/${brief.id}`}>
+                          <ActionButton type="button" size="sm" variant="secondary">
+                            Open
+                          </ActionButton>
+                        </Link>
+                        <Link href={`/design-ai/briefs/${brief.id}/edit`}>
+                          <ActionButton type="button" size="sm" variant="secondary">
+                            Edit
+                          </ActionButton>
+                        </Link>
+                        <form action={deleteDesignBrief}>
+                          <input type="hidden" name="briefId" value={brief.id} />
+                          <ActionButton type="submit" size="sm" variant="danger">
+                            Delete
+                          </ActionButton>
+                        </form>
+                      </div>
                     </td>
                   </tr>
                 ))}

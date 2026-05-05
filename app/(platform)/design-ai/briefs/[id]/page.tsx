@@ -1,7 +1,8 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
-import { generateDesignBriefSummary } from "@/app/(platform)/design-ai/actions";
+import { deleteDesignBrief, generateDesignBriefSummary } from "@/app/(platform)/design-ai/actions";
 import { PageHeader } from "@/app/components/ui/page-header";
 import { SectionCard } from "@/app/components/ui/section-card";
 import { StatusPill } from "@/app/components/ui/status-pill";
@@ -28,11 +29,40 @@ export default async function DesignBriefDetailPage({
         title={brief.clientName || "Design Brief"}
         subtitle="AI-powered design brief summary and planning"
         backHref="/design-ai/briefs"
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href={`/design-ai/briefs/${brief.id}/edit`}>
+              <ActionButton type="button" variant="secondary">
+                Edit Brief
+              </ActionButton>
+            </Link>
+            <form action={deleteDesignBrief}>
+              <input type="hidden" name="briefId" value={brief.id} />
+              <ActionButton type="submit" variant="danger">
+                Delete Brief
+              </ActionButton>
+            </form>
+          </div>
+        }
       />
 
       {/* BASIC INFO */}
       <SectionCard title="Project Overview">
-        <div className="grid gap-4 sm:grid-cols-2 text-sm">
+        <div className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <p className="text-neutral-500">Client Phone</p>
+            <p className="font-semibold">
+              {brief.clientPhone || "Not provided"}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-neutral-500">Client Email</p>
+            <p className="font-semibold">
+              {brief.clientEmail || "Not provided"}
+            </p>
+          </div>
+
           <div>
             <p className="text-neutral-500">Property Type</p>
             <p className="font-semibold">{brief.propertyType}</p>
@@ -69,6 +99,13 @@ export default async function DesignBriefDetailPage({
           <div>
             <p className="text-neutral-500">Status</p>
             <StatusPill>{brief.status.replaceAll("_", " ")}</StatusPill>
+          </div>
+
+          <div>
+            <p className="text-neutral-500">Timeline</p>
+            <p className="font-semibold">
+              {brief.timeline || "Not set"}
+            </p>
           </div>
         </div>
       </SectionCard>
