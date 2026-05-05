@@ -29,6 +29,8 @@ export default async function ProjectDesignBriefOverviewPage({
 
   const sp = await searchParams;
   const view = typeof sp.view === "string" ? sp.view : "";
+  const notice = typeof sp.notice === "string" ? sp.notice : "";
+  const error = typeof sp.error === "string" ? sp.error : "";
   if (view === "areas" && latest) {
     redirect(`/projects/${projectId}/design-brief/${latest.id}/areas`);
   }
@@ -71,8 +73,28 @@ export default async function ProjectDesignBriefOverviewPage({
               Open Latest
             </Link>
           ) : null}
+          {latest ? (
+            <Link
+              href={`/projects/${projectId}/design-brief/${latest.id}/edit`}
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
+            >
+              Edit Latest
+            </Link>
+          ) : null}
         </div>
       </div>
+
+      {error ? (
+        <section className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <span className="font-semibold">Error:</span> {error}
+        </section>
+      ) : null}
+
+      {notice ? (
+        <section className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          {notice}
+        </section>
+      ) : null}
 
       {latest ? (
         <section className="grid gap-4 lg:grid-cols-3">
@@ -119,12 +141,20 @@ export default async function ProjectDesignBriefOverviewPage({
                     <td className="px-4 py-4 text-neutral-700">{b.status}</td>
                     <td className="px-4 py-4 text-neutral-700">{formatDate(b.createdAt)}</td>
                     <td className="px-4 py-4">
-                      <Link
-                        href={`/projects/${projectId}/design-brief/${b.id}`}
-                        className="inline-flex items-center rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
-                      >
-                        Open
-                      </Link>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                          href={`/projects/${projectId}/design-brief/${b.id}`}
+                          className="inline-flex items-center rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
+                        >
+                          Open
+                        </Link>
+                        <Link
+                          href={`/projects/${projectId}/design-brief/${b.id}/edit`}
+                          className="inline-flex items-center rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-900 transition hover:bg-neutral-100"
+                        >
+                          Edit
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

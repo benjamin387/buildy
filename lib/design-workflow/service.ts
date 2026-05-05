@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import {
-  Prisma,
   type ClientPresentationStatus,
   type DesignBriefStatus,
   type DesignRole,
@@ -63,6 +62,24 @@ export async function createDesignBrief(input: {
       designStyle: input.designStyle ?? null,
       propertyType: input.propertyType,
       status: input.status ?? "DRAFT",
+    },
+  });
+}
+
+export async function updateDesignBrief(input: {
+  briefId: string;
+  title: string;
+  clientNeeds: string;
+  designStyle?: DesignStyle | null;
+  propertyType: PropertyType;
+}) {
+  return prisma.designBrief.update({
+    where: { id: input.briefId },
+    data: {
+      title: input.title.trim(),
+      clientNeeds: input.clientNeeds.trim(),
+      designStyle: input.designStyle ?? null,
+      propertyType: input.propertyType,
     },
   });
 }
