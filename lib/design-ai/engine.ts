@@ -1,4 +1,5 @@
 import "server-only";
+import { buildMockDesignConcept, normalizeDesignConcept } from "@/lib/design-ai/concept";
 
 type BriefAiSummary = {
   aiSummary: string;
@@ -7,19 +8,7 @@ type BriefAiSummary = {
   aiNextAction: string;
 };
 
-type ConceptAiOutput = {
-  title: string;
-  theme: string;
-  conceptSummary: string;
-  livingRoomConcept: string;
-  bedroomConcept: string;
-  kitchenConcept: string;
-  bathroomConcept: string;
-  materialPalette: string;
-  lightingPlan: string;
-  furnitureDirection: string;
-  renovationScope: string;
-};
+type ConceptAiOutput = ReturnType<typeof buildMockDesignConcept>;
 
 type BriefPayload = {
   clientName: string;
@@ -60,32 +49,6 @@ function mockSummary(payload: BriefPayload): BriefAiSummary {
     aiRecommendedStyle: payload.preferredStyle || "Contemporary Luxe",
     aiBudgetRisk: budgetRiskLabel(payload.budgetMin, payload.budgetMax),
     aiNextAction: "Validate room-by-room scope, lock material direction, and issue concept options for client sign-off.",
-  };
-}
-
-function mockConcept(payload: BriefPayload, aiSummary: string | null): ConceptAiOutput {
-  return {
-    title: `${payload.clientName} - ${payload.propertyType} Concept`,
-    theme: payload.preferredStyle || "Contemporary Luxe",
-    conceptSummary:
-      aiSummary ||
-      "A refined, hospitality-inspired concept balancing visual warmth, practical storage, and premium material hierarchy.",
-    livingRoomConcept:
-      "Layered neutral palette with feature wall detailing, concealed media storage, and modular seating for hosting flexibility.",
-    bedroomConcept:
-      "Calm retreat language with upholstered headboard wall, soft indirect lighting, and full-height wardrobe integration.",
-    kitchenConcept:
-      "Efficient work triangle planning with durable premium finishes, integrated appliances, and task-focused under-cabinet lighting.",
-    bathroomConcept:
-      "Spa-leaning composition using textured stone-look surfaces, frameless shower zones, and warm ambient mirror lighting.",
-    materialPalette:
-      "Satin laminate, engineered stone, porcelain slabs, matte black accents, linen textures, and warm oak tones.",
-    lightingPlan:
-      "Three-layer strategy: cove ambient base, targeted task points, and dimmable accents for evening mood transitions.",
-    furnitureDirection:
-      "Slim-profile furniture with hidden storage, rounded corners, and restrained decorative pieces to preserve openness.",
-    renovationScope:
-      "Selective demolition, custom carpentry, electrical rewiring for layered lighting, plumbing touchpoints, and final styling setup.",
   };
 }
 
@@ -162,7 +125,8 @@ export async function generateBriefSummaryAi(payload: BriefPayload): Promise<Bri
 }
 
 export async function generateDesignConceptAi(payload: BriefPayload & { aiSummary: string | null }): Promise<ConceptAiOutput> {
-  if (!hasOpenAiKey()) return mockConcept(payload, payload.aiSummary);
+  const fallback = buildMockDesignConcept(payload);
+  if (!hasOpenAiKey()) return fallback;
 
   try {
     const prompt = [
@@ -188,21 +152,8 @@ export async function generateDesignConceptAi(payload: BriefPayload & { aiSummar
       throw new Error("Incomplete concept payload");
     }
 
-    const fallback = mockConcept(payload, payload.aiSummary);
-    return {
-      title: parsed.title?.trim() || fallback.title,
-      theme: parsed.theme?.trim() || fallback.theme,
-      conceptSummary: parsed.conceptSummary?.trim() || fallback.conceptSummary,
-      livingRoomConcept: parsed.livingRoomConcept?.trim() || fallback.livingRoomConcept,
-      bedroomConcept: parsed.bedroomConcept?.trim() || fallback.bedroomConcept,
-      kitchenConcept: parsed.kitchenConcept?.trim() || fallback.kitchenConcept,
-      bathroomConcept: parsed.bathroomConcept?.trim() || fallback.bathroomConcept,
-      materialPalette: parsed.materialPalette?.trim() || fallback.materialPalette,
-      lightingPlan: parsed.lightingPlan?.trim() || fallback.lightingPlan,
-      furnitureDirection: parsed.furnitureDirection?.trim() || fallback.furnitureDirection,
-      renovationScope: parsed.renovationScope?.trim() || fallback.renovationScope,
-    };
+    return normalizeDesignConcept(payload, parsed);
   } catch {
-    return mockConcept(payload, payload.aiSummary);
+    return fallback;
   }
 }

@@ -2,7 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
-import { deleteDesignBrief, generateDesignBriefSummary } from "@/app/(platform)/design-ai/actions";
+import {
+  deleteDesignBrief,
+  generateDesignBriefSummary,
+  generateDesignConcept,
+} from "@/app/(platform)/design-ai/actions";
 import { PageHeader } from "@/app/components/ui/page-header";
 import { SectionCard } from "@/app/components/ui/section-card";
 import { StatusPill } from "@/app/components/ui/status-pill";
@@ -119,12 +123,23 @@ export default async function DesignBriefDetailPage({
 
       {/* AI ACTION */}
       <SectionCard title="AI Assistant">
-        <form action={generateDesignBriefSummary}>
-          <input type="hidden" name="briefId" value={brief.id} />
-          <ActionButton type="submit">
-            Generate AI Brief
-          </ActionButton>
-        </form>
+        <div className="flex flex-wrap items-center gap-2">
+          <form action={generateDesignBriefSummary}>
+            <input type="hidden" name="briefId" value={brief.id} />
+            <ActionButton type="submit">
+              Generate AI Brief
+            </ActionButton>
+          </form>
+
+          {brief.aiSummary && (
+            <form action={generateDesignConcept}>
+              <input type="hidden" name="briefId" value={brief.id} />
+              <ActionButton type="submit" variant="secondary">
+                Generate Design Concept
+              </ActionButton>
+            </form>
+          )}
+        </div>
       </SectionCard>
 
       {/* AI OUTPUT */}

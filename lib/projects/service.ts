@@ -196,7 +196,9 @@ export type CreateProjectInput = {
   unitSizeSqft?: number | null;
 };
 
-export async function createProject(input: CreateProjectInput) {
+type ProjectCreateClient = Pick<Prisma.TransactionClient, "client" | "clientContact" | "project">;
+
+async function createProjectRecord(db: ProjectCreateClient, input: CreateProjectInput) {
   const projectCode = input.projectCode?.trim() || generateProjectCode();
 
   const projectedProfit = computeProjectedProfit({
@@ -210,81 +212,88 @@ export async function createProject(input: CreateProjectInput) {
     actualCost: input.actualCost,
   });
 
-  const result = await prisma.$transaction(async (tx) => {
-    const client = await tx.client.create({
-      data: {
-        name: input.clientName,
-        companyName: input.clientCompany ?? null,
-        email: input.clientEmail ?? null,
-        phone: input.clientPhone ?? null,
-        mobile: input.clientPhone ?? null,
-        addressLine1: null,
-        addressLine2: null,
-        postalCode: null,
-        notes: null,
-      },
-    });
-
-    const contact =
-      input.clientEmail || input.clientPhone
-        ? await tx.clientContact.create({
-            data: {
-              clientId: client.id,
-              name: input.clientName,
-              email: input.clientEmail ?? null,
-              phone: input.clientPhone ?? null,
-              roleTitle: "Client",
-              isPrimary: true,
-              notes: null,
-            },
-          })
-        : null;
-
-    const project = await tx.project.create({
-      data: {
-        clientId: client.id,
-        primaryClientContactId: contact?.id ?? null,
-        projectCode,
-        name: input.name,
-        clientName: input.clientName,
-        clientCompany: input.clientCompany ?? null,
-        clientEmail: input.clientEmail ?? null,
-        clientPhone: input.clientPhone ?? null,
-        siteAddress: input.siteAddress,
-        projectType: input.projectType,
-        status: input.status ?? ProjectStatus.LEAD,
-        quotationStatus: input.quotationStatus ?? QuotationStatus.DRAFT,
-        contractStatus: input.contractStatus ?? ContractStatus.DRAFT,
-        billingStatus: input.billingStatus ?? BillingStatus.NOT_BILLED,
-        startDate: input.startDate ?? null,
-        targetCompletionDate: input.targetCompletionDate ?? null,
-        actualCompletionDate: input.actualCompletionDate ?? null,
-        contractValue: asDecimal(input.contractValue),
-        revisedContractValue: asDecimal(input.revisedContractValue),
-        estimatedCost: asDecimal(input.estimatedCost),
-        committedCost: asDecimal(input.committedCost),
-        actualCost: asDecimal(input.actualCost),
-        projectedProfit: asDecimal(projectedProfit),
-        actualProfit: asDecimal(actualProfit),
-        notes: input.notes ?? null,
-        addressLine1: input.addressLine1,
-        addressLine2: input.addressLine2 ?? null,
-        postalCode: input.postalCode ?? null,
-        propertyType: input.propertyType,
-        unitSizeSqft:
-          input.unitSizeSqft === null || input.unitSizeSqft === undefined
-            ? null
-            : new Prisma.Decimal(input.unitSizeSqft),
-        contactPerson: input.clientName,
-        contactPhone: input.clientPhone ?? null,
-        contactEmail: input.clientEmail ?? null,
-      },
-    });
-
-    return { project, client };
+  const client = await db.client.create({
+    data: {
+      name: input.clientName,
+      companyName: input.clientCompany ?? null,
+      email: input.clientEmail ?? null,
+      phone: input.clientPhone ?? null,
+      mobile: input.clientPhone ?? null,
+      addressLine1: null,
+      addressLine2: null,
+      postalCode: null,
+      notes: null,
+    },
   });
 
-  return result;
+  const contact =
+    input.clientEmail || input.clientPhone
+      ? await db.clientContact.create({
+          data: {
+            clientId: client.id,
+            name: input.clientName,
+            email: input.clientEmail ?? null,
+            phone: input.clientPhone ?? null,
+            roleTitle: "Client",
+            isPrimary: true,
+            notes: null,
+          },
+        })
+      : null;
+
+  const project = await db.project.create({
+    data: {
+      clientId: client.id,
+      primaryClientContactId: contact?.id ?? null,
+      projectCode,
+      name: input.name,
+      clientName: input.clientName,
+      clientCompany: input.clientCompany ?? null,
+      clientEmail: input.clientEmail ?? null,
+      clientPhone: input.clientPhone ?? null,
+      siteAddress: input.siteAddress,
+      projectType: input.projectType,
+      status: input.status ?? ProjectStatus.LEAD,
+      quotationStatus: input.quotationStatus ?? QuotationStatus.DRAFT,
+      contractStatus: input.contractStatus ?? ContractStatus.DRAFT,
+      billingStatus: input.billingStatus ?? BillingStatus.NOT_BILLED,
+      startDate: input.startDate ?? null,
+      targetCompletionDate: input.targetCompletionDate ?? null,
+      actualCompletionDate: input.actualCompletionDate ?? null,
+      contractValue: asDecimal(input.contractValue),
+      revisedContractValue: asDecimal(input.revisedContractValue),
+      estimatedCost: asDecimal(input.estimatedCost),
+      committedCost: asDecimal(input.committedCost),
+      actualCost: asDecimal(input.actualCost),
+      projectedProfit: asDecimal(projectedProfit),
+      actualProfit: asDecimal(actualProfit),
+      notes: input.notes ?? null,
+      addressLine1: input.addressLine1,
+      addressLine2: input.addressLine2 ?? null,
+      postalCode: input.postalCode ?? null,
+      propertyType: input.propertyType,
+      unitSizeSqft:
+        input.unitSizeSqft === null || input.unitSizeSqft === undefined
+          ? null
+          : new Prisma.Decimal(input.unitSizeSqft),
+      contactPerson: input.clientName,
+      contactPhone: input.clientPhone ?? null,
+      contactEmail: input.clientEmail ?? null,
+    },
+  });
+
+  return { project, client };
+}
+
+export async function createProject(input: CreateProjectInput) {
+  return prisma.$transaction(async (tx) => createProjectRecord(tx, input));
+}
+
+export async function createProjectWithTx(
+  tx: Prisma.TransactionClient,
+  input: CreateProjectInput,
+) {
+  return createProjectRecord(tx, input);
 }
 
 export type UpdateProjectInput = Partial<Omit<CreateProjectInput, "propertyType">> & {
