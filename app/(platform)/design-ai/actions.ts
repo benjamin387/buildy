@@ -34,6 +34,21 @@ const createDesignBriefSchema = z.object({
   requirements: z.string().trim().min(10).max(6000),
 });
 
+const updateDesignBriefSchema = z.object({
+  briefId: z.string().trim().min(1),
+  clientName: z.string().trim().min(2).max(140),
+  clientPhone: z.string().trim().max(60).optional(),
+  clientEmail: z.string().trim().email().optional().or(z.literal("")),
+  propertyType: z.nativeEnum(PropertyType),
+  propertyAddress: z.string().trim().min(3).max(280),
+  floorArea: z.string().trim().max(60).optional(),
+  rooms: z.string().trim().max(120).optional(),
+  budgetMin: z.string().trim().optional(),
+  budgetMax: z.string().trim().optional(),
+  timeline: z.string().trim().max(140).optional(),
+  requirements: z.string().trim().min(10).max(6000),
+});
+
 const updateBoqItemSchema = z.object({
   boqId: z.string().trim().min(1),
   itemId: z.string().trim().min(1),
@@ -56,6 +71,46 @@ function parseMoney(value: string | undefined): number | null {
   const parsed = Number(normalized);
   if (!Number.isFinite(parsed) || parsed < 0) return null;
   return Math.round(parsed * 100) / 100;
+}
+
+function parseStrictMoney(value: string | undefined, label: string): number | null {
+  if (!value) return null;
+  const normalized = value.replace(/,/g, "").trim();
+  if (!normalized) return null;
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error(`${label} must be a valid non-negative amount.`);
+  }
+  return Math.round(parsed * 100) / 100;
+}
+
+function parseNullableFloat(value: string | undefined, label: string): number | null {
+  if (!value) return null;
+  const normalized = value.replace(/,/g, "").trim();
+  if (!normalized) return null;
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error(`${label} must be a valid non-negative number.`);
+  }
+  return Math.round((parsed + Number.EPSILON) * 100) / 100;
+}
+
+function parseNullableInt(value: string | undefined, label: string): number | null {
+  if (!value) return null;
+  const normalized = value.replace(/,/g, "").trim();
+  if (!normalized) return null;
+  if (!/^\d+$/.test(normalized)) {
+    throw new Error(`${label} must be a whole number.`);
+  }
+  const parsed = Number(normalized);
+  if (!Number.isSafeInteger(parsed) || parsed < 0) {
+    throw new Error(`${label} must be a valid non-negative whole number.`);
+  }
+  return parsed;
+}
+
+function numberToNullableString(value: number | null): string | null {
+  return value === null ? null : value.toString();
 }
 
 function asNumber(value: { toString(): string } | number | null): number | null {
@@ -109,6 +164,14 @@ function categoryToScopeCategory(category: string): ScopeCategory {
   if (c === "glass & aluminium") return ScopeCategory.GLASS_ALUMINIUM;
   if (c === "cleaning") return ScopeCategory.CLEANING_DISPOSAL;
   return ScopeCategory.OTHER;
+}
+
+function designBriefHref(briefId: string): string {
+  return `/design-ai/briefs/${briefId}`;
+}
+
+function designBriefEditHref(briefId: string): string {
+  return `/design-ai/briefs/${briefId}/edit`;
 }
 
 async function recomputeDesignBoqTotals(boqId: string, tx: Prisma.TransactionClient | typeof prisma = prisma) {
@@ -180,6 +243,93 @@ export async function createDesignBrief(formData: FormData) {
   revalidatePath("/design-ai");
   revalidatePath("/design-ai/briefs");
   redirect(`/design-ai/briefs/${created.id}`);
+}
+
+export async function updateDesignBrief(formData: FormData) {
+  await requireUser();
+
+  const parsed = updateDesignBriefSchema.safeParse({
+    briefId: formData.get("briefId"),
+    clientName: formData.get("clientName"),
+    clientPhone: formData.get("clientPhone") || undefined,
+    clientEmail: formData.get("clientEmail") || "",
+    propertyType: formData.get("propertyType"),
+    propertyAddress: formData.get("propertyAddress"),
+    floorArea: formData.get("floorArea") || undefined,
+    rooms: formData.get("rooms") || undefined,
+    budgetMin: formData.get("budgetMin")?.toString() || "",
+    budgetMax: formData.get("budgetMax")?.toString() || "",
+    timeline: formData.get("timeline") || undefined,
+    requirements: formData.get("requirements"),
+  });
+
+  if (!parsed.success) {
+    redirect(`${designBriefEditHref(String(formData.get("briefId") ?? "").trim())}?error=${encodeURIComponent("Invalid design brief input.")}`);
+  }
+
+  let updatedId = parsed.data.briefId;
+
+  try {
+    const floorArea = parseNullableFloat(parsed.data.floorArea, "Floor area");
+    const rooms = parseNullableInt(parsed.data.rooms, "Rooms");
+    const budgetMin = parseStrictMoney(parsed.data.budgetMin, "Budget min");
+    const budgetMax = parseStrictMoney(parsed.data.budgetMax, "Budget max");
+
+    if (budgetMin !== null && budgetMax !== null && budgetMin > budgetMax) {
+      throw new Error("Budget max must be greater than or equal to budget min.");
+    }
+
+    const title = `${parsed.data.clientName} - ${parsed.data.propertyType} Design Brief`;
+
+    const updated = await prisma.designBrief.update({
+      where: { id: parsed.data.briefId },
+      data: {
+        title,
+        clientNeeds: parsed.data.requirements,
+        clientName: parsed.data.clientName,
+        clientPhone: parsed.data.clientPhone || null,
+        clientEmail: parsed.data.clientEmail || null,
+        propertyType: parsed.data.propertyType,
+        propertyAddress: parsed.data.propertyAddress,
+        floorArea: numberToNullableString(floorArea),
+        rooms: numberToNullableString(rooms),
+        budgetMin,
+        budgetMax,
+        timeline: parsed.data.timeline || null,
+        requirements: parsed.data.requirements,
+      },
+      select: { id: true },
+    });
+    updatedId = updated.id;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to update design brief.";
+    redirect(`${designBriefEditHref(parsed.data.briefId)}?error=${encodeURIComponent(message.slice(0, 180))}`);
+  }
+
+  revalidatePath("/design-ai");
+  revalidatePath("/design-ai/briefs");
+  revalidatePath(designBriefHref(updatedId));
+  revalidatePath(designBriefEditHref(updatedId));
+  revalidatePath("/design-ai/boq");
+  revalidatePath("/design-ai/concepts");
+  redirect(designBriefHref(updatedId));
+}
+
+export async function deleteDesignBrief(formData: FormData) {
+  await requireUser();
+
+  const briefId = String(formData.get("briefId") ?? "").trim();
+  if (!briefId) throw new Error("Missing design brief id.");
+
+  await prisma.designBrief.delete({
+    where: { id: briefId },
+  });
+
+  revalidatePath("/design-ai");
+  revalidatePath("/design-ai/briefs");
+  revalidatePath("/design-ai/boq");
+  revalidatePath("/design-ai/concepts");
+  redirect("/design-ai/briefs");
 }
 
 export async function generateDesignBriefSummary(formData: FormData) {
