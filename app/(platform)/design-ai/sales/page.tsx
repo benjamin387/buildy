@@ -16,9 +16,10 @@ export default async function DesignAiSalesPage() {
     orderBy: [{ priority: "desc" }, { nextFollowUpAt: "asc" }, { createdAt: "desc" }],
   });
 
+  const now = new Date();
   const openCount = followUps.filter((x) => x.status === "OPEN").length;
   const highPriorityCount = followUps.filter((x) => x.priority === "HIGH" && x.status === "OPEN").length;
-  const overdueCount = followUps.filter((x) => x.nextFollowUpAt && x.nextFollowUpAt.getTime() < Date.now() && x.status === "OPEN").length;
+  const overdueCount = followUps.filter((x) => x.nextFollowUpAt && x.nextFollowUpAt < now && x.status === "OPEN").length;
 
   const stageMap = new Map<string, typeof followUps>();
   for (const stage of SALES_STAGES) stageMap.set(stage, []);
