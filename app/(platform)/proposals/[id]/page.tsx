@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Permission, ProposalActivityType, ProposalStatus } from "@prisma/client";
 import { PendingSubmitButton } from "@/app/(platform)/components/pending-submit-button";
+import { initializeProjectKickoff } from "@/app/(platform)/projects/[projectId]/kickoff/actions";
 import { sendProposalWhatsApp } from "@/app/(platform)/proposals/actions";
 import { ClientProposalDocument } from "@/app/components/proposal/client-proposal-document";
 import { CopyLinkButton } from "@/app/components/ui/copy-link-button";
@@ -138,6 +139,9 @@ export default async function ProposalDetailPage(props: {
   const latestSignature = proposal.signatures[0] ?? null;
   const latestActivity = proposal.activities[0] ?? null;
   const canSendWhatsApp = permissions.has(Permission.QUOTE_WRITE);
+  const canStartKickoff =
+    permissions.has(Permission.PROJECT_WRITE) &&
+    (proposal.status === ProposalStatus.APPROVED || Boolean(latestSignature));
   const hasClientPhone = Boolean(
     proposal.quotation.contactPhoneSnapshot ||
       proposal.quotation.project.clientPhone ||
@@ -160,6 +164,21 @@ export default async function ProposalDetailPage(props: {
         backHref={`/projects/${proposal.quotation.projectId}/quotations/${proposal.quotation.id}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            {canStartKickoff ? (
+              <form action={initializeProjectKickoff}>
+                <input
+                  type="hidden"
+                  name="projectId"
+                  value={proposal.quotation.projectId}
+                />
+                <PendingSubmitButton
+                  pendingText="Starting..."
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Start Project Kickoff
+                </PendingSubmitButton>
+              </form>
+            ) : null}
             {canSendWhatsApp ? (
               <form action={sendProposalWhatsApp.bind(null, proposal.id)}>
                 <PendingSubmitButton

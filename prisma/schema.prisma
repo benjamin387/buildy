@@ -1144,6 +1144,7 @@ model Project {
   cashflowForecastSnapshots   CashflowForecastSnapshot[]
   cashflowForecastLines       CashflowForecastLine[]
   documents                   Document[]
+  kickoffChecklistItems       ProjectKickoffChecklist[]
   awardedBids                 BidOpportunity[]             @relation("BidAwardedProject")
   budgets                     ProjectBudget[]
   procurementPlans            ProjectProcurementPlan[]
@@ -1159,6 +1160,24 @@ model Project {
   @@index([name])
   @@index([status])
   @@index([projectCode])
+}
+
+model ProjectKickoffChecklist {
+  id          String   @id @default(cuid())
+  projectId   String
+  itemKey     String
+  label       String
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+  completedBy String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, itemKey])
+  @@index([projectId])
+  @@index([isCompleted])
 }
 
 enum ProjectBudgetSourceType {
