@@ -5,6 +5,7 @@ import {
   generateMockCabinetDesignPackage,
   generateMockFurnitureLayout,
   generateMockPerspectiveConceptPackage,
+  generateMockRenovationWorkflow,
   getMockFloorPlanById,
   type FloorPlanCabinetDesign,
   type FloorPlanCabinetInstallationNote,
@@ -12,6 +13,7 @@ import {
   type FloorPlanPerspectiveConcept,
   type FloorPlanPerspectiveStyle,
   type FloorPlanStatus,
+  type FloorPlanWorkflowStep,
 } from "@/lib/design-ai/floor-plan-engine";
 import { PageHeader } from "@/app/components/ui/page-header";
 import { SectionCard } from "@/app/components/ui/section-card";
@@ -51,6 +53,15 @@ export default async function FloorPlanDetailPage({
   const perspectivePackage = showPerspectivePackage
     ? generateMockPerspectiveConceptPackage(plan, selectedPerspectiveStyle)
     : null;
+  const generateRenovationWorkflowParam =
+    resolvedSearchParams?.generateRenovationWorkflow;
+  const showRenovationWorkflow = hasEnabledFlag(generateRenovationWorkflowParam);
+  const renovationWorkflow = showRenovationWorkflow
+    ? generateMockRenovationWorkflow(plan)
+    : null;
+  const workflowTradeGroups = renovationWorkflow
+    ? groupWorkflowStepsByTrade(renovationWorkflow)
+    : [];
 
   return (
     <main className="space-y-6">
@@ -98,6 +109,7 @@ export default async function FloorPlanDetailPage({
               showFurnitureLayout: true,
               showCabinetDesign,
               showPerspectivePackage,
+              showRenovationWorkflow,
               perspectiveStyle: selectedPerspectiveStyle,
             })}
           >
@@ -228,6 +240,7 @@ export default async function FloorPlanDetailPage({
               showFurnitureLayout,
               showCabinetDesign: true,
               showPerspectivePackage,
+              showRenovationWorkflow,
               perspectiveStyle: selectedPerspectiveStyle,
             })}
           >
@@ -478,6 +491,7 @@ export default async function FloorPlanDetailPage({
               showFurnitureLayout,
               showCabinetDesign,
               showPerspectivePackage: true,
+              showRenovationWorkflow,
               perspectiveStyle: selectedPerspectiveStyle,
             })}
           >
@@ -499,6 +513,7 @@ export default async function FloorPlanDetailPage({
                     showFurnitureLayout,
                     showCabinetDesign,
                     showPerspectivePackage,
+                    showRenovationWorkflow,
                     perspectiveStyle: style,
                   })}
                   size="sm"
@@ -599,25 +614,276 @@ export default async function FloorPlanDetailPage({
       </SectionCard>
 
       <SectionCard
-        title="Renovation Workflow Steps"
-        description="Recommended handoff sequence from mock layout detection into design development and execution planning."
+        title="Renovation Workflow Engine"
+        description="Generate a renovation workflow with sequencing, trade coverage, dependencies, risk notes, and inspection checkpoints."
+        actions={
+          <LinkButton
+            href={buildFloorPlanDetailHref({
+              id: plan.id,
+              showFurnitureLayout,
+              showCabinetDesign,
+              showPerspectivePackage,
+              showRenovationWorkflow: true,
+              perspectiveStyle: selectedPerspectiveStyle,
+            })}
+          >
+            {showRenovationWorkflow
+              ? "Regenerate Renovation Workflow"
+              : "Generate Renovation Workflow"}
+          </LinkButton>
+        }
       >
-        <div className="space-y-3">
-          {plan.workflowSteps.map((step) => (
-            <article key={step.phase} className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm shadow-black/5">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        {!renovationWorkflow ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6">
+            <p className="text-sm font-medium text-neutral-900">
+              Generate the renovation workflow to map site protection through final handover,
+              including trades, durations, dependencies, risk notes, and inspection checkpoints.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {plan.workflowSteps.map((step) => (
+                <span
+                  key={step.sequence}
+                  className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-700"
+                >
+                  {step.sequence}. {step.stage}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="grid gap-4 xl:grid-cols-[0.75fr_1.25fr]">
+              <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                  Workflow Summary
+                </p>
+                <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
+                  <InfoLine label="Stages" value={String(renovationWorkflow.length)} />
+                  <InfoLine label="Trades" value={String(workflowTradeGroups.length)} />
+                  <InfoLine label="Site" value={plan.siteLabel} />
+                  <InfoLine label="Property Type" value={plan.propertyType} />
+                </div>
+              </article>
+
+              <article className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                  Sequencing Intent
+                </p>
+                <p className="mt-4 text-sm leading-6 text-neutral-700">
+                  The engine keeps wet and concealed services ahead of closure works, places
+                  workshop fabrication after first-coat stabilization, and reserves touch-up,
+                  cleaning, and handover for the final commissioning sequence.
+                </p>
+              </article>
+            </div>
+
+            <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-neutral-950">{step.phase}</p>
-                  <p className="mt-1 text-sm text-neutral-600">{step.deliverable}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                    Timeline View
+                  </p>
+                  <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                    Renovation Stage Timeline
+                  </h3>
                 </div>
-                <div className="grid gap-3 text-sm sm:grid-cols-2 lg:min-w-[320px]">
-                  <InfoLine label="Owner" value={step.owner} />
-                  <InfoLine label="Duration" value={step.duration} />
-                </div>
+                <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600">
+                  {renovationWorkflow.length} stages
+                </span>
+              </div>
+
+              <div className="mt-5 space-y-4">
+                {renovationWorkflow.map((step) => (
+                  <article
+                    key={`${step.sequence}-${step.stage}`}
+                    className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 lg:grid-cols-[64px_minmax(0,1fr)]"
+                  >
+                    <div className="flex items-start justify-start lg:justify-center">
+                      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-300 bg-white text-sm font-semibold text-neutral-950">
+                        {step.sequence}
+                      </span>
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                            {step.trade}
+                          </p>
+                          <h4 className="mt-1 text-base font-semibold text-neutral-950">
+                            {step.stage}
+                          </h4>
+                        </div>
+                        <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600">
+                          {step.estimatedDuration}
+                        </span>
+                      </div>
+
+                      <p className="mt-4 text-sm leading-6 text-neutral-700">
+                        {step.taskDescription}
+                      </p>
+
+                      <div className="mt-4 grid gap-3 xl:grid-cols-3">
+                        <DetailPanel label="Dependency" value={step.dependency} />
+                        <DetailPanel label="Risk Note" value={step.riskNote} />
+                        <DetailPanel
+                          label="Inspection Checkpoint"
+                          value={step.inspectionCheckpoint}
+                        />
+                      </div>
+                    </div>
+                  </article>
+                ))}
               </div>
             </article>
-          ))}
-        </div>
+
+            <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                    Checklist View
+                  </p>
+                  <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                    Stage-by-Stage Closeout Checklist
+                  </h3>
+                </div>
+                <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600">
+                  Inspection-led
+                </span>
+              </div>
+
+              <div className="mt-5 grid gap-3 xl:grid-cols-2">
+                {renovationWorkflow.map((step) => (
+                  <article
+                    key={`checklist-${step.sequence}`}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"
+                  >
+                    <div className="flex gap-3">
+                      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white text-sm font-semibold text-neutral-950">
+                        {step.sequence}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <p className="text-sm font-semibold text-neutral-950">
+                              {step.stage}
+                            </p>
+                            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                              {step.trade}
+                            </p>
+                          </div>
+                          <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600">
+                            {step.estimatedDuration}
+                          </span>
+                        </div>
+                        <p className="mt-3 text-sm leading-6 text-neutral-700">
+                          {step.inspectionCheckpoint}
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </article>
+
+            <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                  Trade Grouping
+                </p>
+                <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                  Trade-Based Work Packages
+                </h3>
+              </div>
+
+              <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                {workflowTradeGroups.map((group) => (
+                  <article
+                    key={group.trade}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"
+                  >
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-base font-semibold text-neutral-950">
+                          {group.trade}
+                        </p>
+                        <p className="mt-1 text-sm text-neutral-600">
+                          {group.steps.length} workflow stage
+                          {group.steps.length === 1 ? "" : "s"}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {group.steps.map((step) => (
+                          <span
+                            key={`trade-${group.trade}-${step.sequence}`}
+                            className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-700"
+                          >
+                            {step.sequence}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      {group.steps.map((step) => (
+                        <div
+                          key={`trade-note-${group.trade}-${step.sequence}`}
+                          className="rounded-xl border border-slate-200 bg-white px-4 py-3"
+                        >
+                          <p className="text-sm font-semibold text-neutral-950">
+                            {step.stage}
+                          </p>
+                          <p className="mt-1 text-sm leading-6 text-neutral-700">
+                            {step.taskDescription}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </article>
+
+            <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                  Dependency Notes
+                </p>
+                <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                  Stage Dependencies and Risk Flags
+                </h3>
+              </div>
+
+              <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                {renovationWorkflow.map((step) => (
+                  <article
+                    key={`dependency-${step.sequence}`}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                          Step {step.sequence}
+                        </p>
+                        <h4 className="mt-1 text-base font-semibold text-neutral-950">
+                          {step.stage}
+                        </h4>
+                      </div>
+                      <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600">
+                        {step.trade}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 grid gap-3">
+                      <DetailPanel label="Dependency" value={step.dependency} />
+                      <DetailPanel label="Risk Note" value={step.riskNote} />
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </article>
+          </div>
+        )}
       </SectionCard>
     </main>
   );
@@ -826,6 +1092,21 @@ function NotesPanel(props: { title: string; notes: string[] }) {
   );
 }
 
+function groupWorkflowStepsByTrade(steps: FloorPlanWorkflowStep[]) {
+  const tradeMap = new Map<string, FloorPlanWorkflowStep[]>();
+
+  for (const step of steps) {
+    const currentSteps = tradeMap.get(step.trade) ?? [];
+    currentSteps.push(step);
+    tradeMap.set(step.trade, currentSteps);
+  }
+
+  return Array.from(tradeMap.entries()).map(([trade, groupedSteps]) => ({
+    trade,
+    steps: groupedSteps,
+  }));
+}
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-SG", {
     day: "numeric",
@@ -864,6 +1145,7 @@ function buildFloorPlanDetailHref(args: {
   showFurnitureLayout: boolean;
   showCabinetDesign: boolean;
   showPerspectivePackage: boolean;
+  showRenovationWorkflow: boolean;
   perspectiveStyle: FloorPlanPerspectiveStyle;
 }) {
   const searchParams = new URLSearchParams();
@@ -878,6 +1160,10 @@ function buildFloorPlanDetailHref(args: {
 
   if (args.showPerspectivePackage) {
     searchParams.set("generate3dPerspectives", "1");
+  }
+
+  if (args.showRenovationWorkflow) {
+    searchParams.set("generateRenovationWorkflow", "1");
   }
 
   searchParams.set("perspectiveStyle", args.perspectiveStyle);

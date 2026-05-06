@@ -154,10 +154,14 @@ export type FloorPlanCarpentryNote = {
 };
 
 export type FloorPlanWorkflowStep = {
-  phase: string;
-  owner: string;
-  duration: string;
-  deliverable: string;
+  sequence: number;
+  stage: string;
+  trade: string;
+  taskDescription: string;
+  dependency: string;
+  estimatedDuration: string;
+  riskNote: string;
+  inspectionCheckpoint: string;
 };
 
 export type FloorPlanRecord = {
@@ -179,6 +183,217 @@ export type FloorPlanRecord = {
   carpentryNotes: FloorPlanCarpentryNote[];
   workflowSteps: FloorPlanWorkflowStep[];
 };
+
+type RenovationWorkflowContext = {
+  projectName: string;
+  propertyType: string;
+  siteLabel: string;
+};
+
+type RenovationWorkflowStageDefinition = {
+  stage: string;
+  trade: string;
+  dependency: string;
+  estimatedDuration: string;
+  riskNote: string;
+  inspectionCheckpoint: string;
+  getTaskDescription: (context: RenovationWorkflowContext) => string;
+};
+
+const RENOVATION_WORKFLOW_STAGE_DEFINITIONS: RenovationWorkflowStageDefinition[] = [
+  {
+    stage: "Site protection",
+    trade: "General Works",
+    dependency: "Approved access route, retained-finish schedule, and protection materials delivered to site.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Incomplete protection can damage shared areas or retained finishes before the main works start.",
+    inspectionCheckpoint:
+      "Project manager confirms lift lobby, corridor, floor, door, and retained surface protection before hacking.",
+    getTaskDescription: ({ projectName, siteLabel }) =>
+      `Protect shared access zones and retained finishes around ${siteLabel} before renovation works begin for ${projectName}.`,
+  },
+  {
+    stage: "Hacking / demolition",
+    trade: "Demolition",
+    dependency: "Site protection completed and demolition scope marked against the approved layout.",
+    estimatedDuration: "2 days",
+    riskNote:
+      "Unverified hacking can affect concealed services, management rules, or neighboring units.",
+    inspectionCheckpoint:
+      "Demolition extent, debris route, and non-structural wall removal are checked against the approved drawing set.",
+    getTaskDescription: ({ propertyType }) =>
+      `Hack marked finishes, remove obsolete fixtures, and clear non-structural elements for the ${propertyType.toLowerCase()} renovation scope.`,
+  },
+  {
+    stage: "Masonry",
+    trade: "Masonry",
+    dependency: "Demolition completed and new wall or kerb set-out confirmed on site.",
+    estimatedDuration: "2 days",
+    riskNote:
+      "Poor blockwork alignment will cascade into tiling, carpentry, and door-frame installation issues.",
+    inspectionCheckpoint:
+      "Wall plumb, opening sizes, kerb positions, and wet-area set-out are measured before plastering progresses.",
+    getTaskDescription: ({ projectName }) =>
+      `Build masonry walls, kerbs, and patching works needed to stabilize the new layout package for ${projectName}.`,
+  },
+  {
+    stage: "Electrical point marking",
+    trade: "Electrical",
+    dependency: "Masonry set-out is stable and reflected ceiling or joinery intent has been reviewed.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Late shifts to power or switch points create rework across hacking, joinery, and ceiling closures.",
+    inspectionCheckpoint:
+      "Designer and homeowner sign off all lighting, power, data, and switch point markings on site.",
+    getTaskDescription: ({ siteLabel }) =>
+      `Mark lighting, switch, power, and data points across ${siteLabel} to match the furniture and carpentry plan.`,
+  },
+  {
+    stage: "Plumbing rough-in",
+    trade: "Plumbing",
+    dependency: "Wet-area layout, sanitary fixture positions, and electrical point marking are confirmed.",
+    estimatedDuration: "2 days",
+    riskNote:
+      "Incorrect pipe routes, trap positions, or levels can force floor build-up changes and fixture clashes.",
+    inspectionCheckpoint:
+      "Pipe routing, pressure tests, trap positions, and floor waste levels are checked before closure.",
+    getTaskDescription: ({ projectName }) =>
+      `Run concealed water supply, drainage, and sanitary rough-in works needed for the wet areas in ${projectName}.`,
+  },
+  {
+    stage: "Aircon / ventilation coordination",
+    trade: "Air Conditioning",
+    dependency: "Electrical and plumbing rough-in routes are established and ceiling intent is available for coordination.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Fan coil units, trunking, ducting, and drainage may clash with beams, lights, or access panels.",
+    inspectionCheckpoint:
+      "FCU positions, drain falls, sleeve routes, ventilation paths, and service access clearances are verified.",
+    getTaskDescription: ({ propertyType }) =>
+      `Coordinate fan coil, trunking, drain, and ventilation routes so the ${propertyType.toLowerCase()} ceiling package can proceed cleanly.`,
+  },
+  {
+    stage: "Ceiling / partition",
+    trade: "Ceiling & Partition",
+    dependency: "M&E rough-in and aircon coordination are signed off with no unresolved service clashes.",
+    estimatedDuration: "3 days",
+    riskNote:
+      "Closing ceilings too early can conceal unresolved services and reduce maintenance access.",
+    inspectionCheckpoint:
+      "Ceiling framing, bulkhead drops, access panels, and partition lines are inspected before board closure.",
+    getTaskDescription: ({ projectName }) =>
+      `Install framing, gypsum boards, and partitions needed to define the final ceiling and room envelopes for ${projectName}.`,
+  },
+  {
+    stage: "Flooring",
+    trade: "Flooring",
+    dependency: "Wet works are cured, concealed services tested, and substrate levels accepted.",
+    estimatedDuration: "3 days",
+    riskNote:
+      "Uneven substrate or trapped moisture will telegraph through tiles, vinyl, or timber finishes.",
+    inspectionCheckpoint:
+      "Level checks, tile or plank direction, movement joints, and threshold transitions are reviewed before full lay.",
+    getTaskDescription: ({ siteLabel }) =>
+      `Lay approved floor finishes across ${siteLabel} after substrate levelling and wet-area preparation are complete.`,
+  },
+  {
+    stage: "First coat painting",
+    trade: "Painting",
+    dependency: "Ceilings and partitions are closed up, major patching is complete, and dust-heavy wet trades are finished.",
+    estimatedDuration: "2 days",
+    riskNote:
+      "Painting too early traps dust in the finish and increases repaint work after joinery installation.",
+    inspectionCheckpoint:
+      "Base coat coverage, surface flatness, and patching defects are reviewed before carpentry installation starts.",
+    getTaskDescription: ({ projectName }) =>
+      `Apply primer and first-coat paint to walls and ceilings to prepare the site for the joinery phase of ${projectName}.`,
+  },
+  {
+    stage: "Carpentry fabrication",
+    trade: "Carpentry Workshop",
+    dependency: "Final measurements, approved shop drawings, and the material or hardware schedule are released.",
+    estimatedDuration: "7 days",
+    riskNote:
+      "Fabricating from unverified site dimensions creates filler rework, alignment issues, and delivery delays.",
+    inspectionCheckpoint:
+      "Workshop drawings, material selections, and hardware list are approved before production starts.",
+    getTaskDescription: ({ projectName }) =>
+      `Fabricate the built-in carpentry package for ${projectName}, including wardrobes, kitchen units, and storage cabinetry.`,
+  },
+  {
+    stage: "Cabinet delivery",
+    trade: "Logistics / Carpentry",
+    dependency: "First coat painting is dry, protected access is maintained, and site storage is ready.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Delivering joinery into a wet or congested site can damage panels before installation begins.",
+    inspectionCheckpoint:
+      "Delivered cabinets are counted, wrapped, and cross-checked against the packing list and drawing references.",
+    getTaskDescription: ({ siteLabel }) =>
+      `Deliver fabricated cabinets to ${siteLabel} in installation sequence so site handling stays controlled.`,
+  },
+  {
+    stage: "Cabinet installation",
+    trade: "Carpentry Installation",
+    dependency: "Cabinets are delivered, walls are dry, and finished floors remain protected during handling.",
+    estimatedDuration: "4 days",
+    riskNote:
+      "Out-of-level walls or floors can slow alignment, reveal tuning, and hardware commissioning.",
+    inspectionCheckpoint:
+      "Alignment, reveal gaps, anchoring, level checks, and door or drawer operation are inspected before final fixing.",
+    getTaskDescription: ({ projectName }) =>
+      `Install and align the full cabinet package for ${projectName}, including wall features, kitchen units, and wardrobes.`,
+  },
+  {
+    stage: "Lighting / switches installation",
+    trade: "Electrical",
+    dependency: "Cabinet installation is substantially complete and all final fixture cut-outs are confirmed.",
+    estimatedDuration: "2 days",
+    riskNote:
+      "Wrong fixture trims, missing drivers, or last-minute point shifts can damage finished ceilings and joinery.",
+    inspectionCheckpoint:
+      "All circuits, switch labels, fixture operations, and concealed lighting runs are tested room by room.",
+    getTaskDescription: ({ projectName }) =>
+      `Install decorative lighting, switches, sockets, and final electrical accessories to commission ${projectName}.`,
+  },
+  {
+    stage: "Final painting touch-up",
+    trade: "Painting",
+    dependency: "Electrical fixtures, carpentry, and sealant works are substantially complete with punch items identified.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Rushed touch-up work can leave visible shade differences, edge marks, or unsealed repair patches.",
+    inspectionCheckpoint:
+      "Touch-up list, edge lines, caulking zones, and stain rectification are signed off under working lights.",
+    getTaskDescription: ({ siteLabel }) =>
+      `Touch up walls, ceilings, and trim around the completed installation zones at ${siteLabel}.`,
+  },
+  {
+    stage: "Cleaning",
+    trade: "Cleaning",
+    dependency: "All drilling, wet works, and touch-up activities are complete with no further dusty work planned.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Cleaning too early causes repeated dust contamination and can scratch completed joinery or flooring.",
+    inspectionCheckpoint:
+      "Deep cleaning covers glass, cabinet interiors, floor protection removal, debris disposal, and sanitary areas.",
+    getTaskDescription: ({ projectName }) =>
+      `Carry out post-renovation deep cleaning so ${projectName} is presentable for final walkthrough and defect review.`,
+  },
+  {
+    stage: "Handover",
+    trade: "Project Management",
+    dependency: "Cleaning is complete and the defect or outstanding items list is closed or documented for follow-up.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Unresolved defects or missing manuals reduce client confidence at final turnover.",
+    inspectionCheckpoint:
+      "Client walkthrough, warranty pack, appliance testing, and key or access-card handover are recorded.",
+    getTaskDescription: ({ projectName }) =>
+      `Conduct the final walkthrough and formal handover for ${projectName}, including manuals, warranties, and sign-off records.`,
+  },
+];
 
 const MOCK_FLOOR_PLANS: FloorPlanRecord[] = [
   {
@@ -288,14 +503,11 @@ const MOCK_FLOOR_PLANS: FloorPlanRecord[] = [
         note: "Treat wardrobe return and vanity as one composition to avoid a fragmented bedroom elevation.",
       },
     ],
-    workflowSteps: [
-      { phase: "01. Layout intake", owner: "Design AI", duration: "Same day", deliverable: "Detected zoning and room labels" },
-      { phase: "02. Designer validation", owner: "Interior Designer", duration: "1 day", deliverable: "Confirmed circulation and furniture assumptions" },
-      { phase: "03. Mood and palette lock", owner: "Design Lead", duration: "2 days", deliverable: "Approved color and material direction" },
-      { phase: "04. Carpentry detailing", owner: "Technical Designer", duration: "3 days", deliverable: "Built-in scope and workshop notes" },
-      { phase: "05. 3D prompt generation", owner: "Visualization Team", duration: "1 day", deliverable: "Prompt pack for perspective production" },
-      { phase: "06. Renovation handoff", owner: "Project Manager", duration: "1 day", deliverable: "Execution sequence for costing and scheduling" },
-    ],
+    workflowSteps: buildMockRenovationWorkflow({
+      projectName: "Marina Bay Residence",
+      propertyType: "Condominium",
+      siteLabel: "Tower B, Level 18",
+    }),
   },
   {
     id: "fp-orchard-sky-villa",
@@ -404,14 +616,11 @@ const MOCK_FLOOR_PLANS: FloorPlanRecord[] = [
         note: "Keep desk carcasses modular so each room can shift between child, teen, or guest use over time.",
       },
     ],
-    workflowSteps: [
-      { phase: "01. Layout capture", owner: "Design AI", duration: "Same day", deliverable: "Spatial labels and key dimensions assumptions" },
-      { phase: "02. Wet area review", owner: "Technical Designer", duration: "1 day", deliverable: "Kitchen and bathroom constraints clarified" },
-      { phase: "03. Furniture test fit", owner: "Interior Designer", duration: "2 days", deliverable: "Entertaining and family zoning approved" },
-      { phase: "04. Material direction", owner: "Design Lead", duration: "2 days", deliverable: "Penthouse palette board and finishes hierarchy" },
-      { phase: "05. Joinery package", owner: "Carpentry Team", duration: "3 days", deliverable: "Custom carpentry notes for costing" },
-      { phase: "06. Visualization and costing", owner: "Visualization and QS", duration: "2 days", deliverable: "Prompt pack and preliminary budget alignment" },
-    ],
+    workflowSteps: buildMockRenovationWorkflow({
+      projectName: "Orchard Sky Villa",
+      propertyType: "Penthouse",
+      siteLabel: "Sky Villa, Level 32",
+    }),
   },
   {
     id: "fp-bukit-timah-family-home",
@@ -520,14 +729,11 @@ const MOCK_FLOOR_PLANS: FloorPlanRecord[] = [
         note: "Specify drawer modules and open ledges below the eaves rather than forcing full-height cabinetry into compromised headroom.",
       },
     ],
-    workflowSteps: [
-      { phase: "01. Multi-level parsing", owner: "Design AI", duration: "Same day", deliverable: "Per-floor zoning and room grouping" },
-      { phase: "02. Stair and wet area validation", owner: "Technical Designer", duration: "1 day", deliverable: "Critical circulation constraints confirmed" },
-      { phase: "03. Family storage strategy", owner: "Interior Designer", duration: "2 days", deliverable: "Room-by-room storage priorities" },
-      { phase: "04. Carpentry briefing", owner: "Design Lead", duration: "2 days", deliverable: "Built-in scope for bedrooms and lounge" },
-      { phase: "05. Prompt generation", owner: "Visualization Team", duration: "1 day", deliverable: "3D prompt pack once geometry is signed off" },
-      { phase: "06. Renovation sequencing", owner: "Project Manager", duration: "2 days", deliverable: "Site workflow aligned to family occupancy needs" },
-    ],
+    workflowSteps: buildMockRenovationWorkflow({
+      projectName: "Bukit Timah Family Home",
+      propertyType: "Landed",
+      siteLabel: "Ground and Level 2",
+    }),
   },
 ];
 
@@ -550,6 +756,31 @@ export function getMockFloorPlanMetrics() {
     totalDetectedRooms: MOCK_FLOOR_PLANS.reduce((total, plan) => total + plan.roomDetections.length, 0),
     totalPerspectivePrompts: MOCK_FLOOR_PLANS.reduce((total, plan) => total + plan.perspectivePrompts.length, 0),
   };
+}
+
+export function generateMockRenovationWorkflow(
+  plan: FloorPlanRecord,
+): FloorPlanWorkflowStep[] {
+  return buildMockRenovationWorkflow({
+    projectName: plan.projectName,
+    propertyType: plan.propertyType,
+    siteLabel: plan.siteLabel,
+  });
+}
+
+function buildMockRenovationWorkflow(
+  context: RenovationWorkflowContext,
+): FloorPlanWorkflowStep[] {
+  return RENOVATION_WORKFLOW_STAGE_DEFINITIONS.map((definition, index) => ({
+    sequence: index + 1,
+    stage: definition.stage,
+    trade: definition.trade,
+    taskDescription: definition.getTaskDescription(context),
+    dependency: definition.dependency,
+    estimatedDuration: definition.estimatedDuration,
+    riskNote: definition.riskNote,
+    inspectionCheckpoint: definition.inspectionCheckpoint,
+  }));
 }
 
 const FURNITURE_LAYOUT_SECTION_ORDER: Array<{
