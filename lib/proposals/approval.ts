@@ -1,8 +1,9 @@
 import "server-only";
 
-import { ProposalStatus, Prisma } from "@prisma/client";
+import { ProposalActivityType, ProposalStatus, Prisma } from "@prisma/client";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { createProposalActivity } from "@/lib/proposals/activity";
 
 type RequestMetadata = {
   ipAddress: string | null;
@@ -128,22 +129,32 @@ export async function markProposalViewedByToken(token: string) {
     return proposal;
   }
 
-  if (proposal.status === ProposalStatus.VIEWED && proposal.viewedAt) {
-    return proposal;
-  }
+  const now = new Date();
 
-  return prisma.proposal.update({
-    where: { id: proposal.id },
-    data: {
-      status: ProposalStatus.VIEWED,
-      viewedAt: proposal.viewedAt ?? new Date(),
-    },
-    select: {
-      id: true,
-      publicToken: true,
-      status: true,
-      viewedAt: true,
-    },
+  return prisma.$transaction(async (tx) => {
+    await createProposalActivity(tx, {
+      proposalId: proposal.id,
+      type: ProposalActivityType.VIEWED,
+      createdAt: now,
+    });
+
+    if (proposal.status === ProposalStatus.VIEWED && proposal.viewedAt) {
+      return proposal;
+    }
+
+    return tx.proposal.update({
+      where: { id: proposal.id },
+      data: {
+        status: ProposalStatus.VIEWED,
+        viewedAt: proposal.viewedAt ?? now,
+      },
+      select: {
+        id: true,
+        publicToken: true,
+        status: true,
+        viewedAt: true,
+      },
+    });
   });
 }
 
@@ -227,6 +238,12 @@ export async function approveProposalByToken(params: {
         status: ProposalStatus.APPROVED,
         viewedAt: proposal.viewedAt ?? now,
       },
+    });
+
+    await createProposalActivity(tx, {
+      proposalId: proposal.id,
+      type: ProposalActivityType.APPROVED,
+      createdAt: now,
     });
 
     return {

@@ -33,6 +33,13 @@ enum ProposalStatus {
   REJECTED
 }
 
+enum ProposalActivityType {
+  SENT
+  VIEWED
+  REMINDER
+  APPROVED
+}
+
 enum ScopeCategory {
   HACKING_DEMOLITION
   MASONRY_WORKS
@@ -1137,6 +1144,7 @@ model Project {
   cashflowForecastSnapshots   CashflowForecastSnapshot[]
   cashflowForecastLines       CashflowForecastLine[]
   documents                   Document[]
+  kickoffChecklistItems       ProjectKickoffChecklist[]
   awardedBids                 BidOpportunity[]             @relation("BidAwardedProject")
   budgets                     ProjectBudget[]
   procurementPlans            ProjectProcurementPlan[]
@@ -1152,6 +1160,24 @@ model Project {
   @@index([name])
   @@index([status])
   @@index([projectCode])
+}
+
+model ProjectKickoffChecklist {
+  id          String   @id @default(cuid())
+  projectId   String
+  itemKey     String
+  label       String
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+  completedBy String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, itemKey])
+  @@index([projectId])
+  @@index([isCompleted])
 }
 
 enum ProjectBudgetSourceType {
@@ -5784,10 +5810,25 @@ model Proposal {
   quotation  Quotation           @relation(fields: [quotationId], references: [id], onDelete: Cascade)
   approvals  ProposalApproval[]
   signatures ProposalSignature[]
+  activities ProposalActivity[]
 
   @@index([createdAt])
   @@index([status])
   @@index([viewedAt])
+}
+
+model ProposalActivity {
+  id         String               @id @default(cuid())
+  proposalId String
+  type       ProposalActivityType
+  createdAt  DateTime             @default(now())
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@index([proposalId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([proposalId, createdAt])
 }
 
 model ProposalApproval {

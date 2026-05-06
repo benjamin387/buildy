@@ -28,6 +28,7 @@ export function ProjectTabs(props: { projectId: string }) {
       { key: "design-brief", label: "Design Brief", href: `/projects/${id}/design-brief` },
       { key: "quotations", label: "Quotations", href: `/projects/${id}/quotations` },
       { key: "contract", label: "Contract", href: `/projects/${id}/contract` },
+      { key: "kickoff", label: "Kickoff", href: `/projects/${id}/kickoff` },
       { key: "execution", label: "Execution", href: `/projects/${id}/execution` },
       { key: "billing", label: "Billing", href: `/projects/${id}/billing` },
       { key: "invoices", label: "Invoices", href: `/projects/${id}/invoices` },

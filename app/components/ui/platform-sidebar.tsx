@@ -156,7 +156,7 @@ export function PlatformSidebar(props: {
         label: "Finance",
         defaultOpen: false,
         items: [
-          { key: "finance-revenue", label: "Revenue", href: "/finance/revenue", icon: LineChart },
+          { key: "finance-revenue", label: "Revenue Analytics", href: "/analytics/revenue", icon: LineChart },
           { key: "finance-cost-ledger", label: "Cost Ledger", href: "/finance/cost-ledger", icon: ListChecks },
           { key: "finance-profitability", label: "Profitability", href: "/finance/profitability", icon: Gauge },
           { key: "finance-gst-xero", label: "GST / Xero", href: "/settings/accounting", icon: Settings },

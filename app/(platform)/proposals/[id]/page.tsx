@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ProposalStatus } from "@prisma/client";
 import { notFound } from "next/navigation";
-import { Permission } from "@prisma/client";
+import { Permission, ProposalActivityType, ProposalStatus } from "@prisma/client";
+import { PendingSubmitButton } from "@/app/(platform)/components/pending-submit-button";
+import { initializeProjectKickoff } from "@/app/(platform)/projects/[projectId]/kickoff/actions";
+import { sendProposalWhatsApp } from "@/app/(platform)/proposals/actions";
 import { ClientProposalDocument } from "@/app/components/proposal/client-proposal-document";
 import { CopyLinkButton } from "@/app/components/ui/copy-link-button";
 import { PageHeader } from "@/app/components/ui/page-header";
@@ -12,7 +14,7 @@ import { getCompanyBranding } from "@/lib/branding";
 import { prisma } from "@/lib/prisma";
 import { parseProposalContent } from "@/lib/proposals/content";
 import { buildPublicProposalPath, buildPublicProposalUrl } from "@/lib/proposals/service";
-import { requirePermission } from "@/lib/rbac";
+import { getProjectPermissions, requirePermission, requireUserId } from "@/lib/rbac";
 
 function formatDate(value: Date): string {
   return new Intl.DateTimeFormat("en-SG", {
@@ -41,14 +43,50 @@ function statusTone(status: ProposalStatus) {
   return "neutral";
 }
 
+function activityTone(type: ProposalActivityType) {
+  if (type === ProposalActivityType.APPROVED) return "success";
+  if (type === ProposalActivityType.REMINDER) return "warning";
+  if (type === ProposalActivityType.VIEWED) return "info";
+  return "neutral";
+}
+
+function activityLabel(type: ProposalActivityType) {
+  if (type === ProposalActivityType.SENT) return "Proposal sent";
+  if (type === ProposalActivityType.VIEWED) return "Link viewed";
+  if (type === ProposalActivityType.REMINDER) return "Follow-up sent";
+  return "Proposal approved";
+}
+
+function activityDescription(type: ProposalActivityType) {
+  if (type === ProposalActivityType.SENT) {
+    return "Initial WhatsApp delivery to the client.";
+  }
+  if (type === ProposalActivityType.VIEWED) {
+    return "The secure public proposal link was opened.";
+  }
+  if (type === ProposalActivityType.REMINDER) {
+    return "Automated WhatsApp reminder or follow-up sent.";
+  }
+  return "Client approval was recorded from the public proposal page.";
+}
+
 export default async function ProposalDetailPage(props: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id } = await props.params;
+  const searchParams = (await props.searchParams) ?? {};
+  const whatsappState =
+    typeof searchParams.whatsapp === "string" ? searchParams.whatsapp : "";
+  const whatsappMessage =
+    typeof searchParams.message === "string" ? searchParams.message : "";
 
   const proposal = await prisma.proposal.findUnique({
     where: { id },
     include: {
+      activities: {
+        orderBy: [{ createdAt: "desc" }],
+      },
       approvals: {
         orderBy: [{ createdAt: "desc" }],
       },
@@ -61,10 +99,21 @@ export default async function ProposalDetailPage(props: {
           projectId: true,
           quotationNumber: true,
           issueDate: true,
+          contactPhoneSnapshot: true,
           projectNameSnapshot: true,
           projectAddress1: true,
           projectAddress2: true,
           projectPostalCode: true,
+          project: {
+            select: {
+              clientPhone: true,
+              client: {
+                select: {
+                  phone: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -77,11 +126,27 @@ export default async function ProposalDetailPage(props: {
     projectId: proposal.quotation.projectId,
   });
 
+  const userId = await requireUserId();
+  const permissions = await getProjectPermissions({
+    userId,
+    projectId: proposal.quotation.projectId,
+  });
+
   const branding = await getCompanyBranding();
   const content = parseProposalContent(proposal.content);
   const sharePath = buildPublicProposalPath(proposal.publicToken);
   const shareUrl = buildPublicProposalUrl(proposal.publicToken);
   const latestSignature = proposal.signatures[0] ?? null;
+  const latestActivity = proposal.activities[0] ?? null;
+  const canSendWhatsApp = permissions.has(Permission.QUOTE_WRITE);
+  const canStartKickoff =
+    permissions.has(Permission.PROJECT_WRITE) &&
+    (proposal.status === ProposalStatus.APPROVED || Boolean(latestSignature));
+  const hasClientPhone = Boolean(
+    proposal.quotation.contactPhoneSnapshot ||
+      proposal.quotation.project.clientPhone ||
+      proposal.quotation.project.client?.phone,
+  );
   const projectAddress = [
     proposal.quotation.projectAddress1,
     proposal.quotation.projectAddress2,
@@ -99,6 +164,31 @@ export default async function ProposalDetailPage(props: {
         backHref={`/projects/${proposal.quotation.projectId}/quotations/${proposal.quotation.id}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            {canStartKickoff ? (
+              <form action={initializeProjectKickoff}>
+                <input
+                  type="hidden"
+                  name="projectId"
+                  value={proposal.quotation.projectId}
+                />
+                <PendingSubmitButton
+                  pendingText="Starting..."
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Start Project Kickoff
+                </PendingSubmitButton>
+              </form>
+            ) : null}
+            {canSendWhatsApp ? (
+              <form action={sendProposalWhatsApp.bind(null, proposal.id)}>
+                <PendingSubmitButton
+                  pendingText="Sending..."
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Send via WhatsApp
+                </PendingSubmitButton>
+              </form>
+            ) : null}
             <Link
               href={sharePath}
               target="_blank"
@@ -111,12 +201,37 @@ export default async function ProposalDetailPage(props: {
         }
       />
 
+      {whatsappState ? (
+        <section
+          className={
+            whatsappState === "sent"
+              ? "rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-900"
+              : "rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-900"
+          }
+        >
+          <p className="font-semibold">
+            {whatsappState === "sent"
+              ? "Proposal sent via WhatsApp."
+              : "Unable to send proposal via WhatsApp."}
+          </p>
+          {whatsappState !== "sent" && whatsappMessage ? (
+            <p className="mt-1">{whatsappMessage}</p>
+          ) : null}
+          {whatsappState !== "sent" && !hasClientPhone ? (
+            <p className="mt-1">Add the client contact number on the linked quotation or project before sending.</p>
+          ) : null}
+        </section>
+      ) : null}
+
       <SectionCard title="Share Link" description="This tokenized link does not require login and stays stable when you regenerate the proposal.">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="rounded-2xl border border-slate-200 bg-stone-50 px-4 py-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Public path</p>
             <p className="mt-1 break-all text-sm font-semibold text-neutral-950">{sharePath}</p>
             <p className="mt-2 break-all text-sm text-neutral-600">{shareUrl}</p>
+            <p className="mt-3 text-xs text-neutral-500">
+              WhatsApp recipient: {hasClientPhone ? "Available" : "Missing client phone"}
+            </p>
           </div>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
             <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
@@ -133,7 +248,7 @@ export default async function ProposalDetailPage(props: {
 
       <SectionCard title="Approval Status" description="Client-side approval state, signature evidence, and public viewing audit for this proposal.">
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-stone-50 px-4 py-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Current status</p>
               <div className="mt-3">
@@ -143,6 +258,15 @@ export default async function ProposalDetailPage(props: {
             <div className="rounded-2xl border border-slate-200 bg-stone-50 px-4 py-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Client viewed</p>
               <p className="mt-2 text-sm font-semibold text-neutral-950">{formatDateTime(proposal.viewedAt)}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-stone-50 px-4 py-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Last interaction</p>
+              <p className="mt-2 text-sm font-semibold text-neutral-950">
+                {latestActivity ? activityLabel(latestActivity.type) : "No activity yet"}
+              </p>
+              <p className="mt-1 text-sm text-neutral-600">
+                {latestActivity ? formatDateTime(latestActivity.createdAt) : "Waiting for first send"}
+              </p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-stone-50 px-4 py-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Latest decision</p>
@@ -189,6 +313,37 @@ export default async function ProposalDetailPage(props: {
             )}
           </div>
         </div>
+      </SectionCard>
+
+      <SectionCard title="Activity Timeline" description="WhatsApp sends, public-link views, reminder attempts, and approval milestones for this proposal.">
+        {proposal.activities.length === 0 ? (
+          <p className="text-sm text-neutral-600">No proposal activity recorded yet.</p>
+        ) : (
+          <div className="space-y-4">
+            {proposal.activities.map((activity) => (
+              <article key={activity.id} className="rounded-[22px] border border-slate-200 bg-stone-50 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <StatusPill tone={activityTone(activity.type)}>
+                        {activity.type}
+                      </StatusPill>
+                      <p className="text-sm font-semibold text-neutral-950">
+                        {activityLabel(activity.type)}
+                      </p>
+                    </div>
+                    <p className="mt-2 text-sm text-neutral-600">
+                      {activityDescription(activity.type)}
+                    </p>
+                  </div>
+                  <p className="text-sm font-medium text-neutral-700">
+                    {formatDateTime(activity.createdAt)}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </SectionCard>
 
       <SectionCard title="Approval Log" description="Immutable record of client approval and rejection responses captured from the public token.">

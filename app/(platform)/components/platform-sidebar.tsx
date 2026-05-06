@@ -106,6 +106,7 @@ export function PlatformSidebar(props: {
         items: [
           { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
           { key: "leads", label: "Leads", href: "/leads", icon: LifeBuoy },
+          { key: "deals", label: "Deals Pipeline", href: "/deals", icon: Activity },
           { key: "projects", label: "Projects", href: "/projects", icon: BriefcaseBusiness },
         ],
       },
