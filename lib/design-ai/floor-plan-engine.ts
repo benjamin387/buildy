@@ -47,6 +47,63 @@ export type FloorPlanFurnitureLayoutResult = {
   qsNotes: string[];
 };
 
+export type FloorPlanCabinetMaterial =
+  | "Plywood"
+  | "Laminate"
+  | "Solid"
+  | "Quartz";
+
+export type FloorPlanCabinetZoneKey =
+  | "tv-feature-wall"
+  | "kitchen-upper"
+  | "kitchen-base"
+  | "wardrobe"
+  | "storage-cabinet"
+  | "bathroom-vanity";
+
+export type FloorPlanCabinetDesign = {
+  key: FloorPlanCabinetZoneKey;
+  title: string;
+  location: string;
+  purpose: string;
+  dimensionsEstimate: string;
+  material: string;
+  materials: FloorPlanCabinetMaterial[];
+  finishColor: string;
+  internalLayout: string;
+};
+
+export type FloorPlanCabinetProductionItem = {
+  cabinetTitle: string;
+  panelType: string;
+  material: FloorPlanCabinetMaterial;
+  thickness: string;
+  dimensions: string;
+  quantity: number;
+  edging: string;
+  hardware: string;
+};
+
+export type FloorPlanCabinetMaterialSummaryItem = {
+  material: FloorPlanCabinetMaterial;
+  application: string;
+  cabinetCount: number;
+  productionQuantity: number;
+};
+
+export type FloorPlanCabinetInstallationNote = {
+  sequence: string;
+  sitePreparation: string;
+  measurementTolerance: string;
+};
+
+export type FloorPlanCabinetDesignPackage = {
+  cabinets: FloorPlanCabinetDesign[];
+  productionList: FloorPlanCabinetProductionItem[];
+  materialSummary: FloorPlanCabinetMaterialSummaryItem[];
+  installationNotes: FloorPlanCabinetInstallationNote[];
+};
+
 export type FloorPlanPaletteItem = {
   label: string;
   material: string;
@@ -97,10 +154,14 @@ export type FloorPlanCarpentryNote = {
 };
 
 export type FloorPlanWorkflowStep = {
-  phase: string;
-  owner: string;
-  duration: string;
-  deliverable: string;
+  sequence: number;
+  stage: string;
+  trade: string;
+  taskDescription: string;
+  dependency: string;
+  estimatedDuration: string;
+  riskNote: string;
+  inspectionCheckpoint: string;
 };
 
 export type FloorPlanRecord = {
@@ -122,6 +183,217 @@ export type FloorPlanRecord = {
   carpentryNotes: FloorPlanCarpentryNote[];
   workflowSteps: FloorPlanWorkflowStep[];
 };
+
+type RenovationWorkflowContext = {
+  projectName: string;
+  propertyType: string;
+  siteLabel: string;
+};
+
+type RenovationWorkflowStageDefinition = {
+  stage: string;
+  trade: string;
+  dependency: string;
+  estimatedDuration: string;
+  riskNote: string;
+  inspectionCheckpoint: string;
+  getTaskDescription: (context: RenovationWorkflowContext) => string;
+};
+
+const RENOVATION_WORKFLOW_STAGE_DEFINITIONS: RenovationWorkflowStageDefinition[] = [
+  {
+    stage: "Site protection",
+    trade: "General Works",
+    dependency: "Approved access route, retained-finish schedule, and protection materials delivered to site.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Incomplete protection can damage shared areas or retained finishes before the main works start.",
+    inspectionCheckpoint:
+      "Project manager confirms lift lobby, corridor, floor, door, and retained surface protection before hacking.",
+    getTaskDescription: ({ projectName, siteLabel }) =>
+      `Protect shared access zones and retained finishes around ${siteLabel} before renovation works begin for ${projectName}.`,
+  },
+  {
+    stage: "Hacking / demolition",
+    trade: "Demolition",
+    dependency: "Site protection completed and demolition scope marked against the approved layout.",
+    estimatedDuration: "2 days",
+    riskNote:
+      "Unverified hacking can affect concealed services, management rules, or neighboring units.",
+    inspectionCheckpoint:
+      "Demolition extent, debris route, and non-structural wall removal are checked against the approved drawing set.",
+    getTaskDescription: ({ propertyType }) =>
+      `Hack marked finishes, remove obsolete fixtures, and clear non-structural elements for the ${propertyType.toLowerCase()} renovation scope.`,
+  },
+  {
+    stage: "Masonry",
+    trade: "Masonry",
+    dependency: "Demolition completed and new wall or kerb set-out confirmed on site.",
+    estimatedDuration: "2 days",
+    riskNote:
+      "Poor blockwork alignment will cascade into tiling, carpentry, and door-frame installation issues.",
+    inspectionCheckpoint:
+      "Wall plumb, opening sizes, kerb positions, and wet-area set-out are measured before plastering progresses.",
+    getTaskDescription: ({ projectName }) =>
+      `Build masonry walls, kerbs, and patching works needed to stabilize the new layout package for ${projectName}.`,
+  },
+  {
+    stage: "Electrical point marking",
+    trade: "Electrical",
+    dependency: "Masonry set-out is stable and reflected ceiling or joinery intent has been reviewed.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Late shifts to power or switch points create rework across hacking, joinery, and ceiling closures.",
+    inspectionCheckpoint:
+      "Designer and homeowner sign off all lighting, power, data, and switch point markings on site.",
+    getTaskDescription: ({ siteLabel }) =>
+      `Mark lighting, switch, power, and data points across ${siteLabel} to match the furniture and carpentry plan.`,
+  },
+  {
+    stage: "Plumbing rough-in",
+    trade: "Plumbing",
+    dependency: "Wet-area layout, sanitary fixture positions, and electrical point marking are confirmed.",
+    estimatedDuration: "2 days",
+    riskNote:
+      "Incorrect pipe routes, trap positions, or levels can force floor build-up changes and fixture clashes.",
+    inspectionCheckpoint:
+      "Pipe routing, pressure tests, trap positions, and floor waste levels are checked before closure.",
+    getTaskDescription: ({ projectName }) =>
+      `Run concealed water supply, drainage, and sanitary rough-in works needed for the wet areas in ${projectName}.`,
+  },
+  {
+    stage: "Aircon / ventilation coordination",
+    trade: "Air Conditioning",
+    dependency: "Electrical and plumbing rough-in routes are established and ceiling intent is available for coordination.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Fan coil units, trunking, ducting, and drainage may clash with beams, lights, or access panels.",
+    inspectionCheckpoint:
+      "FCU positions, drain falls, sleeve routes, ventilation paths, and service access clearances are verified.",
+    getTaskDescription: ({ propertyType }) =>
+      `Coordinate fan coil, trunking, drain, and ventilation routes so the ${propertyType.toLowerCase()} ceiling package can proceed cleanly.`,
+  },
+  {
+    stage: "Ceiling / partition",
+    trade: "Ceiling & Partition",
+    dependency: "M&E rough-in and aircon coordination are signed off with no unresolved service clashes.",
+    estimatedDuration: "3 days",
+    riskNote:
+      "Closing ceilings too early can conceal unresolved services and reduce maintenance access.",
+    inspectionCheckpoint:
+      "Ceiling framing, bulkhead drops, access panels, and partition lines are inspected before board closure.",
+    getTaskDescription: ({ projectName }) =>
+      `Install framing, gypsum boards, and partitions needed to define the final ceiling and room envelopes for ${projectName}.`,
+  },
+  {
+    stage: "Flooring",
+    trade: "Flooring",
+    dependency: "Wet works are cured, concealed services tested, and substrate levels accepted.",
+    estimatedDuration: "3 days",
+    riskNote:
+      "Uneven substrate or trapped moisture will telegraph through tiles, vinyl, or timber finishes.",
+    inspectionCheckpoint:
+      "Level checks, tile or plank direction, movement joints, and threshold transitions are reviewed before full lay.",
+    getTaskDescription: ({ siteLabel }) =>
+      `Lay approved floor finishes across ${siteLabel} after substrate levelling and wet-area preparation are complete.`,
+  },
+  {
+    stage: "First coat painting",
+    trade: "Painting",
+    dependency: "Ceilings and partitions are closed up, major patching is complete, and dust-heavy wet trades are finished.",
+    estimatedDuration: "2 days",
+    riskNote:
+      "Painting too early traps dust in the finish and increases repaint work after joinery installation.",
+    inspectionCheckpoint:
+      "Base coat coverage, surface flatness, and patching defects are reviewed before carpentry installation starts.",
+    getTaskDescription: ({ projectName }) =>
+      `Apply primer and first-coat paint to walls and ceilings to prepare the site for the joinery phase of ${projectName}.`,
+  },
+  {
+    stage: "Carpentry fabrication",
+    trade: "Carpentry Workshop",
+    dependency: "Final measurements, approved shop drawings, and the material or hardware schedule are released.",
+    estimatedDuration: "7 days",
+    riskNote:
+      "Fabricating from unverified site dimensions creates filler rework, alignment issues, and delivery delays.",
+    inspectionCheckpoint:
+      "Workshop drawings, material selections, and hardware list are approved before production starts.",
+    getTaskDescription: ({ projectName }) =>
+      `Fabricate the built-in carpentry package for ${projectName}, including wardrobes, kitchen units, and storage cabinetry.`,
+  },
+  {
+    stage: "Cabinet delivery",
+    trade: "Logistics / Carpentry",
+    dependency: "First coat painting is dry, protected access is maintained, and site storage is ready.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Delivering joinery into a wet or congested site can damage panels before installation begins.",
+    inspectionCheckpoint:
+      "Delivered cabinets are counted, wrapped, and cross-checked against the packing list and drawing references.",
+    getTaskDescription: ({ siteLabel }) =>
+      `Deliver fabricated cabinets to ${siteLabel} in installation sequence so site handling stays controlled.`,
+  },
+  {
+    stage: "Cabinet installation",
+    trade: "Carpentry Installation",
+    dependency: "Cabinets are delivered, walls are dry, and finished floors remain protected during handling.",
+    estimatedDuration: "4 days",
+    riskNote:
+      "Out-of-level walls or floors can slow alignment, reveal tuning, and hardware commissioning.",
+    inspectionCheckpoint:
+      "Alignment, reveal gaps, anchoring, level checks, and door or drawer operation are inspected before final fixing.",
+    getTaskDescription: ({ projectName }) =>
+      `Install and align the full cabinet package for ${projectName}, including wall features, kitchen units, and wardrobes.`,
+  },
+  {
+    stage: "Lighting / switches installation",
+    trade: "Electrical",
+    dependency: "Cabinet installation is substantially complete and all final fixture cut-outs are confirmed.",
+    estimatedDuration: "2 days",
+    riskNote:
+      "Wrong fixture trims, missing drivers, or last-minute point shifts can damage finished ceilings and joinery.",
+    inspectionCheckpoint:
+      "All circuits, switch labels, fixture operations, and concealed lighting runs are tested room by room.",
+    getTaskDescription: ({ projectName }) =>
+      `Install decorative lighting, switches, sockets, and final electrical accessories to commission ${projectName}.`,
+  },
+  {
+    stage: "Final painting touch-up",
+    trade: "Painting",
+    dependency: "Electrical fixtures, carpentry, and sealant works are substantially complete with punch items identified.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Rushed touch-up work can leave visible shade differences, edge marks, or unsealed repair patches.",
+    inspectionCheckpoint:
+      "Touch-up list, edge lines, caulking zones, and stain rectification are signed off under working lights.",
+    getTaskDescription: ({ siteLabel }) =>
+      `Touch up walls, ceilings, and trim around the completed installation zones at ${siteLabel}.`,
+  },
+  {
+    stage: "Cleaning",
+    trade: "Cleaning",
+    dependency: "All drilling, wet works, and touch-up activities are complete with no further dusty work planned.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Cleaning too early causes repeated dust contamination and can scratch completed joinery or flooring.",
+    inspectionCheckpoint:
+      "Deep cleaning covers glass, cabinet interiors, floor protection removal, debris disposal, and sanitary areas.",
+    getTaskDescription: ({ projectName }) =>
+      `Carry out post-renovation deep cleaning so ${projectName} is presentable for final walkthrough and defect review.`,
+  },
+  {
+    stage: "Handover",
+    trade: "Project Management",
+    dependency: "Cleaning is complete and the defect or outstanding items list is closed or documented for follow-up.",
+    estimatedDuration: "1 day",
+    riskNote:
+      "Unresolved defects or missing manuals reduce client confidence at final turnover.",
+    inspectionCheckpoint:
+      "Client walkthrough, warranty pack, appliance testing, and key or access-card handover are recorded.",
+    getTaskDescription: ({ projectName }) =>
+      `Conduct the final walkthrough and formal handover for ${projectName}, including manuals, warranties, and sign-off records.`,
+  },
+];
 
 const MOCK_FLOOR_PLANS: FloorPlanRecord[] = [
   {
@@ -231,14 +503,11 @@ const MOCK_FLOOR_PLANS: FloorPlanRecord[] = [
         note: "Treat wardrobe return and vanity as one composition to avoid a fragmented bedroom elevation.",
       },
     ],
-    workflowSteps: [
-      { phase: "01. Layout intake", owner: "Design AI", duration: "Same day", deliverable: "Detected zoning and room labels" },
-      { phase: "02. Designer validation", owner: "Interior Designer", duration: "1 day", deliverable: "Confirmed circulation and furniture assumptions" },
-      { phase: "03. Mood and palette lock", owner: "Design Lead", duration: "2 days", deliverable: "Approved color and material direction" },
-      { phase: "04. Carpentry detailing", owner: "Technical Designer", duration: "3 days", deliverable: "Built-in scope and workshop notes" },
-      { phase: "05. 3D prompt generation", owner: "Visualization Team", duration: "1 day", deliverable: "Prompt pack for perspective production" },
-      { phase: "06. Renovation handoff", owner: "Project Manager", duration: "1 day", deliverable: "Execution sequence for costing and scheduling" },
-    ],
+    workflowSteps: buildMockRenovationWorkflow({
+      projectName: "Marina Bay Residence",
+      propertyType: "Condominium",
+      siteLabel: "Tower B, Level 18",
+    }),
   },
   {
     id: "fp-orchard-sky-villa",
@@ -347,14 +616,11 @@ const MOCK_FLOOR_PLANS: FloorPlanRecord[] = [
         note: "Keep desk carcasses modular so each room can shift between child, teen, or guest use over time.",
       },
     ],
-    workflowSteps: [
-      { phase: "01. Layout capture", owner: "Design AI", duration: "Same day", deliverable: "Spatial labels and key dimensions assumptions" },
-      { phase: "02. Wet area review", owner: "Technical Designer", duration: "1 day", deliverable: "Kitchen and bathroom constraints clarified" },
-      { phase: "03. Furniture test fit", owner: "Interior Designer", duration: "2 days", deliverable: "Entertaining and family zoning approved" },
-      { phase: "04. Material direction", owner: "Design Lead", duration: "2 days", deliverable: "Penthouse palette board and finishes hierarchy" },
-      { phase: "05. Joinery package", owner: "Carpentry Team", duration: "3 days", deliverable: "Custom carpentry notes for costing" },
-      { phase: "06. Visualization and costing", owner: "Visualization and QS", duration: "2 days", deliverable: "Prompt pack and preliminary budget alignment" },
-    ],
+    workflowSteps: buildMockRenovationWorkflow({
+      projectName: "Orchard Sky Villa",
+      propertyType: "Penthouse",
+      siteLabel: "Sky Villa, Level 32",
+    }),
   },
   {
     id: "fp-bukit-timah-family-home",
@@ -463,14 +729,11 @@ const MOCK_FLOOR_PLANS: FloorPlanRecord[] = [
         note: "Specify drawer modules and open ledges below the eaves rather than forcing full-height cabinetry into compromised headroom.",
       },
     ],
-    workflowSteps: [
-      { phase: "01. Multi-level parsing", owner: "Design AI", duration: "Same day", deliverable: "Per-floor zoning and room grouping" },
-      { phase: "02. Stair and wet area validation", owner: "Technical Designer", duration: "1 day", deliverable: "Critical circulation constraints confirmed" },
-      { phase: "03. Family storage strategy", owner: "Interior Designer", duration: "2 days", deliverable: "Room-by-room storage priorities" },
-      { phase: "04. Carpentry briefing", owner: "Design Lead", duration: "2 days", deliverable: "Built-in scope for bedrooms and lounge" },
-      { phase: "05. Prompt generation", owner: "Visualization Team", duration: "1 day", deliverable: "3D prompt pack once geometry is signed off" },
-      { phase: "06. Renovation sequencing", owner: "Project Manager", duration: "2 days", deliverable: "Site workflow aligned to family occupancy needs" },
-    ],
+    workflowSteps: buildMockRenovationWorkflow({
+      projectName: "Bukit Timah Family Home",
+      propertyType: "Landed",
+      siteLabel: "Ground and Level 2",
+    }),
   },
 ];
 
@@ -495,6 +758,31 @@ export function getMockFloorPlanMetrics() {
   };
 }
 
+export function generateMockRenovationWorkflow(
+  plan: FloorPlanRecord,
+): FloorPlanWorkflowStep[] {
+  return buildMockRenovationWorkflow({
+    projectName: plan.projectName,
+    propertyType: plan.propertyType,
+    siteLabel: plan.siteLabel,
+  });
+}
+
+function buildMockRenovationWorkflow(
+  context: RenovationWorkflowContext,
+): FloorPlanWorkflowStep[] {
+  return RENOVATION_WORKFLOW_STAGE_DEFINITIONS.map((definition, index) => ({
+    sequence: index + 1,
+    stage: definition.stage,
+    trade: definition.trade,
+    taskDescription: definition.getTaskDescription(context),
+    dependency: definition.dependency,
+    estimatedDuration: definition.estimatedDuration,
+    riskNote: definition.riskNote,
+    inspectionCheckpoint: definition.inspectionCheckpoint,
+  }));
+}
+
 const FURNITURE_LAYOUT_SECTION_ORDER: Array<{
   key: FloorPlanFurnitureLayoutSectionKey;
   title: string;
@@ -516,6 +804,107 @@ const FURNITURE_LAYOUT_RULES = [
 ] as const;
 
 type DraftFurnitureLayoutItem = Omit<FloorPlanFurnitureLayoutItem, "legendNumber">;
+type CabinetFinishTheme = "light" | "wood" | "stone";
+
+type CabinetZoneDefinition = {
+  key: FloorPlanCabinetZoneKey;
+  title: string;
+  matcher: RegExp;
+  fallbackLocation: string;
+  purpose: string;
+  dimensionsEstimate: string;
+  materials: FloorPlanCabinetMaterial[];
+  finishTheme: CabinetFinishTheme;
+  internalLayout: string;
+};
+
+const CABINET_MATERIAL_ORDER: FloorPlanCabinetMaterial[] = [
+  "Plywood",
+  "Laminate",
+  "Solid",
+  "Quartz",
+];
+
+const CABINET_ZONE_DEFINITIONS: CabinetZoneDefinition[] = [
+  {
+    key: "tv-feature-wall",
+    title: "TV Feature Wall",
+    matcher: /(living|dining|salon|lounge)/i,
+    fallbackLocation: "Main living room feature wall",
+    purpose:
+      "Anchor the lounge elevation with concealed AV routing, display shelving, and low storage.",
+    dimensionsEstimate: "Approx. 3000-4200W x 450-550D x 2400-3000H mm",
+    materials: ["Plywood", "Laminate", "Solid"],
+    finishTheme: "wood",
+    internalLayout:
+      "Open display shelves, low drawers, flip-down AV access, concealed cable chase",
+  },
+  {
+    key: "kitchen-upper",
+    title: "Kitchen Top Cabinets",
+    matcher: /(kitchen|pantry)/i,
+    fallbackLocation: "Kitchen upper run above prep counter",
+    purpose:
+      "Provide day-to-day crockery and pantry storage while keeping the worktop visually light.",
+    dimensionsEstimate: "Approx. 2400-3600W x 320-350D x 700-900H mm",
+    materials: ["Plywood", "Laminate"],
+    finishTheme: "light",
+    internalLayout:
+      "Adjustable shelves, lift-up top cabinets, niche allowance for hood or display",
+  },
+  {
+    key: "kitchen-base",
+    title: "Kitchen Bottom Cabinets",
+    matcher: /(kitchen|pantry)/i,
+    fallbackLocation: "Kitchen base run below main worktop",
+    purpose:
+      "Carry sink, prep, and cookware storage in one continuous production-friendly run.",
+    dimensionsEstimate: "Approx. 2600-4200W x 560-600D x 850-900H mm",
+    materials: ["Plywood", "Laminate", "Quartz"],
+    finishTheme: "wood",
+    internalLayout:
+      "Drawer banks, sink cabinet, pull-out trays, bin compartment, tray storage",
+  },
+  {
+    key: "wardrobe",
+    title: "Wardrobe",
+    matcher: /(master|primary|suite|bedroom|children|guest)/i,
+    fallbackLocation: "Primary bedroom wardrobe wall",
+    purpose:
+      "Organize daily wear, folded items, and accessories with full-height storage.",
+    dimensionsEstimate: "Approx. 2400-4200W x 600D x 2400-3000H mm",
+    materials: ["Plywood", "Laminate", "Solid"],
+    finishTheme: "wood",
+    internalLayout:
+      "Long hanging, short hanging, drawers, adjustable shelves, luggage top shelf",
+  },
+  {
+    key: "storage-cabinet",
+    title: "Storage Cabinets",
+    matcher: /(entry|foyer|lobby|study|family|children|attic|flex|lounge)/i,
+    fallbackLocation: "Entry or flexible room full-height storage wall",
+    purpose:
+      "Absorb household overflow, linen, and utility storage without breaking circulation.",
+    dimensionsEstimate: "Approx. 1200-2400W x 400-500D x 2400-2700H mm",
+    materials: ["Plywood", "Laminate"],
+    finishTheme: "light",
+    internalLayout:
+      "Adjustable shelves, closed tall storage, drawer module, cleaning item bay",
+  },
+  {
+    key: "bathroom-vanity",
+    title: "Bathroom Vanity",
+    matcher: /(bath|powder|toilet|wc|vanity)/i,
+    fallbackLocation: "Primary bathroom dry vanity wall",
+    purpose:
+      "Provide wet-area storage, grooming surface, and concealed plumbing access.",
+    dimensionsEstimate: "Approx. 900-1800W x 500-550D x 850-900H mm",
+    materials: ["Plywood", "Laminate", "Quartz"],
+    finishTheme: "stone",
+    internalLayout:
+      "Under-sink drawers, mirror cabinet, open niche, trap access panel",
+  },
+];
 
 type PerspectiveStyleProfile = {
   overview: string;
@@ -768,6 +1157,24 @@ export function generateMockFurnitureLayout(plan: FloorPlanRecord): FloorPlanFur
   };
 }
 
+export function generateMockCabinetDesignPackage(
+  plan: FloorPlanRecord,
+): FloorPlanCabinetDesignPackage {
+  const cabinets = CABINET_ZONE_DEFINITIONS.map((definition) =>
+    buildCabinetDesign(plan, definition),
+  );
+  const productionList = cabinets.flatMap((cabinet) =>
+    buildCabinetProductionRows(cabinet),
+  );
+
+  return {
+    cabinets,
+    productionList,
+    materialSummary: buildCabinetMaterialSummary(cabinets, productionList),
+    installationNotes: buildCabinetInstallationNotes(plan),
+  };
+}
+
 export function generateMockPerspectiveConceptPackage(
   plan: FloorPlanRecord,
   style: FloorPlanPerspectiveStyle,
@@ -980,6 +1387,369 @@ function buildOutdoorFallbackItems(
         ? "Approx. 1400-1800W x 450-500D mm"
         : "Approx. 2 chairs at 700-800W each with 450-500D mm side table",
     }));
+}
+
+function buildCabinetDesign(
+  plan: FloorPlanRecord,
+  definition: CabinetZoneDefinition,
+): FloorPlanCabinetDesign {
+  return {
+    key: definition.key,
+    title: definition.title,
+    location: resolveCabinetLocation(plan, definition),
+    purpose: definition.purpose,
+    dimensionsEstimate: definition.dimensionsEstimate,
+    material: definition.materials.join(" / "),
+    materials: definition.materials,
+    finishColor: pickCabinetFinishColor(plan, definition.finishTheme),
+    internalLayout: definition.internalLayout,
+  };
+}
+
+function resolveCabinetLocation(
+  plan: FloorPlanRecord,
+  definition: CabinetZoneDefinition,
+): string {
+  const roomName =
+    definition.key === "bathroom-vanity"
+      ? findBathroomRoomName(plan)
+      : findRoomByPattern(plan.roomDetections, definition.matcher)?.name ?? null;
+
+  if (!roomName) {
+    return definition.fallbackLocation;
+  }
+
+  switch (definition.key) {
+    case "tv-feature-wall":
+      return `${roomName} main lounge feature wall`;
+    case "kitchen-upper":
+      return `${roomName} top run above prep and appliance wall`;
+    case "kitchen-base":
+      return `${roomName} bottom run along sink and worktop line`;
+    case "wardrobe":
+      return `${roomName} full-height wardrobe elevation`;
+    case "storage-cabinet":
+      return `${roomName} concealed storage wall`;
+    case "bathroom-vanity":
+      return `${roomName} dry-side vanity wall`;
+  }
+}
+
+function pickCabinetFinishColor(
+  plan: FloorPlanRecord,
+  finishTheme: CabinetFinishTheme,
+): string {
+  const paletteItem =
+    finishTheme === "wood"
+      ? findPaletteItemByPattern(plan, /(walnut|oak|timber|wood|veneer)/i)
+      : finishTheme === "stone"
+        ? findPaletteItemByPattern(
+            plan,
+            /(stone|slab|travertine|porcelain|limestone|quartz|sintered)/i,
+          )
+        : findPaletteItemByPattern(
+            plan,
+            /(white|beige|taupe|plaster|paint|limestone|pearl|warm)/i,
+          );
+
+  if (!paletteItem) {
+    return finishTheme === "wood"
+      ? "Walnut tone matte"
+      : finishTheme === "stone"
+        ? "Light stone honed"
+        : "Warm neutral matte";
+  }
+
+  return `${paletteItem.label} (${paletteItem.finish.toLowerCase()})`;
+}
+
+function findPaletteItemByPattern(
+  plan: FloorPlanRecord,
+  matcher: RegExp,
+): FloorPlanPaletteItem | null {
+  return (
+    plan.palette.find((item) =>
+      matcher.test(
+        `${item.label} ${item.material} ${item.finish} ${item.application}`,
+      ),
+    ) ??
+    plan.palette[0] ??
+    null
+  );
+}
+
+function buildCabinetProductionRows(
+  cabinet: FloorPlanCabinetDesign,
+): FloorPlanCabinetProductionItem[] {
+  switch (cabinet.key) {
+    case "tv-feature-wall":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Feature back panel and carcass sides",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "2400 x 450 mm",
+          quantity: 4,
+          edging: "1 mm matching ABS",
+          hardware: "Concealed hanging bracket",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Drawer and flap fronts",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "800 x 380 mm",
+          quantity: 4,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge / lift-up stay",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Display ledge and trim",
+          material: "Solid",
+          thickness: "25 mm",
+          dimensions: "1800 x 220 mm",
+          quantity: 2,
+          edging: "Clear sealed edge",
+          hardware: "Concealed fixing bracket",
+        },
+      ];
+    case "kitchen-upper":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Top cabinet carcass panels",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "720 x 320 mm",
+          quantity: 6,
+          edging: "1 mm matching ABS",
+          hardware: "Wall hanger bracket",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Top cabinet shutters",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "720 x 450 mm",
+          quantity: 6,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge / lift-up stay",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Adjustable shelves",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "700 x 300 mm",
+          quantity: 6,
+          edging: "0.5 mm matching ABS",
+          hardware: "Shelf pin",
+        },
+      ];
+    case "kitchen-base":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Bottom cabinet carcass panels",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "850 x 560 mm",
+          quantity: 8,
+          edging: "1 mm matching ABS",
+          hardware: "Adjustable leg / connector set",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Drawer fronts and shutters",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "720 x 500 mm",
+          quantity: 6,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge / full-extension track",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Countertop and backsplash return",
+          material: "Quartz",
+          thickness: "20 mm",
+          dimensions: "2400 x 600 mm",
+          quantity: 2,
+          edging: "Polished exposed edge",
+          hardware: "Sink and hob cut-out set",
+        },
+      ];
+    case "wardrobe":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Wardrobe side, top, and partition panels",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "2400 x 580 mm",
+          quantity: 8,
+          edging: "1 mm matching ABS",
+          hardware: "Connector cam set",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Wardrobe shutters",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "2300 x 500 mm",
+          quantity: 6,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge / sliding track",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Open niche trim and handle rail",
+          material: "Solid",
+          thickness: "25 mm",
+          dimensions: "1200 x 150 mm",
+          quantity: 2,
+          edging: "Clear sealed edge",
+          hardware: "Concealed fixing / drawer track",
+        },
+      ];
+    case "storage-cabinet":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Full-height carcass panels",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "2400 x 450 mm",
+          quantity: 6,
+          edging: "1 mm matching ABS",
+          hardware: "Connector cam set",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Shutter faces",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "2300 x 450 mm",
+          quantity: 4,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Internal shelves",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "700 x 430 mm",
+          quantity: 4,
+          edging: "0.5 mm matching ABS",
+          hardware: "Shelf pin / drawer track",
+        },
+      ];
+    case "bathroom-vanity":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Vanity carcass panels",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "780 x 500 mm",
+          quantity: 4,
+          edging: "1 mm matching ABS",
+          hardware: "Connector cam set",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Drawer and shutter fronts",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "300 x 500 mm",
+          quantity: 2,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge / drawer track",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Quartz vanity top",
+          material: "Quartz",
+          thickness: "20 mm",
+          dimensions: "1200 x 520 mm",
+          quantity: 1,
+          edging: "Polished exposed edge",
+          hardware: "Basin cut-out set",
+        },
+      ];
+  }
+}
+
+function buildCabinetMaterialSummary(
+  cabinets: FloorPlanCabinetDesign[],
+  productionList: FloorPlanCabinetProductionItem[],
+): FloorPlanCabinetMaterialSummaryItem[] {
+  return CABINET_MATERIAL_ORDER.map((material) => {
+    const matchingCabinets = cabinets.filter((cabinet) =>
+      cabinet.materials.includes(material),
+    );
+
+    return {
+      material,
+      application: summarizeCabinetApplications(matchingCabinets),
+      cabinetCount: matchingCabinets.length,
+      productionQuantity: productionList
+        .filter((item) => item.material === material)
+        .reduce((total, item) => total + item.quantity, 0),
+    };
+  }).filter((item) => item.cabinetCount > 0);
+}
+
+function summarizeCabinetApplications(
+  cabinets: FloorPlanCabinetDesign[],
+): string {
+  const titles = cabinets.map((cabinet) => cabinet.title);
+
+  if (titles.length <= 3) {
+    return titles.join(", ");
+  }
+
+  return `${titles.slice(0, 3).join(", ")} + ${titles.length - 3} more`;
+}
+
+function buildCabinetInstallationNotes(
+  plan: FloorPlanRecord,
+): FloorPlanCabinetInstallationNote[] {
+  const kitchenRoomName =
+    findRoomByPattern(plan.roomDetections, /(kitchen|pantry)/i)?.name ??
+    "kitchen";
+  const wardrobeRoomName =
+    findRoomByPattern(
+      plan.roomDetections,
+      /(master|primary|suite|bedroom|children|guest)/i,
+    )?.name ?? "bedroom";
+
+  return [
+    {
+      sequence: "1. Site measure, datum, and services check",
+      sitePreparation:
+        `Confirm floor level, wall plumb, ceiling bulkhead, and all power or plumbing points around the ${kitchenRoomName.toLowerCase()} and TV wall before workshop release.`,
+      measurementTolerance:
+        "Issue final carcass sizes from signed site measure within +/-5 mm per wall run.",
+    },
+    {
+      sequence: "2. Bottom cabinets, vanity carcasses, and quartz templating",
+      sitePreparation:
+        "Complete wet works, waterproofing, floor finishes, and backing support before installing bottom cabinets or vanity units.",
+      measurementTolerance:
+        "Maintain quartz joint and cut-out tolerance within +/-3 mm after sink, hob, and basin positions are reconfirmed.",
+    },
+    {
+      sequence: "3. Top cabinets, wardrobe fronts, and hardware alignment",
+      sitePreparation:
+        `Protect finished floors and confirm paint, lighting trims, and door architraves are complete before hanging ${wardrobeRoomName.toLowerCase()} wardrobes and top cabinets.`,
+      measurementTolerance:
+        "Keep door reveals within 2 mm and recheck hinge or track alignment after final adjustment.",
+    },
+  ];
 }
 
 function findBathroomRoomName(plan: FloorPlanRecord): string | null {
