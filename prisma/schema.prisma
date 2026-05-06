@@ -33,6 +33,13 @@ enum ProposalStatus {
   REJECTED
 }
 
+enum ProposalActivityType {
+  SENT
+  VIEWED
+  REMINDER
+  APPROVED
+}
+
 enum ScopeCategory {
   HACKING_DEMOLITION
   MASONRY_WORKS
@@ -5784,10 +5791,25 @@ model Proposal {
   quotation  Quotation           @relation(fields: [quotationId], references: [id], onDelete: Cascade)
   approvals  ProposalApproval[]
   signatures ProposalSignature[]
+  activities ProposalActivity[]
 
   @@index([createdAt])
   @@index([status])
   @@index([viewedAt])
+}
+
+model ProposalActivity {
+  id         String               @id @default(cuid())
+  proposalId String
+  type       ProposalActivityType
+  createdAt  DateTime             @default(now())
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@index([proposalId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([proposalId, createdAt])
 }
 
 model ProposalApproval {
