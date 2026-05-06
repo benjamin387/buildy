@@ -4533,6 +4533,7 @@ model Quotation {
   paymentTermsV2 QuotationPaymentTerm[]
   budgets   ProjectBudget[] @relation("QuotationBudgets")
   followUps ClientFollowUp[]
+  proposal  Proposal?
 
   @@unique([quotationNumber, version])
   @@index([clientId])
@@ -5763,6 +5764,21 @@ model QuotationAcceptance {
   updatedAt         DateTime  @updatedAt
 
   quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+}
+
+model Proposal {
+  id          String   @id @default(cuid())
+  quotationId String   @unique
+  title       String
+  clientName  String
+  content     Json
+  publicToken String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
 }
 
 // -----------------------------
