@@ -43,6 +43,8 @@ function isClientStale(client: PrismaClient | undefined): boolean {
     !c ||
     typeof c !== "object" ||
     typeof c.proposal?.findUnique !== "function" ||
+    typeof c.proposalApproval?.findMany !== "function" ||
+    typeof c.proposalSignature?.findMany !== "function" ||
     typeof c.gebizFeedSource?.findMany !== "function" ||
     typeof c.gebizOpportunity?.findMany !== "function" ||
     typeof c.bizsafeProfile?.findUnique !== "function"

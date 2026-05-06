@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { ClientProposalDocument } from "@/app/components/proposal/client-proposal-document";
+import { ProposalApprovalPanel } from "@/app/share/proposal/[token]/proposal-approval-panel";
 import { getCompanyBranding } from "@/lib/branding";
 import { prisma } from "@/lib/prisma";
+import { markProposalViewedByToken } from "@/lib/proposals/approval";
 import { parseProposalContent } from "@/lib/proposals/content";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +24,14 @@ export default async function SharedProposalPage(props: {
   const proposal = await prisma.proposal.findUnique({
     where: { publicToken: token },
     include: {
+      approvals: {
+        orderBy: [{ createdAt: "desc" }],
+        take: 1,
+      },
+      signatures: {
+        orderBy: [{ signedAt: "desc" }, { createdAt: "desc" }],
+        take: 1,
+      },
       quotation: {
         select: {
           quotationNumber: true,
@@ -36,6 +46,7 @@ export default async function SharedProposalPage(props: {
   });
 
   if (!proposal) notFound();
+  const currentState = await markProposalViewedByToken(token);
 
   const branding = await getCompanyBranding();
   const content = parseProposalContent(proposal.content);
@@ -54,9 +65,38 @@ export default async function SharedProposalPage(props: {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-neutral-500">Shared Proposal</p>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">{proposal.title}</h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-neutral-600">
-            This proposal link is intended for client review. It summarizes the quoted design scope, BOQ summary, pricing, and key terms.
+            This proposal link is intended for client review. It summarizes the quoted design scope, BOQ summary, pricing, and key terms, and lets you approve or request changes with an electronic signature.
           </p>
         </header>
+
+        <ProposalApprovalPanel
+          token={token}
+          proposalTitle={proposal.title}
+          initialStatus={currentState.status}
+          initialClientName={proposal.clientName}
+          initialDecision={
+            proposal.approvals[0]
+              ? {
+                  clientName: proposal.approvals[0].clientName,
+                  clientEmail: proposal.approvals[0].clientEmail,
+                  status: proposal.approvals[0].status,
+                  comment: proposal.approvals[0].comment,
+                  approvedAt: proposal.approvals[0].approvedAt?.toISOString() ?? null,
+                  rejectedAt: proposal.approvals[0].rejectedAt?.toISOString() ?? null,
+                }
+              : null
+          }
+          initialSignature={
+            proposal.signatures[0]
+              ? {
+                  signerName: proposal.signatures[0].signerName,
+                  signerEmail: proposal.signatures[0].signerEmail,
+                  signatureDataUrl: proposal.signatures[0].signatureDataUrl,
+                  signedAt: proposal.signatures[0].signedAt.toISOString(),
+                }
+              : null
+          }
+        />
 
         <ClientProposalDocument
           title={proposal.title}

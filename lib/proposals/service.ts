@@ -1,7 +1,7 @@
 import "server-only";
 
 import crypto from "node:crypto";
-import { Prisma } from "@prisma/client";
+import { Prisma, ProposalStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { proposalContentSchema, type ProposalContent } from "@/lib/proposals/content";
 
@@ -247,6 +247,7 @@ export async function createOrUpdateProposalFromQuotation(quotationId: string) {
         select: {
           id: true,
           publicToken: true,
+          status: true,
         },
       },
       paymentTermsV2: { orderBy: { sortOrder: "asc" } },
@@ -315,6 +316,8 @@ export async function createOrUpdateProposalFromQuotation(quotationId: string) {
   });
 
   const publicToken = quotation.proposal?.publicToken ?? (await generateUniqueProposalToken());
+  const nextStatus =
+    quotation.proposal?.status === ProposalStatus.APPROVED ? ProposalStatus.APPROVED : ProposalStatus.SENT;
 
   if (quotation.proposal) {
     return prisma.proposal.update({
@@ -323,6 +326,8 @@ export async function createOrUpdateProposalFromQuotation(quotationId: string) {
         title,
         clientName,
         content: content as Prisma.InputJsonValue,
+        status: nextStatus,
+        viewedAt: nextStatus === ProposalStatus.SENT ? null : undefined,
       },
       include: {
         quotation: {
@@ -344,6 +349,7 @@ export async function createOrUpdateProposalFromQuotation(quotationId: string) {
       clientName,
       content: content as Prisma.InputJsonValue,
       publicToken,
+      status: ProposalStatus.SENT,
     },
     include: {
       quotation: {
