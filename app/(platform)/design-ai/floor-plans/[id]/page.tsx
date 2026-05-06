@@ -1,8 +1,12 @@
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import {
+  FLOOR_PLAN_PERSPECTIVE_STYLES,
   generateMockFurnitureLayout,
+  generateMockPerspectiveConceptPackage,
   getMockFloorPlanById,
+  type FloorPlanPerspectiveConcept,
+  type FloorPlanPerspectiveStyle,
   type FloorPlanStatus,
 } from "@/lib/design-ai/floor-plan-engine";
 import { PageHeader } from "@/app/components/ui/page-header";
@@ -26,12 +30,18 @@ export default async function FloorPlanDetailPage({
   if (!plan) notFound();
 
   const generateFurnitureLayoutParam = resolvedSearchParams?.generateFurnitureLayout;
-  const showFurnitureLayout =
-    generateFurnitureLayoutParam === "1" ||
-    (Array.isArray(generateFurnitureLayoutParam) && generateFurnitureLayoutParam.includes("1"));
+  const showFurnitureLayout = hasEnabledFlag(generateFurnitureLayoutParam);
   const furnitureLayout = showFurnitureLayout ? generateMockFurnitureLayout(plan) : null;
   const totalFurnitureLayoutItems =
     furnitureLayout?.sections.reduce((total, section) => total + section.items.length, 0) ?? 0;
+  const generatePerspectivePackageParam = resolvedSearchParams?.generate3dPerspectives;
+  const showPerspectivePackage = hasEnabledFlag(generatePerspectivePackageParam);
+  const selectedPerspectiveStyle = resolvePerspectiveStyle(
+    resolvedSearchParams?.perspectiveStyle,
+  );
+  const perspectivePackage = showPerspectivePackage
+    ? generateMockPerspectiveConceptPackage(plan, selectedPerspectiveStyle)
+    : null;
 
   return (
     <main className="space-y-6">
@@ -73,7 +83,14 @@ export default async function FloorPlanDetailPage({
         title="Furniture Placement Engine"
         description="Generate a mock concept-package furniture layout with numbered legend items, room grouping, clearance guidance, and handoff notes."
         actions={
-          <LinkButton href={`/design-ai/floor-plans/${plan.id}?generateFurnitureLayout=1`}>
+          <LinkButton
+            href={buildFloorPlanDetailHref({
+              id: plan.id,
+              showFurnitureLayout: true,
+              showPerspectivePackage,
+              perspectiveStyle: selectedPerspectiveStyle,
+            })}
+          >
             {showFurnitureLayout ? "Regenerate Furniture Layout" : "Generate Furniture Layout"}
           </LinkButton>
         }
@@ -279,18 +296,115 @@ export default async function FloorPlanDetailPage({
       </SectionCard>
 
       <SectionCard
-        title="3D Perspective Prompts"
-        description="Prompt drafts for the first visualization pass based on the detected room and material strategy."
+        title="3D Perspective / Artist Illustration Engine"
+        description="Generate a mock concept package with room-based perspective cards, style options, illustration prompts, and designer notes."
+        actions={
+          <LinkButton
+            href={buildFloorPlanDetailHref({
+              id: plan.id,
+              showFurnitureLayout,
+              showPerspectivePackage: true,
+              perspectiveStyle: selectedPerspectiveStyle,
+            })}
+          >
+            {showPerspectivePackage ? "Regenerate 3D Perspectives" : "Generate 3D Perspectives"}
+          </LinkButton>
+        }
       >
-        <div className="space-y-4">
-          {plan.perspectivePrompts.map((item) => (
-            <article key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-5">
-              <p className="text-sm font-semibold text-neutral-950">{item.title}</p>
-              <p className="mt-3 rounded-xl border border-slate-200 bg-white px-4 py-4 font-mono text-xs leading-6 text-neutral-700">
-                {item.prompt}
+        <div className="space-y-6">
+          <article className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+              Visual Style Options
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {FLOOR_PLAN_PERSPECTIVE_STYLES.map((style) => (
+                <LinkButton
+                  key={style}
+                  href={buildFloorPlanDetailHref({
+                    id: plan.id,
+                    showFurnitureLayout,
+                    showPerspectivePackage,
+                    perspectiveStyle: style,
+                  })}
+                  size="sm"
+                  variant={selectedPerspectiveStyle === style ? "primary" : "secondary"}
+                >
+                  {style}
+                </LinkButton>
+              ))}
+            </div>
+          </article>
+
+          {!perspectivePackage ? (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6">
+              <p className="text-sm font-medium text-neutral-900">
+                Generate a mock 3D concept package for entrance, living or dining, kitchen, master
+                bedroom, bathroom, and outdoor views when the plan suggests a balcony or landscape
+                opportunity.
               </p>
-            </article>
-          ))}
+              <p className="mt-2 text-sm leading-6 text-neutral-600">
+                The selected visual style is <span className="font-semibold text-neutral-900">{selectedPerspectiveStyle}</span>.
+                The output stays mock-only and is intended for UI and workflow validation inside the
+                current floor plan module.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {[
+                  "Entrance",
+                  "Living / Dining",
+                  "Kitchen",
+                  "Master Bedroom",
+                  "Bathroom",
+                  "Balcony / Landscape if applicable",
+                ].map((label) => (
+                  <span
+                    key={label}
+                    className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-700"
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="grid gap-4 xl:grid-cols-[0.8fr_1.2fr]">
+                <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                    Concept Package Summary
+                  </p>
+                  <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
+                    <InfoLine label="Visual Style" value={perspectivePackage.style} />
+                    <InfoLine
+                      label="Perspective Views"
+                      value={String(perspectivePackage.perspectives.length)}
+                    />
+                    <InfoLine label="Plan" value={plan.projectName} />
+                    <InfoLine label="Status" value={formatStatus(plan.status)} />
+                  </div>
+                </article>
+
+                <article className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                    Artist Illustration Prompt
+                  </p>
+                  <p className="mt-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 font-mono text-xs leading-6 text-neutral-700">
+                    {perspectivePackage.artistIllustrationPrompt}
+                  </p>
+                </article>
+              </div>
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                {perspectivePackage.perspectives.map((perspective) => (
+                  <PerspectiveConceptCard
+                    key={perspective.viewTitle}
+                    perspective={perspective}
+                  />
+                ))}
+              </div>
+
+              <NotesPanel title="Notes for Designer" notes={perspectivePackage.designerNotes} />
+            </div>
+          )}
         </div>
       </SectionCard>
 
@@ -362,6 +476,90 @@ function DetailPanel(props: { label: string; value: string }) {
   );
 }
 
+function ChipGroup(props: { title: string; items: string[]; tone?: "neutral" | "warm" }) {
+  const toneClass =
+    props.tone === "warm"
+      ? "border-amber-200 bg-amber-50 text-amber-900"
+      : "border-slate-200 bg-white text-neutral-800";
+
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">{props.title}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {props.items.map((item) => (
+          <span
+            key={`${props.title}-${item}`}
+            className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${toneClass}`}
+          >
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PerspectiveConceptCard(props: { perspective: FloorPlanPerspectiveConcept }) {
+  const { perspective } = props;
+
+  return (
+    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-black/5">
+      <div className="border-b border-slate-200 bg-slate-50 px-5 py-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+              View Title
+            </p>
+            <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+              {perspective.viewTitle}
+            </h3>
+          </div>
+          <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600">
+            {perspective.designStyle}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-4 px-5 py-5">
+        <div className="grid gap-3 md:grid-cols-2">
+          <DetailPanel label="Camera Angle" value={perspective.cameraAngleDescription} />
+          <DetailPanel label="Lighting Direction" value={perspective.lightingDirection} />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <ChipGroup title="Color Palette" items={perspective.colorPalette} tone="warm" />
+          <ChipGroup title="Material Palette" items={perspective.materialPalette} />
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+            Furniture / Carpentry Details
+          </p>
+          <div className="mt-3 space-y-2">
+            {perspective.furnitureCarpentryDetails.map((detail) => (
+              <p
+                key={`${perspective.viewTitle}-${detail}`}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-neutral-700"
+              >
+                {detail}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+            Image Generation Prompt
+          </p>
+          <p className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 font-mono text-xs leading-6 text-neutral-700">
+            {perspective.imageGenerationPrompt}
+          </p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function NotesPanel(props: { title: string; notes: string[] }) {
   return (
     <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
@@ -399,4 +597,41 @@ function statusTone(status: FloorPlanStatus): "success" | "warning" | "info" {
   if (status === "AI_READY") return "success";
   if (status === "REVIEW_PENDING") return "warning";
   return "info";
+}
+
+function hasEnabledFlag(value: string | string[] | undefined) {
+  return value === "1" || (Array.isArray(value) && value.includes("1"));
+}
+
+function resolvePerspectiveStyle(
+  value: string | string[] | undefined,
+): FloorPlanPerspectiveStyle {
+  const candidate = Array.isArray(value) ? value[0] : value;
+
+  return (
+    FLOOR_PLAN_PERSPECTIVE_STYLES.find((style) => style === candidate) ??
+    FLOOR_PLAN_PERSPECTIVE_STYLES[0]
+  );
+}
+
+function buildFloorPlanDetailHref(args: {
+  id: string;
+  showFurnitureLayout: boolean;
+  showPerspectivePackage: boolean;
+  perspectiveStyle: FloorPlanPerspectiveStyle;
+}) {
+  const searchParams = new URLSearchParams();
+
+  if (args.showFurnitureLayout) {
+    searchParams.set("generateFurnitureLayout", "1");
+  }
+
+  if (args.showPerspectivePackage) {
+    searchParams.set("generate3dPerspectives", "1");
+  }
+
+  searchParams.set("perspectiveStyle", args.perspectiveStyle);
+
+  const query = searchParams.toString();
+  return query ? `/design-ai/floor-plans/${args.id}?${query}` : `/design-ai/floor-plans/${args.id}`;
 }
