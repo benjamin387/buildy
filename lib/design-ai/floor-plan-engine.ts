@@ -60,6 +60,36 @@ export type FloorPlanPerspectivePrompt = {
   prompt: string;
 };
 
+export const FLOOR_PLAN_PERSPECTIVE_STYLES = [
+  "Modern Luxe",
+  "Japandi",
+  "Minimalist",
+  "Warm Wood",
+  "Hotel-Inspired",
+  "Contemporary",
+] as const;
+
+export type FloorPlanPerspectiveStyle =
+  (typeof FLOOR_PLAN_PERSPECTIVE_STYLES)[number];
+
+export type FloorPlanPerspectiveConcept = {
+  viewTitle: string;
+  cameraAngleDescription: string;
+  designStyle: FloorPlanPerspectiveStyle;
+  colorPalette: string[];
+  materialPalette: string[];
+  lightingDirection: string;
+  furnitureCarpentryDetails: string[];
+  imageGenerationPrompt: string;
+};
+
+export type FloorPlanPerspectiveConceptPackage = {
+  style: FloorPlanPerspectiveStyle;
+  artistIllustrationPrompt: string;
+  perspectives: FloorPlanPerspectiveConcept[];
+  designerNotes: string[];
+};
+
 export type FloorPlanCarpentryNote = {
   zone: string;
   title: string;
@@ -487,6 +517,203 @@ const FURNITURE_LAYOUT_RULES = [
 
 type DraftFurnitureLayoutItem = Omit<FloorPlanFurnitureLayoutItem, "legendNumber">;
 
+type PerspectiveStyleProfile = {
+  overview: string;
+  paletteAccents: string[];
+  materialAccents: string[];
+  lightingMood: string;
+  promptKeywords: string[];
+  designerNote: string;
+};
+
+type PerspectiveViewKey =
+  | "entrance"
+  | "living-dining"
+  | "kitchen"
+  | "master-bedroom"
+  | "bathroom"
+  | "balcony-landscape";
+
+type PerspectiveViewDefinition = {
+  key: PerspectiveViewKey;
+  defaultRoomName: string;
+  matcher: RegExp;
+  getCameraAngleDescription: (roomName: string) => string;
+  getLightingDirection: (profile: PerspectiveStyleProfile) => string;
+  fallbackFurnitureCarpentryDetails: string[];
+};
+
+const PERSPECTIVE_STYLE_PROFILES: Record<
+  FloorPlanPerspectiveStyle,
+  PerspectiveStyleProfile
+> = {
+  "Modern Luxe": {
+    overview:
+      "Layer calm neutrals with sculptural stone, warm metal trims, and clean-lined luxury detailing.",
+    paletteAccents: ["Soft greige", "Champagne highlight"],
+    materialAccents: ["Fluted timber joinery", "Book-matched stone slab"],
+    lightingMood: "warm cove lighting with quiet hospitality contrast",
+    promptKeywords: [
+      "modern luxe interior",
+      "editorial realism",
+      "tailored detailing",
+    ],
+    designerNote:
+      "Keep the metal, stone, and timber hierarchy disciplined so the package reads premium rather than busy.",
+  },
+  Japandi: {
+    overview:
+      "Balance warm timber, tactile plaster, and reduced visual noise with soft Japanese-Scandinavian restraint.",
+    paletteAccents: ["Bone white", "Muted taupe"],
+    materialAccents: ["Natural oak grain", "Textured plaster wall"],
+    lightingMood: "diffused daylight with low-glare concealed ambient lighting",
+    promptKeywords: [
+      "japandi interior",
+      "serene composition",
+      "natural textures",
+    ],
+    designerNote:
+      "Simplify lines and let timber rhythm and negative space carry the composition.",
+  },
+  Minimalist: {
+    overview:
+      "Reduce ornament, sharpen geometry, and let proportion, texture, and shadow define the interior.",
+    paletteAccents: ["Warm white", "Soft stone grey"],
+    materialAccents: ["Matte lacquer planes", "Seamless stone surfaces"],
+    lightingMood: "directional daylight with crisp concealed ceiling washes",
+    promptKeywords: [
+      "minimalist interior",
+      "clean geometry",
+      "quiet luxury",
+    ],
+    designerNote:
+      "Keep joinery lines continuous and avoid introducing accent materials that break the calm envelope.",
+  },
+  "Warm Wood": {
+    overview:
+      "Push timber warmth forward with comfortable layering, soft contrasts, and family-friendly tactility.",
+    paletteAccents: ["Honey beige", "Soft caramel"],
+    materialAccents: ["Open-grain timber panels", "Textile-rich upholstery"],
+    lightingMood: "golden ambient lighting with warm reflected light off timber surfaces",
+    promptKeywords: [
+      "warm wood interior",
+      "inviting atmosphere",
+      "residential comfort",
+    ],
+    designerNote:
+      "Use the darker timber moments selectively so the scheme stays warm and open instead of heavy.",
+  },
+  "Hotel-Inspired": {
+    overview:
+      "Stage the interior like a refined hospitality suite with layered lighting, tailored upholstery, and composed focal walls.",
+    paletteAccents: ["Mushroom beige", "Deep mocha"],
+    materialAccents: ["Upholstered wall panels", "Bronzed metal detailing"],
+    lightingMood: "soft feature lighting with flattering wall wash and bedside glow",
+    promptKeywords: [
+      "hotel-inspired interior",
+      "hospitality styling",
+      "premium suite mood",
+    ],
+    designerNote:
+      "Focus on arrival sequence, bed wall composition, and lighting layers so the package feels intentionally choreographed.",
+  },
+  Contemporary: {
+    overview:
+      "Mix precise contemporary lines with a relaxed material palette and a lighter visual hand.",
+    paletteAccents: ["Pale limestone", "Charcoal accent"],
+    materialAccents: ["Slim-profile metal trim", "Matte veneer panels"],
+    lightingMood: "balanced natural light with restrained linear ambient lighting",
+    promptKeywords: [
+      "contemporary interior",
+      "refined residential styling",
+      "clean material contrast",
+    ],
+    designerNote:
+      "Let contrast come from proportion and a few crisp accents instead of high-contrast patterning.",
+  },
+};
+
+const PERSPECTIVE_VIEW_DEFINITIONS: PerspectiveViewDefinition[] = [
+  {
+    key: "entrance",
+    defaultRoomName: "Entrance Foyer",
+    matcher: /(entry|foyer|lobby|arrival)/i,
+    getCameraAngleDescription: (roomName) =>
+      `Wide-angle arrival view from the ${roomName.toLowerCase()} threshold, framing the first sightline into the main living zone.`,
+    getLightingDirection: (profile) =>
+      `Front-lit from the entry threshold, supported by ${profile.lightingMood} across the ceiling edge and feature joinery.`,
+    fallbackFurnitureCarpentryDetails: [
+      "Integrate a concealed shoe cabinet, bench, and drop-off ledge into one flush elevation.",
+      "Use a feature wall or framed console composition to make the arrival zone feel intentional on first view.",
+    ],
+  },
+  {
+    key: "living-dining",
+    defaultRoomName: "Living / Dining",
+    matcher: /(living|dining|salon|lounge)/i,
+    getCameraAngleDescription: (roomName) =>
+      `Editorial perspective across ${roomName.toLowerCase()}, keeping both the main seating axis and dining alignment in one balanced frame.`,
+    getLightingDirection: (profile) =>
+      `Pulled from the main facade glazing and reinforced with ${profile.lightingMood} on the TV wall, ceiling recess, and dining feature.`,
+    fallbackFurnitureCarpentryDetails: [
+      "Anchor the sofa and TV wall on a clean axis, then keep the dining line clear for entertaining circulation.",
+      "Treat the feature wall, storage, and display moments as one composition rather than isolated built-ins.",
+    ],
+  },
+  {
+    key: "kitchen",
+    defaultRoomName: "Kitchen",
+    matcher: /(kitchen|pantry)/i,
+    getCameraAngleDescription: (roomName) =>
+      `Three-quarter perspective from the dining-side approach into ${roomName.toLowerCase()}, capturing the island or counter edge and full cabinetry backdrop.`,
+    getLightingDirection: (profile) =>
+      `Natural spill light from the adjacent social zone, with task lighting over worktops and ${profile.lightingMood} below upper cabinets or shelving.`,
+    fallbackFurnitureCarpentryDetails: [
+      "Keep the main prep edge, tall storage, and entertaining surface visually connected in one clean run.",
+      "Highlight joinery details that elevate the kitchen without reducing workable circulation.",
+    ],
+  },
+  {
+    key: "master-bedroom",
+    defaultRoomName: "Master Bedroom",
+    matcher: /(master|primary suite|primary bedroom|master suite|primary)/i,
+    getCameraAngleDescription: (roomName) =>
+      `Softly framed bedroom view from the door-side corner of ${roomName.toLowerCase()}, keeping the bed wall and wardrobe sequence readable in one shot.`,
+    getLightingDirection: (profile) =>
+      `Window daylight grazing the bed wall, supported by ${profile.lightingMood} around the headboard, bedside joinery, and wardrobe reveal.`,
+    fallbackFurnitureCarpentryDetails: [
+      "Use the headboard wall and wardrobe return as a unified composition with restrained bedside detailing.",
+      "Keep vanity, dressing, or lounge elements calm and symmetrical so the room reads as a private suite.",
+    ],
+  },
+  {
+    key: "bathroom",
+    defaultRoomName: "Primary Bathroom",
+    matcher: /(bath|powder|toilet|wc|vanity)/i,
+    getCameraAngleDescription: (roomName) =>
+      `Compact interior view from the dry-side corner of ${roomName.toLowerCase()}, showing the vanity run, mirror, and main wall material together.`,
+    getLightingDirection: (profile) =>
+      `Mirror-front task lighting with a warm indirect ceiling wash and a restrained highlight on stone, tile, and vanity textures shaped by ${profile.lightingMood}.`,
+    fallbackFurnitureCarpentryDetails: [
+      "Compose the vanity, mirror cabinet, and recessed storage as one disciplined wet-area elevation.",
+      "Use slab or tile continuity to make the bathroom feel larger and more premium in render.",
+    ],
+  },
+  {
+    key: "balcony-landscape",
+    defaultRoomName: "Balcony / Landscape",
+    matcher: /(balcony|yard|terrace|patio|garden|landscape|outdoor)/i,
+    getCameraAngleDescription: (roomName) =>
+      `Indoor-outdoor perspective from the interior threshold toward ${roomName.toLowerCase()}, showing how the exterior zone extends the main living experience.`,
+    getLightingDirection: (profile) =>
+      `Low-angle perimeter daylight or sunset edge light balanced with warm ambient spill from the interior, tuned to ${profile.lightingMood}.`,
+    fallbackFurnitureCarpentryDetails: [
+      "Keep loose seating and planters to the perimeter so the sliding-door threshold stays open and visually long.",
+      "Coordinate the outdoor palette with the adjacent interior space so the transition reads as one concept package.",
+    ],
+  },
+];
+
 export function generateMockFurnitureLayout(plan: FloorPlanRecord): FloorPlanFurnitureLayoutResult {
   const sectionMap = new Map<FloorPlanFurnitureLayoutSectionKey, DraftFurnitureLayoutItem[]>();
 
@@ -538,6 +765,33 @@ export function generateMockFurnitureLayout(plan: FloorPlanRecord): FloorPlanFur
     sections,
     designerNotes: buildDesignerNotes(plan),
     qsNotes: buildQsNotes(plan),
+  };
+}
+
+export function generateMockPerspectiveConceptPackage(
+  plan: FloorPlanRecord,
+  style: FloorPlanPerspectiveStyle,
+): FloorPlanPerspectiveConceptPackage {
+  const profile = PERSPECTIVE_STYLE_PROFILES[style];
+  const perspectives = PERSPECTIVE_VIEW_DEFINITIONS.filter(
+    (definition) =>
+      definition.key !== "balcony-landscape" || hasOutdoorPerspectiveOpportunity(plan),
+  ).map((definition) => buildPerspectiveConcept(plan, definition, style, profile));
+
+  const sharedColorPalette = buildPerspectiveColorPalette(plan, profile);
+  const sharedMaterialPalette = buildPerspectiveMaterialPalette(plan, profile);
+
+  return {
+    style,
+    artistIllustrationPrompt: [
+      `Create a cohesive ${style.toLowerCase()} concept package for ${plan.projectName}, a ${plan.propertyType.toLowerCase()} project.`,
+      profile.overview,
+      `Cover ${perspectives.map((perspective) => perspective.viewTitle).join(", ")} in one consistent illustration language.`,
+      `Keep the palette anchored to ${sharedColorPalette.join(", ")} with materials such as ${sharedMaterialPalette.join(", ")}.`,
+      "Render as premium artist illustration boards for an interior design concept package, with no people and no construction clutter.",
+    ].join(" "),
+    perspectives,
+    designerNotes: buildPerspectiveDesignerNotes(plan, style, profile, perspectives.length),
   };
 }
 
@@ -750,4 +1004,207 @@ function buildQsNotes(plan: FloorPlanRecord): string[] {
     `Allow tolerance for electrical and plumbing point adjustments if the preferred ${plan.propertyType.toLowerCase()} layout shifts during detailed design.`,
     "Check circulation-critical items first during site measure so sofa, dining, and bed clearances do not compress on installation.",
   ];
+}
+
+function buildPerspectiveConcept(
+  plan: FloorPlanRecord,
+  definition: PerspectiveViewDefinition,
+  style: FloorPlanPerspectiveStyle,
+  profile: PerspectiveStyleProfile,
+): FloorPlanPerspectiveConcept {
+  const matchedRoom = findRoomByPattern(plan.roomDetections, definition.matcher);
+  const roomName =
+    matchedRoom?.name ??
+    (definition.key === "balcony-landscape"
+      ? getOutdoorPerspectiveRoomName(plan)
+      : definition.defaultRoomName);
+  const viewTitle = `${roomName} Perspective`;
+  const colorPalette = buildPerspectiveColorPalette(plan, profile);
+  const materialPalette = buildPerspectiveMaterialPalette(plan, profile);
+  const furnitureCarpentryDetails = buildPerspectiveDetailLines(
+    plan,
+    definition.matcher,
+    definition.fallbackFurnitureCarpentryDetails,
+  );
+  const cameraAngleDescription =
+    definition.getCameraAngleDescription(roomName);
+  const lightingDirection = definition.getLightingDirection(profile);
+
+  return {
+    viewTitle,
+    cameraAngleDescription,
+    designStyle: style,
+    colorPalette,
+    materialPalette,
+    lightingDirection,
+    furnitureCarpentryDetails,
+    imageGenerationPrompt: buildPerspectiveImagePrompt({
+      plan,
+      viewTitle,
+      style,
+      profile,
+      cameraAngleDescription,
+      colorPalette,
+      materialPalette,
+      lightingDirection,
+      furnitureCarpentryDetails,
+      referencePrompt: findPerspectivePromptReference(
+        plan,
+        definition.key,
+      ),
+    }),
+  };
+}
+
+function buildPerspectiveColorPalette(
+  plan: FloorPlanRecord,
+  profile: PerspectiveStyleProfile,
+): string[] {
+  return uniqueStrings([
+    ...plan.palette.map((item) => item.label),
+    ...profile.paletteAccents,
+  ]).slice(0, 5);
+}
+
+function buildPerspectiveMaterialPalette(
+  plan: FloorPlanRecord,
+  profile: PerspectiveStyleProfile,
+): string[] {
+  return uniqueStrings([
+    ...plan.palette.map(
+      (item) => `${item.material} (${item.finish.toLowerCase()})`,
+    ),
+    ...profile.materialAccents,
+  ]).slice(0, 5);
+}
+
+function buildPerspectiveDesignerNotes(
+  plan: FloorPlanRecord,
+  style: FloorPlanPerspectiveStyle,
+  profile: PerspectiveStyleProfile,
+  perspectiveCount: number,
+): string[] {
+  return [
+    `Keep all ${perspectiveCount} perspectives on the same ${style} material hierarchy so the concept package reads as one family.`,
+    profile.designerNote,
+    plan.readinessNote,
+    "Validate site dimensions, window directions, and plumbing points before converting these mock prompts into production visuals.",
+  ];
+}
+
+function buildPerspectiveDetailLines(
+  plan: FloorPlanRecord,
+  matcher: RegExp,
+  fallbackLines: string[],
+): string[] {
+  const legendLines = plan.furnitureLegend
+    .filter((item) => matcher.test(`${item.room} ${item.item}`))
+    .map((item) => `${item.item}: ${item.placement}`);
+  const carpentryLines = plan.carpentryNotes
+    .filter((item) => matcher.test(`${item.zone} ${item.title}`))
+    .map((item) => `${item.title}: ${item.note}`);
+
+  return uniqueStrings([...legendLines, ...carpentryLines, ...fallbackLines]).slice(0, 4);
+}
+
+function buildPerspectiveImagePrompt(args: {
+  plan: FloorPlanRecord;
+  viewTitle: string;
+  style: FloorPlanPerspectiveStyle;
+  profile: PerspectiveStyleProfile;
+  cameraAngleDescription: string;
+  colorPalette: string[];
+  materialPalette: string[];
+  lightingDirection: string;
+  furnitureCarpentryDetails: string[];
+  referencePrompt?: string;
+}): string {
+  const basePrompt = [
+    `${args.plan.propertyType} interior, ${args.viewTitle.toLowerCase()} for ${args.plan.projectName}.`,
+    `${args.style} design direction.`,
+    args.profile.overview,
+    args.cameraAngleDescription,
+    `Color palette: ${args.colorPalette.join(", ")}.`,
+    `Material palette: ${args.materialPalette.join(", ")}.`,
+    `Lighting: ${args.lightingDirection}`,
+    `Furniture and carpentry details: ${args.furnitureCarpentryDetails.join("; ")}.`,
+    `Render keywords: ${args.profile.promptKeywords.join(", ")}.`,
+    "High-detail artist illustration, premium residential concept board quality, no people.",
+  ].join(" ");
+
+  if (!args.referencePrompt) {
+    return basePrompt;
+  }
+
+  return `${basePrompt} Reference mood: ${args.referencePrompt}`;
+}
+
+function findRoomByPattern(
+  rooms: FloorPlanRoomDetection[],
+  matcher: RegExp,
+): FloorPlanRoomDetection | null {
+  return (
+    rooms.find((room) => matcher.test(`${room.name} ${room.type}`)) ?? null
+  );
+}
+
+function findPerspectivePromptReference(
+  plan: FloorPlanRecord,
+  perspectiveKey: PerspectiveViewKey,
+): string | undefined {
+  const matcherMap: Record<PerspectiveViewKey, RegExp> = {
+    entrance: /(entrance|arrival|foyer|lobby)/i,
+    "living-dining": /(living|dining|salon|lounge)/i,
+    kitchen: /(kitchen|pantry)/i,
+    "master-bedroom": /(master|primary|suite|bedroom)/i,
+    bathroom: /(bath|vanity|powder)/i,
+    "balcony-landscape": /(balcony|yard|terrace|outdoor|landscape)/i,
+  };
+
+  return plan.perspectivePrompts.find((item) =>
+    matcherMap[perspectiveKey].test(item.title),
+  )?.prompt;
+}
+
+function hasOutdoorPerspectiveOpportunity(plan: FloorPlanRecord): boolean {
+  const searchableText = [
+    plan.summary,
+    plan.readinessNote,
+    ...plan.roomDetections.map((room) => `${room.name} ${room.type}`),
+    ...plan.furnitureLegend.map((item) => `${item.room} ${item.placement}`),
+    ...plan.carpentryNotes.map((item) => `${item.zone} ${item.title} ${item.note}`),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return /(balcony|yard|terrace|patio|garden|landscape|outdoor)/.test(
+    searchableText,
+  );
+}
+
+function getOutdoorPerspectiveRoomName(plan: FloorPlanRecord): string {
+  const matchedOutdoorRoom = findRoomByPattern(
+    plan.roomDetections,
+    /(balcony|yard|terrace|patio|garden|landscape|outdoor)/i,
+  );
+
+  if (matchedOutdoorRoom) {
+    return matchedOutdoorRoom.name;
+  }
+
+  if (plan.propertyType === "Landed") {
+    return "Landscape Terrace";
+  }
+
+  if (plan.propertyType === "Penthouse") {
+    return "Sky Terrace";
+  }
+
+  return "Balcony";
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return Array.from(
+    new Set(values.map((value) => value.trim()).filter(Boolean)),
+  );
 }
