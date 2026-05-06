@@ -2,9 +2,13 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import {
   FLOOR_PLAN_PERSPECTIVE_STYLES,
+  generateMockCabinetDesignPackage,
   generateMockFurnitureLayout,
   generateMockPerspectiveConceptPackage,
   getMockFloorPlanById,
+  type FloorPlanCabinetDesign,
+  type FloorPlanCabinetInstallationNote,
+  type FloorPlanCabinetMaterialSummaryItem,
   type FloorPlanPerspectiveConcept,
   type FloorPlanPerspectiveStyle,
   type FloorPlanStatus,
@@ -34,6 +38,11 @@ export default async function FloorPlanDetailPage({
   const furnitureLayout = showFurnitureLayout ? generateMockFurnitureLayout(plan) : null;
   const totalFurnitureLayoutItems =
     furnitureLayout?.sections.reduce((total, section) => total + section.items.length, 0) ?? 0;
+  const generateCabinetDesignParam = resolvedSearchParams?.generateCabinetDesign;
+  const showCabinetDesign = hasEnabledFlag(generateCabinetDesignParam);
+  const cabinetDesignPackage = showCabinetDesign ? generateMockCabinetDesignPackage(plan) : null;
+  const totalCabinetProductionQuantity =
+    cabinetDesignPackage?.productionList.reduce((total, item) => total + item.quantity, 0) ?? 0;
   const generatePerspectivePackageParam = resolvedSearchParams?.generate3dPerspectives;
   const showPerspectivePackage = hasEnabledFlag(generatePerspectivePackageParam);
   const selectedPerspectiveStyle = resolvePerspectiveStyle(
@@ -87,6 +96,7 @@ export default async function FloorPlanDetailPage({
             href={buildFloorPlanDetailHref({
               id: plan.id,
               showFurnitureLayout: true,
+              showCabinetDesign,
               showPerspectivePackage,
               perspectiveStyle: selectedPerspectiveStyle,
             })}
@@ -209,6 +219,169 @@ export default async function FloorPlanDetailPage({
       </SectionCard>
 
       <SectionCard
+        title="Cabinet Design + Production Engine"
+        description="Generate mock cabinet zoning, production rows, material usage, and installation notes for designer-to-workshop coordination."
+        actions={
+          <LinkButton
+            href={buildFloorPlanDetailHref({
+              id: plan.id,
+              showFurnitureLayout,
+              showCabinetDesign: true,
+              showPerspectivePackage,
+              perspectiveStyle: selectedPerspectiveStyle,
+            })}
+          >
+            {showCabinetDesign ? "Regenerate Cabinet Design" : "Generate Cabinet Design"}
+          </LinkButton>
+        }
+      >
+        {!cabinetDesignPackage ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6">
+            <p className="text-sm font-medium text-neutral-900">
+              Generate cabinet zones for the TV feature wall, kitchen top and bottom cabinets,
+              wardrobe, storage cabinets, and bathroom vanity.
+            </p>
+            <p className="mt-2 text-sm leading-6 text-neutral-600">
+              The output stays mock-only and focuses on production-ready fields: location, purpose,
+              dimensions, materials, finish color, internal layout, panel lists, and installation
+              tolerances.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="grid gap-4 xl:grid-cols-[0.7fr_1.3fr]">
+              <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                  Cabinet Package Summary
+                </p>
+                <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
+                  <InfoLine
+                    label="Cabinet Zones"
+                    value={String(cabinetDesignPackage.cabinets.length)}
+                  />
+                  <InfoLine
+                    label="Production Rows"
+                    value={String(cabinetDesignPackage.productionList.length)}
+                  />
+                  <InfoLine
+                    label="Material Groups"
+                    value={String(cabinetDesignPackage.materialSummary.length)}
+                  />
+                  <InfoLine
+                    label="Estimated Qty"
+                    value={String(totalCabinetProductionQuantity)}
+                  />
+                </div>
+              </article>
+
+              <article className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                  Production Scope
+                </p>
+                <p className="mt-4 text-sm leading-6 text-neutral-700">
+                  Use this cabinet package to brief workshop detailing, confirm material direction,
+                  and lock installation sequencing before live shop drawings replace the mock data.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {cabinetDesignPackage.cabinets.map((cabinet) => (
+                    <span
+                      key={cabinet.title}
+                      className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-700"
+                    >
+                      {cabinet.title}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            </div>
+
+            <div className="grid gap-4 xl:grid-cols-2">
+              {cabinetDesignPackage.cabinets.map((cabinet) => (
+                <CabinetDesignCard key={cabinet.key} cabinet={cabinet} />
+              ))}
+            </div>
+
+            <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                    Production List
+                  </p>
+                  <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                    Panel and Hardware Breakdown
+                  </h3>
+                </div>
+                <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600">
+                  {cabinetDesignPackage.productionList.length} rows
+                </span>
+              </div>
+
+              <div className="mt-5 overflow-x-auto">
+                <table className="min-w-full divide-y divide-slate-200 text-sm">
+                  <thead>
+                    <tr className="text-left text-xs uppercase tracking-[0.16em] text-neutral-500">
+                      <th className="py-3 pr-4">Zone</th>
+                      <th className="py-3 pr-4">Panel Type</th>
+                      <th className="py-3 pr-4">Thickness</th>
+                      <th className="py-3 pr-4">Dimensions (L x W)</th>
+                      <th className="py-3 pr-4">Qty</th>
+                      <th className="py-3 pr-4">Edging</th>
+                      <th className="py-3">Hardware</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {cabinetDesignPackage.productionList.map((item) => (
+                      <tr key={`${item.cabinetTitle}-${item.panelType}`}>
+                        <td className="py-3 pr-4 font-medium text-neutral-900">{item.cabinetTitle}</td>
+                        <td className="py-3 pr-4 text-neutral-700">{item.panelType}</td>
+                        <td className="py-3 pr-4 text-neutral-700">{item.thickness}</td>
+                        <td className="py-3 pr-4 text-neutral-700">{item.dimensions}</td>
+                        <td className="py-3 pr-4 text-neutral-700">{item.quantity}</td>
+                        <td className="py-3 pr-4 text-neutral-700">{item.edging}</td>
+                        <td className="py-3 text-neutral-700">{item.hardware}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                  Material Summary
+                </p>
+                <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                  Cabinet Material Coverage
+                </h3>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {cabinetDesignPackage.materialSummary.map((item) => (
+                  <MaterialSummaryCard key={item.material} item={item} />
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                  Installation Notes
+                </p>
+                <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                  Site Preparation and Tolerance Checks
+                </h3>
+              </div>
+              <div className="grid gap-4 xl:grid-cols-3">
+                {cabinetDesignPackage.installationNotes.map((note) => (
+                  <InstallationNoteCard key={note.sequence} note={note} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </SectionCard>
+
+      <SectionCard
         title="Room Detection Summary"
         description="Detected rooms, intended planning use, and notable observations from the mock interpretation layer."
       >
@@ -303,6 +476,7 @@ export default async function FloorPlanDetailPage({
             href={buildFloorPlanDetailHref({
               id: plan.id,
               showFurnitureLayout,
+              showCabinetDesign,
               showPerspectivePackage: true,
               perspectiveStyle: selectedPerspectiveStyle,
             })}
@@ -323,6 +497,7 @@ export default async function FloorPlanDetailPage({
                   href={buildFloorPlanDetailHref({
                     id: plan.id,
                     showFurnitureLayout,
+                    showCabinetDesign,
                     showPerspectivePackage,
                     perspectiveStyle: style,
                   })}
@@ -499,6 +674,76 @@ function ChipGroup(props: { title: string; items: string[]; tone?: "neutral" | "
   );
 }
 
+function CabinetDesignCard(props: { cabinet: FloorPlanCabinetDesign }) {
+  const { cabinet } = props;
+
+  return (
+    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-black/5">
+      <div className="border-b border-slate-200 bg-slate-50 px-5 py-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+              Cabinet Zone
+            </p>
+            <h3 className="mt-1 text-lg font-semibold text-neutral-950">{cabinet.title}</h3>
+          </div>
+          <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-700">
+            {cabinet.finishColor}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-4 px-5 py-5">
+        <div className="grid gap-3 md:grid-cols-2">
+          <DetailPanel label="Location" value={cabinet.location} />
+          <DetailPanel label="Purpose" value={cabinet.purpose} />
+          <DetailPanel label="Dimensions Estimate" value={cabinet.dimensionsEstimate} />
+          <DetailPanel label="Internal Layout" value={cabinet.internalLayout} />
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <DetailPanel label="Material" value={cabinet.material} />
+          <DetailPanel label="Finish Color" value={cabinet.finishColor} />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function MaterialSummaryCard(props: { item: FloorPlanCabinetMaterialSummaryItem }) {
+  const { item } = props;
+
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+        {item.material}
+      </p>
+      <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">
+        {item.productionQuantity}
+      </p>
+      <p className="mt-1 text-sm text-neutral-600">Estimated production quantity</p>
+      <div className="mt-4 grid gap-3 text-sm">
+        <InfoLine label="Cabinet Zones" value={String(item.cabinetCount)} />
+        <InfoLine label="Application" value={item.application} />
+      </div>
+    </article>
+  );
+}
+
+function InstallationNoteCard(props: { note: FloorPlanCabinetInstallationNote }) {
+  const { note } = props;
+
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+      <p className="text-sm font-semibold text-neutral-950">{note.sequence}</p>
+      <div className="mt-4 grid gap-3">
+        <DetailPanel label="Site Preparation" value={note.sitePreparation} />
+        <DetailPanel label="Measurement Tolerance" value={note.measurementTolerance} />
+      </div>
+    </article>
+  );
+}
+
 function PerspectiveConceptCard(props: { perspective: FloorPlanPerspectiveConcept }) {
   const { perspective } = props;
 
@@ -617,6 +862,7 @@ function resolvePerspectiveStyle(
 function buildFloorPlanDetailHref(args: {
   id: string;
   showFurnitureLayout: boolean;
+  showCabinetDesign: boolean;
   showPerspectivePackage: boolean;
   perspectiveStyle: FloorPlanPerspectiveStyle;
 }) {
@@ -624,6 +870,10 @@ function buildFloorPlanDetailHref(args: {
 
   if (args.showFurnitureLayout) {
     searchParams.set("generateFurnitureLayout", "1");
+  }
+
+  if (args.showCabinetDesign) {
+    searchParams.set("generateCabinetDesign", "1");
   }
 
   if (args.showPerspectivePackage) {

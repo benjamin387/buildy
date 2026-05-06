@@ -47,6 +47,63 @@ export type FloorPlanFurnitureLayoutResult = {
   qsNotes: string[];
 };
 
+export type FloorPlanCabinetMaterial =
+  | "Plywood"
+  | "Laminate"
+  | "Solid"
+  | "Quartz";
+
+export type FloorPlanCabinetZoneKey =
+  | "tv-feature-wall"
+  | "kitchen-upper"
+  | "kitchen-base"
+  | "wardrobe"
+  | "storage-cabinet"
+  | "bathroom-vanity";
+
+export type FloorPlanCabinetDesign = {
+  key: FloorPlanCabinetZoneKey;
+  title: string;
+  location: string;
+  purpose: string;
+  dimensionsEstimate: string;
+  material: string;
+  materials: FloorPlanCabinetMaterial[];
+  finishColor: string;
+  internalLayout: string;
+};
+
+export type FloorPlanCabinetProductionItem = {
+  cabinetTitle: string;
+  panelType: string;
+  material: FloorPlanCabinetMaterial;
+  thickness: string;
+  dimensions: string;
+  quantity: number;
+  edging: string;
+  hardware: string;
+};
+
+export type FloorPlanCabinetMaterialSummaryItem = {
+  material: FloorPlanCabinetMaterial;
+  application: string;
+  cabinetCount: number;
+  productionQuantity: number;
+};
+
+export type FloorPlanCabinetInstallationNote = {
+  sequence: string;
+  sitePreparation: string;
+  measurementTolerance: string;
+};
+
+export type FloorPlanCabinetDesignPackage = {
+  cabinets: FloorPlanCabinetDesign[];
+  productionList: FloorPlanCabinetProductionItem[];
+  materialSummary: FloorPlanCabinetMaterialSummaryItem[];
+  installationNotes: FloorPlanCabinetInstallationNote[];
+};
+
 export type FloorPlanPaletteItem = {
   label: string;
   material: string;
@@ -516,6 +573,107 @@ const FURNITURE_LAYOUT_RULES = [
 ] as const;
 
 type DraftFurnitureLayoutItem = Omit<FloorPlanFurnitureLayoutItem, "legendNumber">;
+type CabinetFinishTheme = "light" | "wood" | "stone";
+
+type CabinetZoneDefinition = {
+  key: FloorPlanCabinetZoneKey;
+  title: string;
+  matcher: RegExp;
+  fallbackLocation: string;
+  purpose: string;
+  dimensionsEstimate: string;
+  materials: FloorPlanCabinetMaterial[];
+  finishTheme: CabinetFinishTheme;
+  internalLayout: string;
+};
+
+const CABINET_MATERIAL_ORDER: FloorPlanCabinetMaterial[] = [
+  "Plywood",
+  "Laminate",
+  "Solid",
+  "Quartz",
+];
+
+const CABINET_ZONE_DEFINITIONS: CabinetZoneDefinition[] = [
+  {
+    key: "tv-feature-wall",
+    title: "TV Feature Wall",
+    matcher: /(living|dining|salon|lounge)/i,
+    fallbackLocation: "Main living room feature wall",
+    purpose:
+      "Anchor the lounge elevation with concealed AV routing, display shelving, and low storage.",
+    dimensionsEstimate: "Approx. 3000-4200W x 450-550D x 2400-3000H mm",
+    materials: ["Plywood", "Laminate", "Solid"],
+    finishTheme: "wood",
+    internalLayout:
+      "Open display shelves, low drawers, flip-down AV access, concealed cable chase",
+  },
+  {
+    key: "kitchen-upper",
+    title: "Kitchen Top Cabinets",
+    matcher: /(kitchen|pantry)/i,
+    fallbackLocation: "Kitchen upper run above prep counter",
+    purpose:
+      "Provide day-to-day crockery and pantry storage while keeping the worktop visually light.",
+    dimensionsEstimate: "Approx. 2400-3600W x 320-350D x 700-900H mm",
+    materials: ["Plywood", "Laminate"],
+    finishTheme: "light",
+    internalLayout:
+      "Adjustable shelves, lift-up top cabinets, niche allowance for hood or display",
+  },
+  {
+    key: "kitchen-base",
+    title: "Kitchen Bottom Cabinets",
+    matcher: /(kitchen|pantry)/i,
+    fallbackLocation: "Kitchen base run below main worktop",
+    purpose:
+      "Carry sink, prep, and cookware storage in one continuous production-friendly run.",
+    dimensionsEstimate: "Approx. 2600-4200W x 560-600D x 850-900H mm",
+    materials: ["Plywood", "Laminate", "Quartz"],
+    finishTheme: "wood",
+    internalLayout:
+      "Drawer banks, sink cabinet, pull-out trays, bin compartment, tray storage",
+  },
+  {
+    key: "wardrobe",
+    title: "Wardrobe",
+    matcher: /(master|primary|suite|bedroom|children|guest)/i,
+    fallbackLocation: "Primary bedroom wardrobe wall",
+    purpose:
+      "Organize daily wear, folded items, and accessories with full-height storage.",
+    dimensionsEstimate: "Approx. 2400-4200W x 600D x 2400-3000H mm",
+    materials: ["Plywood", "Laminate", "Solid"],
+    finishTheme: "wood",
+    internalLayout:
+      "Long hanging, short hanging, drawers, adjustable shelves, luggage top shelf",
+  },
+  {
+    key: "storage-cabinet",
+    title: "Storage Cabinets",
+    matcher: /(entry|foyer|lobby|study|family|children|attic|flex|lounge)/i,
+    fallbackLocation: "Entry or flexible room full-height storage wall",
+    purpose:
+      "Absorb household overflow, linen, and utility storage without breaking circulation.",
+    dimensionsEstimate: "Approx. 1200-2400W x 400-500D x 2400-2700H mm",
+    materials: ["Plywood", "Laminate"],
+    finishTheme: "light",
+    internalLayout:
+      "Adjustable shelves, closed tall storage, drawer module, cleaning item bay",
+  },
+  {
+    key: "bathroom-vanity",
+    title: "Bathroom Vanity",
+    matcher: /(bath|powder|toilet|wc|vanity)/i,
+    fallbackLocation: "Primary bathroom dry vanity wall",
+    purpose:
+      "Provide wet-area storage, grooming surface, and concealed plumbing access.",
+    dimensionsEstimate: "Approx. 900-1800W x 500-550D x 850-900H mm",
+    materials: ["Plywood", "Laminate", "Quartz"],
+    finishTheme: "stone",
+    internalLayout:
+      "Under-sink drawers, mirror cabinet, open niche, trap access panel",
+  },
+];
 
 type PerspectiveStyleProfile = {
   overview: string;
@@ -768,6 +926,24 @@ export function generateMockFurnitureLayout(plan: FloorPlanRecord): FloorPlanFur
   };
 }
 
+export function generateMockCabinetDesignPackage(
+  plan: FloorPlanRecord,
+): FloorPlanCabinetDesignPackage {
+  const cabinets = CABINET_ZONE_DEFINITIONS.map((definition) =>
+    buildCabinetDesign(plan, definition),
+  );
+  const productionList = cabinets.flatMap((cabinet) =>
+    buildCabinetProductionRows(cabinet),
+  );
+
+  return {
+    cabinets,
+    productionList,
+    materialSummary: buildCabinetMaterialSummary(cabinets, productionList),
+    installationNotes: buildCabinetInstallationNotes(plan),
+  };
+}
+
 export function generateMockPerspectiveConceptPackage(
   plan: FloorPlanRecord,
   style: FloorPlanPerspectiveStyle,
@@ -980,6 +1156,369 @@ function buildOutdoorFallbackItems(
         ? "Approx. 1400-1800W x 450-500D mm"
         : "Approx. 2 chairs at 700-800W each with 450-500D mm side table",
     }));
+}
+
+function buildCabinetDesign(
+  plan: FloorPlanRecord,
+  definition: CabinetZoneDefinition,
+): FloorPlanCabinetDesign {
+  return {
+    key: definition.key,
+    title: definition.title,
+    location: resolveCabinetLocation(plan, definition),
+    purpose: definition.purpose,
+    dimensionsEstimate: definition.dimensionsEstimate,
+    material: definition.materials.join(" / "),
+    materials: definition.materials,
+    finishColor: pickCabinetFinishColor(plan, definition.finishTheme),
+    internalLayout: definition.internalLayout,
+  };
+}
+
+function resolveCabinetLocation(
+  plan: FloorPlanRecord,
+  definition: CabinetZoneDefinition,
+): string {
+  const roomName =
+    definition.key === "bathroom-vanity"
+      ? findBathroomRoomName(plan)
+      : findRoomByPattern(plan.roomDetections, definition.matcher)?.name ?? null;
+
+  if (!roomName) {
+    return definition.fallbackLocation;
+  }
+
+  switch (definition.key) {
+    case "tv-feature-wall":
+      return `${roomName} main lounge feature wall`;
+    case "kitchen-upper":
+      return `${roomName} top run above prep and appliance wall`;
+    case "kitchen-base":
+      return `${roomName} bottom run along sink and worktop line`;
+    case "wardrobe":
+      return `${roomName} full-height wardrobe elevation`;
+    case "storage-cabinet":
+      return `${roomName} concealed storage wall`;
+    case "bathroom-vanity":
+      return `${roomName} dry-side vanity wall`;
+  }
+}
+
+function pickCabinetFinishColor(
+  plan: FloorPlanRecord,
+  finishTheme: CabinetFinishTheme,
+): string {
+  const paletteItem =
+    finishTheme === "wood"
+      ? findPaletteItemByPattern(plan, /(walnut|oak|timber|wood|veneer)/i)
+      : finishTheme === "stone"
+        ? findPaletteItemByPattern(
+            plan,
+            /(stone|slab|travertine|porcelain|limestone|quartz|sintered)/i,
+          )
+        : findPaletteItemByPattern(
+            plan,
+            /(white|beige|taupe|plaster|paint|limestone|pearl|warm)/i,
+          );
+
+  if (!paletteItem) {
+    return finishTheme === "wood"
+      ? "Walnut tone matte"
+      : finishTheme === "stone"
+        ? "Light stone honed"
+        : "Warm neutral matte";
+  }
+
+  return `${paletteItem.label} (${paletteItem.finish.toLowerCase()})`;
+}
+
+function findPaletteItemByPattern(
+  plan: FloorPlanRecord,
+  matcher: RegExp,
+): FloorPlanPaletteItem | null {
+  return (
+    plan.palette.find((item) =>
+      matcher.test(
+        `${item.label} ${item.material} ${item.finish} ${item.application}`,
+      ),
+    ) ??
+    plan.palette[0] ??
+    null
+  );
+}
+
+function buildCabinetProductionRows(
+  cabinet: FloorPlanCabinetDesign,
+): FloorPlanCabinetProductionItem[] {
+  switch (cabinet.key) {
+    case "tv-feature-wall":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Feature back panel and carcass sides",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "2400 x 450 mm",
+          quantity: 4,
+          edging: "1 mm matching ABS",
+          hardware: "Concealed hanging bracket",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Drawer and flap fronts",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "800 x 380 mm",
+          quantity: 4,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge / lift-up stay",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Display ledge and trim",
+          material: "Solid",
+          thickness: "25 mm",
+          dimensions: "1800 x 220 mm",
+          quantity: 2,
+          edging: "Clear sealed edge",
+          hardware: "Concealed fixing bracket",
+        },
+      ];
+    case "kitchen-upper":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Top cabinet carcass panels",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "720 x 320 mm",
+          quantity: 6,
+          edging: "1 mm matching ABS",
+          hardware: "Wall hanger bracket",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Top cabinet shutters",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "720 x 450 mm",
+          quantity: 6,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge / lift-up stay",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Adjustable shelves",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "700 x 300 mm",
+          quantity: 6,
+          edging: "0.5 mm matching ABS",
+          hardware: "Shelf pin",
+        },
+      ];
+    case "kitchen-base":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Bottom cabinet carcass panels",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "850 x 560 mm",
+          quantity: 8,
+          edging: "1 mm matching ABS",
+          hardware: "Adjustable leg / connector set",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Drawer fronts and shutters",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "720 x 500 mm",
+          quantity: 6,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge / full-extension track",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Countertop and backsplash return",
+          material: "Quartz",
+          thickness: "20 mm",
+          dimensions: "2400 x 600 mm",
+          quantity: 2,
+          edging: "Polished exposed edge",
+          hardware: "Sink and hob cut-out set",
+        },
+      ];
+    case "wardrobe":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Wardrobe side, top, and partition panels",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "2400 x 580 mm",
+          quantity: 8,
+          edging: "1 mm matching ABS",
+          hardware: "Connector cam set",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Wardrobe shutters",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "2300 x 500 mm",
+          quantity: 6,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge / sliding track",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Open niche trim and handle rail",
+          material: "Solid",
+          thickness: "25 mm",
+          dimensions: "1200 x 150 mm",
+          quantity: 2,
+          edging: "Clear sealed edge",
+          hardware: "Concealed fixing / drawer track",
+        },
+      ];
+    case "storage-cabinet":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Full-height carcass panels",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "2400 x 450 mm",
+          quantity: 6,
+          edging: "1 mm matching ABS",
+          hardware: "Connector cam set",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Shutter faces",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "2300 x 450 mm",
+          quantity: 4,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Internal shelves",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "700 x 430 mm",
+          quantity: 4,
+          edging: "0.5 mm matching ABS",
+          hardware: "Shelf pin / drawer track",
+        },
+      ];
+    case "bathroom-vanity":
+      return [
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Vanity carcass panels",
+          material: "Plywood",
+          thickness: "18 mm",
+          dimensions: "780 x 500 mm",
+          quantity: 4,
+          edging: "1 mm matching ABS",
+          hardware: "Connector cam set",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Drawer and shutter fronts",
+          material: "Laminate",
+          thickness: "18 mm",
+          dimensions: "300 x 500 mm",
+          quantity: 2,
+          edging: "1 mm matching ABS",
+          hardware: "Soft-close hinge / drawer track",
+        },
+        {
+          cabinetTitle: cabinet.title,
+          panelType: "Quartz vanity top",
+          material: "Quartz",
+          thickness: "20 mm",
+          dimensions: "1200 x 520 mm",
+          quantity: 1,
+          edging: "Polished exposed edge",
+          hardware: "Basin cut-out set",
+        },
+      ];
+  }
+}
+
+function buildCabinetMaterialSummary(
+  cabinets: FloorPlanCabinetDesign[],
+  productionList: FloorPlanCabinetProductionItem[],
+): FloorPlanCabinetMaterialSummaryItem[] {
+  return CABINET_MATERIAL_ORDER.map((material) => {
+    const matchingCabinets = cabinets.filter((cabinet) =>
+      cabinet.materials.includes(material),
+    );
+
+    return {
+      material,
+      application: summarizeCabinetApplications(matchingCabinets),
+      cabinetCount: matchingCabinets.length,
+      productionQuantity: productionList
+        .filter((item) => item.material === material)
+        .reduce((total, item) => total + item.quantity, 0),
+    };
+  }).filter((item) => item.cabinetCount > 0);
+}
+
+function summarizeCabinetApplications(
+  cabinets: FloorPlanCabinetDesign[],
+): string {
+  const titles = cabinets.map((cabinet) => cabinet.title);
+
+  if (titles.length <= 3) {
+    return titles.join(", ");
+  }
+
+  return `${titles.slice(0, 3).join(", ")} + ${titles.length - 3} more`;
+}
+
+function buildCabinetInstallationNotes(
+  plan: FloorPlanRecord,
+): FloorPlanCabinetInstallationNote[] {
+  const kitchenRoomName =
+    findRoomByPattern(plan.roomDetections, /(kitchen|pantry)/i)?.name ??
+    "kitchen";
+  const wardrobeRoomName =
+    findRoomByPattern(
+      plan.roomDetections,
+      /(master|primary|suite|bedroom|children|guest)/i,
+    )?.name ?? "bedroom";
+
+  return [
+    {
+      sequence: "1. Site measure, datum, and services check",
+      sitePreparation:
+        `Confirm floor level, wall plumb, ceiling bulkhead, and all power or plumbing points around the ${kitchenRoomName.toLowerCase()} and TV wall before workshop release.`,
+      measurementTolerance:
+        "Issue final carcass sizes from signed site measure within +/-5 mm per wall run.",
+    },
+    {
+      sequence: "2. Bottom cabinets, vanity carcasses, and quartz templating",
+      sitePreparation:
+        "Complete wet works, waterproofing, floor finishes, and backing support before installing bottom cabinets or vanity units.",
+      measurementTolerance:
+        "Maintain quartz joint and cut-out tolerance within +/-3 mm after sink, hob, and basin positions are reconfirmed.",
+    },
+    {
+      sequence: "3. Top cabinets, wardrobe fronts, and hardware alignment",
+      sitePreparation:
+        `Protect finished floors and confirm paint, lighting trims, and door architraves are complete before hanging ${wardrobeRoomName.toLowerCase()} wardrobes and top cabinets.`,
+      measurementTolerance:
+        "Keep door reveals within 2 mm and recheck hinge or track alignment after final adjustment.",
+    },
+  ];
 }
 
 function findBathroomRoomName(plan: FloorPlanRecord): string | null {
