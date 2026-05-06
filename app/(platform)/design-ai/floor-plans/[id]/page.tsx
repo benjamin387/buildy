@@ -5,12 +5,14 @@ import {
   generateMockCabinetDesignPackage,
   generateMockFurnitureLayout,
   generateMockPerspectiveConceptPackage,
+  generateMockPerspectiveRenderImages,
   generateMockRenovationWorkflow,
   getMockFloorPlanById,
   type FloorPlanCabinetDesign,
   type FloorPlanCabinetInstallationNote,
   type FloorPlanCabinetMaterialSummaryItem,
   type FloorPlanPerspectiveConcept,
+  type FloorPlanPerspectiveRenderImage,
   type FloorPlanPerspectiveStyle,
   type FloorPlanStatus,
   type FloorPlanWorkflowStep,
@@ -53,6 +55,13 @@ export default async function FloorPlanDetailPage({
   const perspectivePackage = showPerspectivePackage
     ? generateMockPerspectiveConceptPackage(plan, selectedPerspectiveStyle)
     : null;
+  const generateRenderImagesParam = resolvedSearchParams?.generateRenderImages;
+  const showPerspectiveRenderImages =
+    showPerspectivePackage && hasEnabledFlag(generateRenderImagesParam);
+  const perspectiveRenderImages =
+    showPerspectiveRenderImages && perspectivePackage
+      ? generateMockPerspectiveRenderImages(perspectivePackage)
+      : [];
   const generateRenovationWorkflowParam =
     resolvedSearchParams?.generateRenovationWorkflow;
   const showRenovationWorkflow = hasEnabledFlag(generateRenovationWorkflowParam);
@@ -109,6 +118,7 @@ export default async function FloorPlanDetailPage({
               showFurnitureLayout: true,
               showCabinetDesign,
               showPerspectivePackage,
+              showPerspectiveRenderImages,
               showRenovationWorkflow,
               perspectiveStyle: selectedPerspectiveStyle,
             })}
@@ -240,6 +250,7 @@ export default async function FloorPlanDetailPage({
               showFurnitureLayout,
               showCabinetDesign: true,
               showPerspectivePackage,
+              showPerspectiveRenderImages,
               showRenovationWorkflow,
               perspectiveStyle: selectedPerspectiveStyle,
             })}
@@ -485,18 +496,35 @@ export default async function FloorPlanDetailPage({
         title="3D Perspective / Artist Illustration Engine"
         description="Generate a mock concept package with room-based perspective cards, style options, illustration prompts, and designer notes."
         actions={
-          <LinkButton
-            href={buildFloorPlanDetailHref({
-              id: plan.id,
-              showFurnitureLayout,
-              showCabinetDesign,
-              showPerspectivePackage: true,
-              showRenovationWorkflow,
-              perspectiveStyle: selectedPerspectiveStyle,
-            })}
-          >
-            {showPerspectivePackage ? "Regenerate 3D Perspectives" : "Generate 3D Perspectives"}
-          </LinkButton>
+          <div className="flex flex-wrap items-center gap-2">
+            <LinkButton
+              href={buildFloorPlanDetailHref({
+                id: plan.id,
+                showFurnitureLayout,
+                showCabinetDesign,
+                showPerspectivePackage: true,
+                showPerspectiveRenderImages,
+                showRenovationWorkflow,
+                perspectiveStyle: selectedPerspectiveStyle,
+              })}
+            >
+              {showPerspectivePackage ? "Regenerate 3D Perspectives" : "Generate 3D Perspectives"}
+            </LinkButton>
+            <LinkButton
+              href={buildFloorPlanDetailHref({
+                id: plan.id,
+                showFurnitureLayout,
+                showCabinetDesign,
+                showPerspectivePackage: true,
+                showPerspectiveRenderImages: true,
+                showRenovationWorkflow,
+                perspectiveStyle: selectedPerspectiveStyle,
+              })}
+              variant="secondary"
+            >
+              {showPerspectiveRenderImages ? "Regenerate Render Images" : "Generate Render Images"}
+            </LinkButton>
+          </div>
         }
       >
         <div className="space-y-6">
@@ -513,6 +541,7 @@ export default async function FloorPlanDetailPage({
                     showFurnitureLayout,
                     showCabinetDesign,
                     showPerspectivePackage,
+                    showPerspectiveRenderImages,
                     showRenovationWorkflow,
                     perspectiveStyle: style,
                   })}
@@ -592,6 +621,43 @@ export default async function FloorPlanDetailPage({
                 ))}
               </div>
 
+              <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                      Render Image Output
+                    </p>
+                    <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                      Prompt-Driven Render Preview Grid
+                    </h3>
+                  </div>
+                  <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600">
+                    {perspectiveRenderImages.length > 0
+                      ? `${perspectiveRenderImages.length} image${perspectiveRenderImages.length === 1 ? "" : "s"}`
+                      : "Placeholder-ready"}
+                  </span>
+                </div>
+
+                {perspectiveRenderImages.length === 0 ? (
+                  <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6">
+                    <p className="text-sm font-medium text-neutral-900">
+                      Use Generate Render Images to create placeholder image URLs from the current
+                      entrance, living or dining, kitchen, bedroom, and bathroom prompts.
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-neutral-600">
+                      The image URLs stay in temporary page state only and are not written to the
+                      database.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {perspectiveRenderImages.map((image) => (
+                      <RenderImageCard key={image.viewKey} image={image} />
+                    ))}
+                  </div>
+                )}
+              </article>
+
               <NotesPanel title="Notes for Designer" notes={perspectivePackage.designerNotes} />
             </div>
           )}
@@ -623,6 +689,7 @@ export default async function FloorPlanDetailPage({
               showFurnitureLayout,
               showCabinetDesign,
               showPerspectivePackage,
+              showPerspectiveRenderImages,
               showRenovationWorkflow: true,
               perspectiveStyle: selectedPerspectiveStyle,
             })}
@@ -1071,6 +1138,36 @@ function PerspectiveConceptCard(props: { perspective: FloorPlanPerspectiveConcep
   );
 }
 
+function RenderImageCard(props: { image: FloorPlanPerspectiveRenderImage }) {
+  const { image } = props;
+
+  return (
+    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm shadow-black/5">
+      <img
+        src={image.imageUrl}
+        alt={`${image.viewTitle} render placeholder`}
+        className="aspect-[4/3] w-full border-b border-slate-200 object-cover"
+      />
+      <div className="space-y-3 px-4 py-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+              {image.viewLabel}
+            </p>
+            <h3 className="mt-1 text-base font-semibold text-neutral-950">
+              {image.viewTitle}
+            </h3>
+          </div>
+          <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-600">
+            {image.styleLabel}
+          </span>
+        </div>
+        <p className="text-sm leading-6 text-neutral-700">{image.caption}</p>
+      </div>
+    </article>
+  );
+}
+
 function NotesPanel(props: { title: string; notes: string[] }) {
   return (
     <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
@@ -1145,6 +1242,7 @@ function buildFloorPlanDetailHref(args: {
   showFurnitureLayout: boolean;
   showCabinetDesign: boolean;
   showPerspectivePackage: boolean;
+  showPerspectiveRenderImages: boolean;
   showRenovationWorkflow: boolean;
   perspectiveStyle: FloorPlanPerspectiveStyle;
 }) {
@@ -1160,6 +1258,10 @@ function buildFloorPlanDetailHref(args: {
 
   if (args.showPerspectivePackage) {
     searchParams.set("generate3dPerspectives", "1");
+  }
+
+  if (args.showPerspectiveRenderImages) {
+    searchParams.set("generateRenderImages", "1");
   }
 
   if (args.showRenovationWorkflow) {

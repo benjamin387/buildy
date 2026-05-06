@@ -129,7 +129,16 @@ export const FLOOR_PLAN_PERSPECTIVE_STYLES = [
 export type FloorPlanPerspectiveStyle =
   (typeof FLOOR_PLAN_PERSPECTIVE_STYLES)[number];
 
+export type FloorPlanPerspectiveViewKey =
+  | "entrance"
+  | "living-dining"
+  | "kitchen"
+  | "master-bedroom"
+  | "bathroom"
+  | "balcony-landscape";
+
 export type FloorPlanPerspectiveConcept = {
+  viewKey: FloorPlanPerspectiveViewKey;
   viewTitle: string;
   cameraAngleDescription: string;
   designStyle: FloorPlanPerspectiveStyle;
@@ -145,6 +154,15 @@ export type FloorPlanPerspectiveConceptPackage = {
   artistIllustrationPrompt: string;
   perspectives: FloorPlanPerspectiveConcept[];
   designerNotes: string[];
+};
+
+export type FloorPlanPerspectiveRenderImage = {
+  viewKey: Exclude<FloorPlanPerspectiveViewKey, "balcony-landscape">;
+  viewLabel: string;
+  viewTitle: string;
+  caption: string;
+  styleLabel: FloorPlanPerspectiveStyle;
+  imageUrl: string;
 };
 
 export type FloorPlanCarpentryNote = {
@@ -915,22 +933,19 @@ type PerspectiveStyleProfile = {
   designerNote: string;
 };
 
-type PerspectiveViewKey =
-  | "entrance"
-  | "living-dining"
-  | "kitchen"
-  | "master-bedroom"
-  | "bathroom"
-  | "balcony-landscape";
-
 type PerspectiveViewDefinition = {
-  key: PerspectiveViewKey;
+  key: FloorPlanPerspectiveViewKey;
   defaultRoomName: string;
   matcher: RegExp;
   getCameraAngleDescription: (roomName: string) => string;
   getLightingDirection: (profile: PerspectiveStyleProfile) => string;
   fallbackFurnitureCarpentryDetails: string[];
 };
+
+type RequiredPerspectiveRenderViewKey = Exclude<
+  FloorPlanPerspectiveViewKey,
+  "balcony-landscape"
+>;
 
 const PERSPECTIVE_STYLE_PROFILES: Record<
   FloorPlanPerspectiveStyle,
@@ -1103,6 +1118,37 @@ const PERSPECTIVE_VIEW_DEFINITIONS: PerspectiveViewDefinition[] = [
   },
 ];
 
+const REQUIRED_PERSPECTIVE_RENDER_VIEWS: RequiredPerspectiveRenderViewKey[] = [
+  "entrance",
+  "living-dining",
+  "kitchen",
+  "master-bedroom",
+  "bathroom",
+];
+
+const PERSPECTIVE_RENDER_VIEW_LABELS: Record<
+  RequiredPerspectiveRenderViewKey,
+  string
+> = {
+  entrance: "Entrance",
+  "living-dining": "Living / Dining",
+  kitchen: "Kitchen",
+  "master-bedroom": "Bedroom",
+  bathroom: "Bathroom",
+};
+
+const PERSPECTIVE_RENDER_STYLE_BACKDROPS: Record<
+  FloorPlanPerspectiveStyle,
+  [string, string]
+> = {
+  "Modern Luxe": ["#1F2937", "#A78B6D"],
+  Japandi: ["#D9CBB8", "#7A6A56"],
+  Minimalist: ["#E7E5E4", "#78716C"],
+  "Warm Wood": ["#9A6B45", "#E7D1B0"],
+  "Hotel-Inspired": ["#2F2C2A", "#C9A66B"],
+  Contemporary: ["#CBD5E1", "#475569"],
+};
+
 export function generateMockFurnitureLayout(plan: FloorPlanRecord): FloorPlanFurnitureLayoutResult {
   const sectionMap = new Map<FloorPlanFurnitureLayoutSectionKey, DraftFurnitureLayoutItem[]>();
 
@@ -1200,6 +1246,39 @@ export function generateMockPerspectiveConceptPackage(
     perspectives,
     designerNotes: buildPerspectiveDesignerNotes(plan, style, profile, perspectives.length),
   };
+}
+
+export function generateMockPerspectiveRenderImages(
+  perspectivePackage: FloorPlanPerspectiveConceptPackage,
+): FloorPlanPerspectiveRenderImage[] {
+  const perspectiveMap = new Map(
+    perspectivePackage.perspectives.map((perspective) => [
+      perspective.viewKey,
+      perspective,
+    ]),
+  );
+
+  return REQUIRED_PERSPECTIVE_RENDER_VIEWS.flatMap((viewKey) => {
+    const perspective = perspectiveMap.get(viewKey);
+
+    if (!perspective) {
+      return [];
+    }
+
+    return [
+      {
+        viewKey,
+        viewLabel: PERSPECTIVE_RENDER_VIEW_LABELS[viewKey],
+        viewTitle: perspective.viewTitle,
+        caption: perspective.cameraAngleDescription,
+        styleLabel: perspectivePackage.style,
+        imageUrl: buildPerspectivePlaceholderImageUrl(
+          perspective,
+          perspectivePackage.style,
+        ),
+      },
+    ];
+  });
 }
 
 function findMatchingRoomDetection(
@@ -1801,6 +1880,7 @@ function buildPerspectiveConcept(
   const lightingDirection = definition.getLightingDirection(profile);
 
   return {
+    viewKey: definition.key,
     viewTitle,
     cameraAngleDescription,
     designStyle: style,
@@ -1877,6 +1957,75 @@ function buildPerspectiveDetailLines(
   return uniqueStrings([...legendLines, ...carpentryLines, ...fallbackLines]).slice(0, 4);
 }
 
+function buildPerspectivePlaceholderImageUrl(
+  perspective: FloorPlanPerspectiveConcept,
+  style: FloorPlanPerspectiveStyle,
+): string {
+  const [startColor, endColor] = PERSPECTIVE_RENDER_STYLE_BACKDROPS[style];
+  const promptSeed = createPromptSeed(perspective.imageGenerationPrompt);
+  const promptExcerpt = escapeSvgText(
+    truncateText(perspective.imageGenerationPrompt, 132),
+  );
+  const viewTitle = escapeSvgText(perspective.viewTitle);
+  const styleLabel = escapeSvgText(style);
+  const accentX = 840 + (promptSeed % 120);
+  const accentY = 180 + (promptSeed % 220);
+  const accentRadius = 180 + (promptSeed % 70);
+  const accentOpacity = 0.24 + ((promptSeed % 12) * 0.01);
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="${viewTitle}">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${startColor}" />
+          <stop offset="100%" stop-color="${endColor}" />
+        </linearGradient>
+        <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.24)" />
+          <stop offset="100%" stop-color="rgba(255,255,255,0.08)" />
+        </linearGradient>
+      </defs>
+      <rect width="1200" height="900" fill="url(#bg)" />
+      <circle cx="${accentX}" cy="${accentY}" r="${accentRadius}" fill="rgba(255,255,255,${accentOpacity.toFixed(2)})" />
+      <rect x="72" y="72" width="1056" height="756" rx="36" fill="url(#panel)" stroke="rgba(255,255,255,0.24)" />
+      <text x="108" y="148" fill="rgba(255,255,255,0.78)" font-family="Arial, sans-serif" font-size="30" letter-spacing="4">AI FLOOR PLAN RENDER</text>
+      <text x="108" y="264" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="72" font-weight="700">${viewTitle}</text>
+      <text x="108" y="326" fill="rgba(255,255,255,0.82)" font-family="Arial, sans-serif" font-size="34">${styleLabel}</text>
+      <text x="108" y="640" fill="rgba(255,255,255,0.88)" font-family="Arial, sans-serif" font-size="28">Prompt-led placeholder preview</text>
+      <text x="108" y="692" fill="rgba(255,255,255,0.78)" font-family="Arial, sans-serif" font-size="24">${promptExcerpt}</text>
+    </svg>
+  `;
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function createPromptSeed(value: string): number {
+  let seed = 0;
+
+  for (let index = 0; index < value.length; index += 1) {
+    seed = (seed * 31 + value.charCodeAt(index)) % 100000;
+  }
+
+  return seed;
+}
+
+function truncateText(value: string, maxLength: number): string {
+  if (value.length <= maxLength) {
+    return value;
+  }
+
+  return `${value.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
+}
+
+function escapeSvgText(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
 function buildPerspectiveImagePrompt(args: {
   plan: FloorPlanRecord;
   viewTitle: string;
@@ -1920,9 +2069,9 @@ function findRoomByPattern(
 
 function findPerspectivePromptReference(
   plan: FloorPlanRecord,
-  perspectiveKey: PerspectiveViewKey,
+  perspectiveKey: FloorPlanPerspectiveViewKey,
 ): string | undefined {
-  const matcherMap: Record<PerspectiveViewKey, RegExp> = {
+  const matcherMap: Record<FloorPlanPerspectiveViewKey, RegExp> = {
     entrance: /(entrance|arrival|foyer|lobby)/i,
     "living-dining": /(living|dining|salon|lounge)/i,
     kitchen: /(kitchen|pantry)/i,
