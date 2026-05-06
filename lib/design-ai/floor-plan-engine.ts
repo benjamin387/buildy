@@ -182,6 +182,73 @@ export type FloorPlanWorkflowStep = {
   inspectionCheckpoint: string;
 };
 
+export type FloorPlanBoqRiskLevel = "Low" | "Medium" | "High";
+
+export type FloorPlanBoqItem = {
+  category: string;
+  scope: string;
+  description: string;
+  unit: string;
+  quantity: number;
+  unitRate: number;
+  amount: number;
+  riskLevel: FloorPlanBoqRiskLevel;
+};
+
+export type FloorPlanBoqSummary = {
+  title: string;
+  items: FloorPlanBoqItem[];
+  contingencyRate: number;
+  subtotal: number;
+  contingencyAmount: number;
+  totalEstimate: number;
+  assumptions: string[];
+  procurementNotes: string[];
+};
+
+export type FloorPlanQuotationLineItem = {
+  title: string;
+  description: string;
+  amount: number;
+};
+
+export type FloorPlanQuotationPaymentMilestone = {
+  label: string;
+  percentage: number;
+  amount: number;
+  description: string;
+};
+
+export type FloorPlanQuotationData = {
+  quotationNumber: string;
+  packageName: string;
+  preparedFor: string;
+  projectLabel: string;
+  currency: "SGD";
+  validityLabel: string;
+  lineItems: FloorPlanQuotationLineItem[];
+  subtotal: number;
+  contingencyAmount: number;
+  totalAmount: number;
+  estimatedTimeline: string;
+  paymentMilestones: FloorPlanQuotationPaymentMilestone[];
+  assumptions: string[];
+  exclusions: string[];
+};
+
+export type FloorPlanProposalContentSection = {
+  title: string;
+  body: string;
+};
+
+export type FloorPlanProposalContent = {
+  proposalTitle: string;
+  executiveSummary: string;
+  sections: FloorPlanProposalContentSection[];
+  deliverables: string[];
+  nextSteps: string[];
+};
+
 export type FloorPlanRecord = {
   id: string;
   projectName: string;
@@ -195,6 +262,30 @@ export type FloorPlanRecord = {
   readinessNote: string;
   lastAnalyzedAt: string;
   roomDetections: FloorPlanRoomDetection[];
+  furnitureLegend: FloorPlanFurnitureLegendItem[];
+  palette: FloorPlanPaletteItem[];
+  perspectivePrompts: FloorPlanPerspectivePrompt[];
+  carpentryNotes: FloorPlanCarpentryNote[];
+  workflowSteps: FloorPlanWorkflowStep[];
+};
+
+export type PersistedFloorPlanUploadSource = {
+  id: string;
+  name: string;
+  fileUrl: string;
+  createdAt: Date | string;
+};
+
+export type PersistedFloorPlanAnalysisNotes = {
+  summary: string;
+  readinessNote: string;
+  status: FloorPlanStatus;
+  lastAnalyzedAt: string;
+  clientName: string;
+  propertyType: string;
+  siteLabel: string;
+  floorArea: string;
+  sourceFileName: string;
   furnitureLegend: FloorPlanFurnitureLegendItem[];
   palette: FloorPlanPaletteItem[];
   perspectivePrompts: FloorPlanPerspectivePrompt[];
@@ -776,6 +867,172 @@ export function getMockFloorPlanMetrics() {
   };
 }
 
+export function extractFloorPlanFileName(fileUrl: string) {
+  const fallback = "uploaded-floor-plan";
+
+  if (!fileUrl) {
+    return fallback;
+  }
+
+  const normalized = fileUrl.replace(/\\/g, "/").trim();
+  const lastSegment = normalized.split("/").filter(Boolean).at(-1) ?? normalized;
+
+  if (!lastSegment) {
+    return fallback;
+  }
+
+  try {
+    return decodeURIComponent(lastSegment);
+  } catch {
+    return lastSegment;
+  }
+}
+
+export function buildPersistedFloorPlanAnalysisSeed(
+  upload: PersistedFloorPlanUploadSource,
+): {
+  roomsJson: FloorPlanRoomDetection[];
+  notesJson: PersistedFloorPlanAnalysisNotes;
+} {
+  const template = getPersistedFloorPlanTemplate();
+  const analyzedAt = new Date().toISOString();
+  const sourceFileName = extractFloorPlanFileName(upload.fileUrl);
+
+  return {
+    roomsJson: template.roomDetections,
+    notesJson: {
+      summary: `${upload.name} has been saved and seeded with the current floor-plan analysis template for downstream layout, concept, and workflow generation.`,
+      readinessNote:
+        "Analysis seed is stored and ready for regeneration as the live parser is connected.",
+      status: "AI_READY",
+      lastAnalyzedAt: analyzedAt,
+      clientName: template.clientName,
+      propertyType: template.propertyType,
+      siteLabel: template.siteLabel,
+      floorArea: template.floorArea,
+      sourceFileName,
+      furnitureLegend: template.furnitureLegend,
+      palette: template.palette,
+      perspectivePrompts: template.perspectivePrompts,
+      carpentryNotes: template.carpentryNotes,
+      workflowSteps: template.workflowSteps,
+    },
+  };
+}
+
+export function buildFloorPlanRecordFromPersistedUpload(
+  upload: PersistedFloorPlanUploadSource,
+  analysis?: {
+    roomsJson: unknown;
+    notesJson: unknown;
+    createdAt?: Date | string;
+  } | null,
+): FloorPlanRecord {
+  const template = getPersistedFloorPlanTemplate();
+  const sourceFileName = extractFloorPlanFileName(upload.fileUrl);
+  const fallbackLastAnalyzedAt = normalizeFloorPlanDate(upload.createdAt);
+  const fallbackNotes: PersistedFloorPlanAnalysisNotes = {
+    summary: `${upload.name} has been saved. Run the analysis step to persist room detections and downstream floor-plan outputs.`,
+    readinessNote: "Upload record saved and awaiting the first analysis pass.",
+    status: "REVIEW_PENDING",
+    lastAnalyzedAt: fallbackLastAnalyzedAt,
+    clientName: template.clientName,
+    propertyType: template.propertyType,
+    siteLabel: template.siteLabel,
+    floorArea: template.floorArea,
+    sourceFileName,
+    furnitureLegend: template.furnitureLegend,
+    palette: template.palette,
+    perspectivePrompts: template.perspectivePrompts,
+    carpentryNotes: template.carpentryNotes,
+    workflowSteps: template.workflowSteps,
+  };
+  const candidateNotes =
+    analysis && analysis.notesJson && typeof analysis.notesJson === "object"
+      ? (analysis.notesJson as Partial<PersistedFloorPlanAnalysisNotes>)
+      : null;
+  const rooms = Array.isArray(analysis?.roomsJson)
+    ? (analysis?.roomsJson as FloorPlanRoomDetection[])
+    : template.roomDetections;
+
+  const notes: PersistedFloorPlanAnalysisNotes = {
+    ...fallbackNotes,
+    ...candidateNotes,
+    lastAnalyzedAt: normalizeFloorPlanDate(
+      candidateNotes?.lastAnalyzedAt ?? analysis?.createdAt ?? fallbackLastAnalyzedAt,
+    ),
+    sourceFileName: candidateNotes?.sourceFileName?.trim() || sourceFileName,
+    furnitureLegend: Array.isArray(candidateNotes?.furnitureLegend)
+      ? candidateNotes.furnitureLegend
+      : fallbackNotes.furnitureLegend,
+    palette: Array.isArray(candidateNotes?.palette)
+      ? candidateNotes.palette
+      : fallbackNotes.palette,
+    perspectivePrompts: Array.isArray(candidateNotes?.perspectivePrompts)
+      ? candidateNotes.perspectivePrompts
+      : fallbackNotes.perspectivePrompts,
+    carpentryNotes: Array.isArray(candidateNotes?.carpentryNotes)
+      ? candidateNotes.carpentryNotes
+      : fallbackNotes.carpentryNotes,
+    workflowSteps: Array.isArray(candidateNotes?.workflowSteps)
+      ? candidateNotes.workflowSteps
+      : fallbackNotes.workflowSteps,
+  };
+
+  return {
+    id: upload.id,
+    projectName: upload.name,
+    clientName: notes.clientName,
+    propertyType: notes.propertyType,
+    siteLabel: notes.siteLabel,
+    sourceFileName: notes.sourceFileName,
+    floorArea: notes.floorArea,
+    status: notes.status,
+    summary: notes.summary,
+    readinessNote: notes.readinessNote,
+    lastAnalyzedAt: notes.lastAnalyzedAt,
+    roomDetections: rooms,
+    furnitureLegend: notes.furnitureLegend,
+    palette: notes.palette,
+    perspectivePrompts: notes.perspectivePrompts,
+    carpentryNotes: notes.carpentryNotes,
+    workflowSteps: notes.workflowSteps,
+  };
+}
+
+function getPersistedFloorPlanTemplate(): FloorPlanRecord {
+  return (
+    MOCK_FLOOR_PLANS[0] ?? {
+      id: "floor-plan-template",
+      projectName: "Floor Plan Template",
+      clientName: "Client Pending",
+      propertyType: "Condominium",
+      siteLabel: "Site Pending",
+      sourceFileName: "uploaded-floor-plan",
+      floorArea: "To be confirmed",
+      status: "REVIEW_PENDING",
+      summary: "Saved floor plan session awaiting analysis.",
+      readinessNote: "No analysis template available.",
+      lastAnalyzedAt: new Date().toISOString(),
+      roomDetections: [],
+      furnitureLegend: [],
+      palette: [],
+      perspectivePrompts: [],
+      carpentryNotes: [],
+      workflowSteps: [],
+    }
+  );
+}
+
+function normalizeFloorPlanDate(value: Date | string) {
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  const candidate = new Date(value);
+  return Number.isNaN(candidate.getTime()) ? new Date().toISOString() : candidate.toISOString();
+}
+
 export function generateMockRenovationWorkflow(
   plan: FloorPlanRecord,
 ): FloorPlanWorkflowStep[] {
@@ -1279,6 +1536,226 @@ export function generateMockPerspectiveRenderImages(
       },
     ];
   });
+}
+
+export function generateMockBoqSummary(
+  plan: FloorPlanRecord,
+  cabinetDesignPackage: FloorPlanCabinetDesignPackage,
+  workflow: FloorPlanWorkflowStep[],
+): FloorPlanBoqSummary {
+  const area = getApproximateFloorArea(plan.floorArea);
+  const roomCount = plan.roomDetections.length;
+  const workflowFactor = Math.max(1, Math.round(workflow.length / 4));
+  const contingencyRate = plan.status === "AI_READY" ? 8 : 10;
+  const propertyMultiplier = getPropertyRateMultiplier(plan.propertyType);
+
+  const items: FloorPlanBoqItem[] = [
+    buildBoqItem({
+      category: "Site Protection",
+      scope: "Preliminaries and access protection",
+      description: `Protect shared access routes and retained surfaces at ${plan.siteLabel} before demolition and fit-out works start.`,
+      unit: "lot",
+      quantity: 1,
+      unitRate: 2200 * propertyMultiplier,
+      riskLevel: "Low",
+    }),
+    buildBoqItem({
+      category: "Demolition + Masonry",
+      scope: "Layout enabling works",
+      description: `Selective hacking, masonry patching, and wet-area set-out aligned to the interpreted ${roomCount}-room plan.`,
+      unit: "lot",
+      quantity: 1,
+      unitRate: 6800 * propertyMultiplier,
+      riskLevel: "Medium",
+    }),
+    buildBoqItem({
+      category: "Flooring + Finishes",
+      scope: "Main floor build-up and finish coordination",
+      description: `Supply and install premium floor finishes across approximately ${area.toLocaleString()} sqft, including transitions and skirting interfaces.`,
+      unit: "sqft",
+      quantity: roundQuantity(area, 10),
+      unitRate: 11.8 * propertyMultiplier,
+      riskLevel: "Medium",
+    }),
+    buildBoqItem({
+      category: "Electrical + Plumbing",
+      scope: "Concealed services coordination",
+      description: `Coordinate point marking, concealed wiring, lighting prep, and wet-area plumbing rough-ins across ${workflowFactor} core work packages.`,
+      unit: "lot",
+      quantity: 1,
+      unitRate: 9200 * propertyMultiplier,
+      riskLevel: "High",
+    }),
+    buildBoqItem({
+      category: "Custom Carpentry",
+      scope: `${cabinetDesignPackage.cabinets.length} cabinet zones with production-ready detailing`,
+      description: `Fabricate and install the cabinetry package covering ${cabinetDesignPackage.cabinets.map((cabinet) => cabinet.title).join(", ")}.`,
+      unit: "package",
+      quantity: 1,
+      unitRate:
+        (cabinetDesignPackage.productionList.reduce(
+          (total, item) => total + item.quantity * 220,
+          0,
+        ) +
+          cabinetDesignPackage.cabinets.length * 1800) *
+        propertyMultiplier,
+      riskLevel: "High",
+    }),
+    buildBoqItem({
+      category: "Painting + Touch-Up",
+      scope: "Full-unit paint system and closeout touch-up",
+      description: `Prime, paint, and touch up the final joinery and wall interfaces across the full ${plan.propertyType.toLowerCase()} scope.`,
+      unit: "lot",
+      quantity: 1,
+      unitRate: 3600 * propertyMultiplier,
+      riskLevel: "Low",
+    }),
+    buildBoqItem({
+      category: "Project Management",
+      scope: "Scheduling, QA/QC, and handover control",
+      description: `Manage sequencing across ${workflow.length} renovation stages, including procurement coordination and defect closeout.`,
+      unit: "lot",
+      quantity: 1,
+      unitRate: 5400 * propertyMultiplier,
+      riskLevel: "Low",
+    }),
+  ];
+
+  const subtotal = roundCurrency(
+    items.reduce((total, item) => total + item.amount, 0),
+  );
+  const contingencyAmount = roundCurrency(subtotal * (contingencyRate / 100));
+
+  return {
+    title: `${plan.projectName} planning-level BOQ`,
+    items,
+    contingencyRate,
+    subtotal,
+    contingencyAmount,
+    totalEstimate: subtotal + contingencyAmount,
+    assumptions: [
+      `Allowance assumes a ${plan.propertyType.toLowerCase()} fit-out scope with mock quantities derived from the interpreted floor plan only.`,
+      "Loose furniture, appliances, and authority submissions are excluded unless stated in the commercial package.",
+      "Final site measurements, M&E verification, and material upgrades can change both quantity and rate.",
+    ],
+    procurementNotes: [
+      "Release long-lead carpentry hardware after concept and finish approval.",
+      "Lock wet-area fixtures before plumbing rough-in to reduce rework.",
+      "Confirm production dimensions on site before workshop fabrication starts.",
+    ],
+  };
+}
+
+export function generateMockQuotationData(
+  plan: FloorPlanRecord,
+  boqSummary: FloorPlanBoqSummary,
+): FloorPlanQuotationData {
+  const lineItems = boqSummary.items.map((item) => ({
+    title: item.category,
+    description: item.scope,
+    amount: item.amount,
+  }));
+  const estimatedTimeline = getMockTimelineLabel(plan.propertyType);
+  const totalAmount = boqSummary.totalEstimate;
+  const paymentMilestones = [
+    {
+      label: "Booking",
+      percentage: 10,
+      amount: roundCurrency(totalAmount * 0.1),
+      description: "Design pipeline confirmation and project slot reservation.",
+    },
+    {
+      label: "Kickoff",
+      percentage: 40,
+      amount: roundCurrency(totalAmount * 0.4),
+      description: "Site mobilization, demolition, and concealed works commencement.",
+    },
+    {
+      label: "Production",
+      percentage: 35,
+      amount: roundCurrency(totalAmount * 0.35),
+      description: "Workshop release, carpentry fabrication, and material procurement.",
+    },
+    {
+      label: "Handover",
+      percentage: 15,
+      amount: roundCurrency(totalAmount * 0.15),
+      description: "Final installation, touch-up, cleaning, and project closeout.",
+    },
+  ];
+
+  return {
+    quotationNumber: buildQuotationNumber(plan.id),
+    packageName: `${plan.projectName} Full AI Design Package`,
+    preparedFor: plan.clientName,
+    projectLabel: `${plan.propertyType} at ${plan.siteLabel}`,
+    currency: "SGD",
+    validityLabel: "Valid for 14 days from issue",
+    lineItems,
+    subtotal: boqSummary.subtotal,
+    contingencyAmount: boqSummary.contingencyAmount,
+    totalAmount,
+    estimatedTimeline,
+    paymentMilestones,
+    assumptions: [
+      "Pricing is planning-level and based on mock quantities generated inside the floor plan module.",
+      "Final commercial issue should be updated after site measurement, finish lock, and authority checks where required.",
+      "Lead times assume standard supplier availability and weekday site access.",
+    ],
+    exclusions: [
+      "Loose furniture, decorative light fixtures, and branded appliances unless later specified.",
+      "Authority submission fees, management deposits, and utility provider charges.",
+      "Structural rectification or concealed defect rectification uncovered after demolition.",
+    ],
+  };
+}
+
+export function generateMockProposalContent(args: {
+  plan: FloorPlanRecord;
+  furnitureLayout: FloorPlanFurnitureLayoutResult;
+  perspectivePackage: FloorPlanPerspectiveConceptPackage;
+  cabinetDesignPackage: FloorPlanCabinetDesignPackage;
+  workflow: FloorPlanWorkflowStep[];
+  boqSummary: FloorPlanBoqSummary;
+  quotationData: FloorPlanQuotationData;
+}): FloorPlanProposalContent {
+  return {
+    proposalTitle: `${args.plan.projectName} AI concept and commercial proposal`,
+    executiveSummary: `${args.plan.projectName} is positioned as a ${args.perspectivePackage.style.toLowerCase()} interior package that combines room-by-room planning, production-led carpentry, and a controlled renovation sequence for ${args.plan.clientName}.`,
+    sections: [
+      {
+        title: "Design Direction",
+        body: `${args.plan.summary} The concept package keeps the visual language anchored to ${args.perspectivePackage.style} styling, with ${args.perspectivePackage.perspectives.length} core perspective views prepared for client walkthrough and refinement.`,
+      },
+      {
+        title: "Spatial Planning",
+        body: `The layout package covers ${args.furnitureLayout.sections.length} room groups and ${args.furnitureLayout.sections.reduce((total, section) => total + section.items.length, 0)} furniture placement items, giving the design team a structured basis for circulation, zoning, and furniture briefing.`,
+      },
+      {
+        title: "Cabinet + Production Scope",
+        body: `Built-in carpentry is organized into ${args.cabinetDesignPackage.cabinets.length} cabinet zones with ${args.cabinetDesignPackage.productionList.length} production rows, allowing workshop detailing, material planning, and installation sequencing to be briefed in one pass.`,
+      },
+      {
+        title: "Renovation Delivery",
+        body: `The renovation workflow maps ${args.workflow.length} stages from site protection through handover, keeping service coordination, ceiling closure, fabrication, and closeout sequencing visible to design and operations teams.`,
+      },
+      {
+        title: "Commercial Positioning",
+        body: `The mock BOQ and quotation package currently projects an estimated investment of SGD ${args.quotationData.totalAmount.toLocaleString()}, including a contingency allowance of SGD ${args.boqSummary.contingencyAmount.toLocaleString()} and an estimated timeline of ${args.quotationData.estimatedTimeline}.`,
+      },
+    ],
+    deliverables: [
+      "Room-grouped furniture layout with clearance logic and designer notes",
+      "Perspective concept package with render-ready prompts and placeholder previews",
+      "Cabinet design package with production list, materials, and installation notes",
+      "Renovation workflow, BOQ summary, quotation inputs, and proposal narrative",
+    ],
+    nextSteps: [
+      "Confirm preferred concept direction and any room-priority revisions with the client.",
+      "Validate site measurements, retained services, and management constraints before live costing.",
+      "Replace mock render placeholders and commercial assumptions with approved production data.",
+    ],
+  };
 }
 
 function findMatchingRoomDetection(
@@ -2120,6 +2597,74 @@ function getOutdoorPerspectiveRoomName(plan: FloorPlanRecord): string {
   }
 
   return "Balcony";
+}
+
+function buildBoqItem(args: {
+  category: string;
+  scope: string;
+  description: string;
+  unit: string;
+  quantity: number;
+  unitRate: number;
+  riskLevel: FloorPlanBoqRiskLevel;
+}): FloorPlanBoqItem {
+  const quantity = roundQuantity(args.quantity);
+  const unitRate = roundCurrency(args.unitRate);
+
+  return {
+    category: args.category,
+    scope: args.scope,
+    description: args.description,
+    unit: args.unit,
+    quantity,
+    unitRate,
+    amount: roundCurrency(quantity * unitRate),
+    riskLevel: args.riskLevel,
+  };
+}
+
+function getApproximateFloorArea(label: string): number {
+  const match = label.match(/(\d[\d,]*)/);
+  const parsed = Number(match?.[1]?.replaceAll(",", "") ?? "0");
+
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return 1200;
+  }
+
+  return parsed;
+}
+
+function getPropertyRateMultiplier(propertyType: string): number {
+  const normalizedType = propertyType.toLowerCase();
+
+  if (normalizedType.includes("penthouse")) return 1.28;
+  if (normalizedType.includes("landed")) return 1.22;
+  if (normalizedType.includes("commercial")) return 1.18;
+
+  return 1;
+}
+
+function getMockTimelineLabel(propertyType: string): string {
+  const normalizedType = propertyType.toLowerCase();
+
+  if (normalizedType.includes("penthouse")) return "12-16 weeks";
+  if (normalizedType.includes("landed")) return "14-18 weeks";
+  if (normalizedType.includes("commercial")) return "10-14 weeks";
+
+  return "10-12 weeks";
+}
+
+function buildQuotationNumber(id: string): string {
+  const cleanedId = id.replaceAll(/[^a-z0-9]/gi, "").toUpperCase();
+  return `Q-${cleanedId.slice(0, 8) || "BUILDY"}-2605`;
+}
+
+function roundCurrency(value: number): number {
+  return Math.round(value / 10) * 10;
+}
+
+function roundQuantity(value: number, step = 1): number {
+  return Math.max(step, Math.round(value / step) * step);
 }
 
 function uniqueStrings(values: string[]): string[] {

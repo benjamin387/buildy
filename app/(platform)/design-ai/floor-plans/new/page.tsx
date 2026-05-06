@@ -1,28 +1,44 @@
 import { requireUser } from "@/lib/auth/session";
 import { getDefaultMockFloorPlanId } from "@/lib/design-ai/floor-plan-engine";
+import { createFloorPlanUpload } from "@/app/(platform)/design-ai/floor-plans/actions";
 import { PageHeader } from "@/app/components/ui/page-header";
 import { SectionCard } from "@/app/components/ui/section-card";
 import { LinkButton } from "@/app/(platform)/design-ai/floor-plans/_components/link-button";
 
 const propertyTypes = ["Condominium", "HDB", "Landed", "Penthouse", "Commercial"];
 
-export default async function NewFloorPlanPage() {
+export default async function NewFloorPlanPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requireUser();
 
   const samplePlanId = getDefaultMockFloorPlanId();
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const error = getSingleSearchParam(resolvedSearchParams?.error);
 
   return (
     <main className="space-y-6">
       <PageHeader
         kicker="AI Design"
         title="New Floor Plan Intake"
-        subtitle="Upload a floor plan visually for the upcoming AI parsing workflow. This prototype does not persist or process files yet."
+        subtitle="Save a floor plan session, keep a file reference, and route the upload into the persisted AI floor plan workflow."
         backHref="/design-ai/floor-plans"
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
-        <SectionCard title="Project and File Intake" description="Capture the front-of-house details before the live parser is connected.">
-          <form className="space-y-6">
+        <SectionCard
+          title="Project and File Intake"
+          description="The minimal persistence pass stores the upload name and file reference, then saves downstream step outputs on the detail page."
+        >
+          <form action={createFloorPlanUpload} className="space-y-6">
+            {error ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {error}
+              </div>
+            ) : null}
+
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Project Name" name="projectName" placeholder="e.g. Marina Bay Residence" />
               <Field label="Client Name" name="clientName" placeholder="e.g. Tan Family" />
@@ -48,7 +64,8 @@ export default async function NewFloorPlanPage() {
                     Upload PDF, image, or CAD export
                   </p>
                   <p className="mt-2 text-sm leading-6 text-neutral-600">
-                    The uploader is visual only in this first pass. Files are not stored, parsed, or sent to any downstream service yet.
+                    This pass stores a floor plan session and file reference only. Binary storage,
+                    OCR, CAD parsing, and external processing remain deferred.
                   </p>
                 </div>
                 <input
@@ -64,6 +81,12 @@ export default async function NewFloorPlanPage() {
               <LinkButton href="/design-ai/floor-plans" variant="secondary">
                 Cancel
               </LinkButton>
+              <button
+                type="submit"
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+              >
+                Save Upload
+              </button>
               <LinkButton href={`/design-ai/floor-plans/${samplePlanId}`}>
                 Open Sample Analysis
               </LinkButton>
@@ -75,15 +98,15 @@ export default async function NewFloorPlanPage() {
           <div className="space-y-4 text-sm text-neutral-700">
             <InfoBlock
               title="What works now"
-              body="The module supports route navigation, visual intake, and a full mock review surface for rooms, palette, prompts, carpentry, and workflow planning."
+              body="The module now saves a floor plan upload record, keeps a file reference, and persists analysis, furniture layout, perspectives, cabinet design, and workflow outputs."
             />
             <InfoBlock
               title="What is deferred"
-              body="Real uploads, OCR or CAD parsing, persistence, permissions beyond the existing platform guard, and any pricing or proposal integrations."
+              body="Real binary file storage, OCR or CAD parsing, richer intake metadata persistence, and any live pricing or proposal integrations."
             />
             <InfoBlock
               title="Suggested next hook"
-              body="Connect the file intake to a parser service and replace the sample record lookup with generated plan sessions."
+              body="Replace the placeholder file URL with object storage and swap the seeded analysis output for parser-generated room extraction."
             />
           </div>
         </SectionCard>
@@ -151,4 +174,8 @@ function InfoBlock(props: { title: string; body: string }) {
       <p className="mt-1 leading-6 text-neutral-600">{props.body}</p>
     </div>
   );
+}
+
+function getSingleSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
 }
