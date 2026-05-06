@@ -14,6 +14,7 @@ import {
   pushUpsellToQuotationAction,
   updateUpsellStatusAction,
 } from "@/app/(platform)/projects/[projectId]/upsell/actions";
+import { generateProposalFromQuotation } from "@/app/(platform)/proposals/actions";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-SG", {
@@ -53,6 +54,13 @@ export default async function ProjectQuotationDetailPage({
   const quotation = await prisma.quotation.findUnique({
     where: { id: quotationId },
     include: {
+      proposal: {
+        select: {
+          id: true,
+          publicToken: true,
+          updatedAt: true,
+        },
+      },
       paymentTermsV2: { orderBy: { sortOrder: "asc" } },
       sections: {
         include: { lineItems: { orderBy: { sortOrder: "asc" } } },
@@ -136,6 +144,24 @@ export default async function ProjectQuotationDetailPage({
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-2">
+        {canWrite ? (
+          <form action={generateProposalFromQuotation.bind(null, quotationId)}>
+            <PendingSubmitButton
+              pendingText={quotation.proposal ? "Refreshing..." : "Generating..."}
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {quotation.proposal ? "Regenerate Proposal" : "Generate Proposal"}
+            </PendingSubmitButton>
+          </form>
+        ) : null}
+        {quotation.proposal ? (
+          <Link
+            href={`/proposals/${quotation.proposal.id}`}
+            className="inline-flex h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
+          >
+            View Proposal
+          </Link>
+        ) : null}
         <Link
           href={`/projects/${projectId}/quotations/${quotationId}/print`}
           className="inline-flex h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"

@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { Permission } from "@prisma/client";
 import { getProjectPermissions, requireUserId, requirePermission } from "@/lib/rbac";
 import { updateQuotationCosts } from "@/app/(platform)/projects/[projectId]/quotation/[quotationId]/actions";
+import { PendingSubmitButton } from "@/app/(platform)/components/pending-submit-button";
+import { generateProposalFromQuotation } from "@/app/(platform)/proposals/actions";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("en-SG", {
@@ -40,6 +42,11 @@ export default async function ProjectQuotationDetailPage({
   const quotation = await prisma.quotation.findUnique({
     where: { id: quotationId },
     include: {
+      proposal: {
+        select: {
+          id: true,
+        },
+      },
       sections: {
         include: { lineItems: { orderBy: { sortOrder: "asc" } } },
         orderBy: { sortOrder: "asc" },
@@ -106,7 +113,25 @@ export default async function ProjectQuotationDetailPage({
         </div>
       </div>
 
-      <div className="flex items-center justify-end">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {canWrite ? (
+          <form action={generateProposalFromQuotation.bind(null, quotationId)}>
+            <PendingSubmitButton
+              pendingText={quotation.proposal ? "Refreshing..." : "Generating..."}
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {quotation.proposal ? "Regenerate Proposal" : "Generate Proposal"}
+            </PendingSubmitButton>
+          </form>
+        ) : null}
+        {quotation.proposal ? (
+          <Link
+            href={`/proposals/${quotation.proposal.id}`}
+            className="inline-flex h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
+          >
+            View Proposal
+          </Link>
+        ) : null}
         <Link
           href={`/projects/${projectId}/quotation/${quotationId}/print`}
           className="inline-flex h-11 items-center justify-center rounded-xl border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
@@ -227,4 +252,3 @@ export default async function ProjectQuotationDetailPage({
     </main>
   );
 }
-
