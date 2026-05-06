@@ -18,6 +18,35 @@ export type FloorPlanFurnitureLegendItem = {
   placement: string;
 };
 
+export type FloorPlanFurnitureLayoutSectionKey =
+  | "living-dining"
+  | "kitchen"
+  | "bedrooms"
+  | "bathrooms"
+  | "balcony-yard";
+
+export type FloorPlanFurnitureLayoutItem = {
+  legendNumber: number;
+  roomName: string;
+  furnitureItem: string;
+  placementReason: string;
+  clearanceNote: string;
+  dimensionsEstimate: string;
+};
+
+export type FloorPlanFurnitureLayoutSection = {
+  key: FloorPlanFurnitureLayoutSectionKey;
+  title: string;
+  items: FloorPlanFurnitureLayoutItem[];
+};
+
+export type FloorPlanFurnitureLayoutResult = {
+  designRules: string[];
+  sections: FloorPlanFurnitureLayoutSection[];
+  designerNotes: string[];
+  qsNotes: string[];
+};
+
 export type FloorPlanPaletteItem = {
   label: string;
   material: string;
@@ -434,4 +463,291 @@ export function getMockFloorPlanMetrics() {
     totalDetectedRooms: MOCK_FLOOR_PLANS.reduce((total, plan) => total + plan.roomDetections.length, 0),
     totalPerspectivePrompts: MOCK_FLOOR_PLANS.reduce((total, plan) => total + plan.perspectivePrompts.length, 0),
   };
+}
+
+const FURNITURE_LAYOUT_SECTION_ORDER: Array<{
+  key: FloorPlanFurnitureLayoutSectionKey;
+  title: string;
+  optional?: boolean;
+}> = [
+  { key: "living-dining", title: "Living / Dining" },
+  { key: "kitchen", title: "Kitchen" },
+  { key: "bedrooms", title: "Bedrooms" },
+  { key: "bathrooms", title: "Bathrooms" },
+  { key: "balcony-yard", title: "Balcony / Yard", optional: true },
+];
+
+const FURNITURE_LAYOUT_RULES = [
+  "Maintain walking clearance through primary circulation routes.",
+  "Align TV wall with sofa wherever a lounge layout is proposed.",
+  "Avoid blocking doors and windows with loose furniture or built-ins.",
+  "Keep wet works near existing plumbing lines before technical sign-off.",
+  "Separate storage elements from high-traffic zones to reduce pinch points.",
+] as const;
+
+type DraftFurnitureLayoutItem = Omit<FloorPlanFurnitureLayoutItem, "legendNumber">;
+
+export function generateMockFurnitureLayout(plan: FloorPlanRecord): FloorPlanFurnitureLayoutResult {
+  const sectionMap = new Map<FloorPlanFurnitureLayoutSectionKey, DraftFurnitureLayoutItem[]>();
+
+  for (const legendItem of plan.furnitureLegend) {
+    const room = findMatchingRoomDetection(plan.roomDetections, legendItem.room);
+    const sectionKey = getFurnitureLayoutSectionKey(legendItem.room, room?.type);
+
+    if (!sectionKey) continue;
+
+    const currentItems = sectionMap.get(sectionKey) ?? [];
+    currentItems.push({
+      roomName: room?.name ?? legendItem.room,
+      furnitureItem: legendItem.item,
+      placementReason: buildPlacementReason(legendItem, sectionKey),
+      clearanceNote: getClearanceNote(sectionKey, legendItem.item),
+      dimensionsEstimate: getDimensionsEstimate(legendItem.item, sectionKey),
+    });
+    sectionMap.set(sectionKey, currentItems);
+  }
+
+  const outdoorFallbacks = buildOutdoorFallbackItems(plan.roomDetections);
+  if (outdoorFallbacks.length > 0) {
+    const currentOutdoorItems = sectionMap.get("balcony-yard") ?? [];
+    sectionMap.set("balcony-yard", [...currentOutdoorItems, ...outdoorFallbacks]);
+  }
+
+  let legendNumber = 1;
+  const sections = FURNITURE_LAYOUT_SECTION_ORDER.flatMap((section) => {
+    const items = sectionMap.get(section.key) ?? buildFallbackItems(plan, section.key);
+
+    if (items.length === 0 && section.optional) {
+      return [];
+    }
+
+    return [
+      {
+        key: section.key,
+        title: section.title,
+        items: items.map((item) => ({
+          ...item,
+          legendNumber: legendNumber++,
+        })),
+      },
+    ];
+  });
+
+  return {
+    designRules: [...FURNITURE_LAYOUT_RULES],
+    sections,
+    designerNotes: buildDesignerNotes(plan),
+    qsNotes: buildQsNotes(plan),
+  };
+}
+
+function findMatchingRoomDetection(
+  rooms: FloorPlanRoomDetection[],
+  roomName: string,
+): FloorPlanRoomDetection | null {
+  const normalizedTarget = roomName.toLowerCase();
+
+  return (
+    rooms.find((room) => room.name.toLowerCase() === normalizedTarget) ??
+    rooms.find((room) => normalizedTarget.includes(room.name.toLowerCase())) ??
+    rooms.find((room) => room.name.toLowerCase().includes(normalizedTarget)) ??
+    null
+  );
+}
+
+function getFurnitureLayoutSectionKey(
+  roomName: string,
+  roomType?: string,
+): FloorPlanFurnitureLayoutSectionKey | null {
+  const normalizedValue = `${roomName} ${roomType ?? ""}`.toLowerCase();
+
+  if (/(living|dining|salon|lounge)/.test(normalizedValue)) {
+    return "living-dining";
+  }
+
+  if (/(kitchen|pantry)/.test(normalizedValue)) {
+    return "kitchen";
+  }
+
+  if (/(bed|suite|study|guest|children|attic|flex)/.test(normalizedValue)) {
+    return "bedrooms";
+  }
+
+  if (/(bath|powder|toilet|wc)/.test(normalizedValue)) {
+    return "bathrooms";
+  }
+
+  if (/(balcony|yard|terrace|patio|outdoor)/.test(normalizedValue)) {
+    return "balcony-yard";
+  }
+
+  return null;
+}
+
+function buildPlacementReason(
+  legendItem: FloorPlanFurnitureLegendItem,
+  sectionKey: FloorPlanFurnitureLayoutSectionKey,
+): string {
+  const normalizedItem = legendItem.item.toLowerCase();
+
+  if (sectionKey === "living-dining" && /(sofa|lounge)/.test(normalizedItem)) {
+    return `${legendItem.placement} This keeps the sofa axis aligned to the proposed TV wall.`;
+  }
+
+  if (sectionKey === "kitchen") {
+    return `${legendItem.placement} Wet works stay close to the likely plumbing wall and service route.`;
+  }
+
+  if (sectionKey === "bedrooms" && /(study|desk|storage|wardrobe)/.test(normalizedItem)) {
+    return `${legendItem.placement} Storage is kept out of the primary walking path for daily use.`;
+  }
+
+  return legendItem.placement;
+}
+
+function getClearanceNote(
+  sectionKey: FloorPlanFurnitureLayoutSectionKey,
+  furnitureItem: string,
+): string {
+  const normalizedItem = furnitureItem.toLowerCase();
+
+  if (sectionKey === "living-dining" && /(dining)/.test(normalizedItem)) {
+    return "Allow 900-1000 mm behind dining chairs and keep the foyer-to-window route clear.";
+  }
+
+  if (sectionKey === "living-dining") {
+    return "Maintain a 900-1100 mm walking path around the seating cluster and clear door or window swings.";
+  }
+
+  if (sectionKey === "kitchen") {
+    return "Maintain a 1000-1200 mm aisle around prep edges and avoid blocking service access.";
+  }
+
+  if (sectionKey === "bedrooms") {
+    return "Keep 750-900 mm bedside access and avoid placing storage where door swings narrow circulation.";
+  }
+
+  if (sectionKey === "bathrooms") {
+    return "Keep a 700-900 mm standing zone clear in front of the vanity and outside the wet area swing path.";
+  }
+
+  return "Preserve a 900 mm route to sliding panels, drainage points, and outdoor access.";
+}
+
+function getDimensionsEstimate(
+  furnitureItem: string,
+  sectionKey: FloorPlanFurnitureLayoutSectionKey,
+): string {
+  const normalizedItem = furnitureItem.toLowerCase();
+
+  if (/(sectional sofa|main lounge sofa cluster)/.test(normalizedItem)) {
+    return "Approx. 2800-3400W x 950-1050D mm";
+  }
+
+  if (/(sofa bed)/.test(normalizedItem)) {
+    return "Approx. 2100-2400W x 950-1050D mm closed";
+  }
+
+  if (/(sofa|lounge bench|daybed)/.test(normalizedItem)) {
+    return "Approx. 2200-2800W x 900-1000D mm";
+  }
+
+  if (/(armchair|chair pair|chairs)/.test(normalizedItem)) {
+    return "Approx. 800-900W x 800-900D mm each";
+  }
+
+  if (/(10-seat dining table)/.test(normalizedItem)) {
+    return "Approx. 3000-3400W x 1100-1200D mm";
+  }
+
+  if (/(8-seat dining table)/.test(normalizedItem)) {
+    return "Approx. 2200-2600W x 950-1100D mm";
+  }
+
+  if (/(island|breakfast counter)/.test(normalizedItem)) {
+    return "Approx. 1800-2600W x 750-1100D mm";
+  }
+
+  if (/(king bed)/.test(normalizedItem)) {
+    return "Approx. 1800W x 2000L mm plus side clearance";
+  }
+
+  if (/(study desk|study desks)/.test(normalizedItem)) {
+    return "Approx. 1600-2400W x 550-650D mm";
+  }
+
+  if (/(vanity|mirror cabinet)/.test(normalizedItem)) {
+    return "Approx. 900-1200W x 500-550D mm";
+  }
+
+  if (sectionKey === "balcony-yard") {
+    return "Approx. 1400-1800W x 450-800D mm";
+  }
+
+  return "Approx. 1200-2200W x 450-900D mm";
+}
+
+function buildFallbackItems(
+  plan: FloorPlanRecord,
+  sectionKey: FloorPlanFurnitureLayoutSectionKey,
+): DraftFurnitureLayoutItem[] {
+  if (sectionKey === "bathrooms") {
+    return [
+      {
+        roomName: findBathroomRoomName(plan) ?? "Bathroom Plumbing Zone",
+        furnitureItem: "Vanity, mirror cabinet, and linen storage",
+        placementReason:
+          "Keep the vanity run on the existing plumbing wall so wet works remain efficient for design and technical review.",
+        clearanceNote:
+          "Maintain a clear standing area in front of the vanity and keep shower or door swings outside the storage zone.",
+        dimensionsEstimate: "Approx. 900-1200W x 500-550D mm",
+      },
+    ];
+  }
+
+  return [];
+}
+
+function buildOutdoorFallbackItems(
+  rooms: FloorPlanRoomDetection[],
+): DraftFurnitureLayoutItem[] {
+  return rooms
+    .filter((room) => getFurnitureLayoutSectionKey(room.name, room.type) === "balcony-yard")
+    .map((room) => ({
+      roomName: room.name,
+      furnitureItem: room.name.toLowerCase().includes("yard")
+        ? "Outdoor bench and planter storage ledge"
+        : "Outdoor lounge chair pair and side table",
+      placementReason:
+        "Keep loose pieces to the perimeter so the interior threshold remains open and visually continuous.",
+      clearanceNote:
+        "Preserve a 900 mm route to sliding panels, planter access, and any drainage or service points.",
+      dimensionsEstimate: room.name.toLowerCase().includes("yard")
+        ? "Approx. 1400-1800W x 450-500D mm"
+        : "Approx. 2 chairs at 700-800W each with 450-500D mm side table",
+    }));
+}
+
+function findBathroomRoomName(plan: FloorPlanRecord): string | null {
+  return (
+    plan.roomDetections.find((room) =>
+      /(bath|powder|toilet|wc)/.test(`${room.name} ${room.type}`.toLowerCase()),
+    )?.name ?? null
+  );
+}
+
+function buildDesignerNotes(plan: FloorPlanRecord): string[] {
+  return [
+    "Validate door swings, window openings, and final site measurements before locking the numbered layout legend.",
+    `Use the generated layout to confirm lounge alignment, bedroom storage depth, and kitchen circulation for ${plan.projectName}.`,
+    "Review vanity and kitchen wet-zone assumptions with the technical designer before issuing concept drawings.",
+  ];
+}
+
+function buildQsNotes(plan: FloorPlanRecord): string[] {
+  return [
+    "Separate loose furniture from built-in scope when pricing TV walls, wardrobes, vanity storage, and kitchen islands.",
+    `Allow tolerance for electrical and plumbing point adjustments if the preferred ${plan.propertyType.toLowerCase()} layout shifts during detailed design.`,
+    "Check circulation-critical items first during site measure so sofa, dining, and bed clearances do not compress on installation.",
+  ];
 }
