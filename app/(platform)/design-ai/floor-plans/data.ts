@@ -15,7 +15,6 @@ import {
   generateMockCabinetDesignPackage,
   generateMockFurnitureLayout,
   generateMockPerspectiveConceptPackage,
-  generateMockPerspectiveRenderImages,
   generateMockRenovationWorkflow,
   type FloorPlanCabinetDesignPackage,
   type FloorPlanCabinetInstallationNote,
@@ -28,6 +27,7 @@ import {
   type FloorPlanRecord,
   type FloorPlanWorkflowStep,
 } from "@/lib/design-ai/floor-plan-engine";
+import { generateFloorPlanPerspectiveRenderImages } from "@/lib/design-ai/image";
 import { prisma } from "@/lib/prisma";
 
 type FloorPlanUploadWithLatestRelations = Prisma.FloorPlanUploadGetPayload<{
@@ -62,6 +62,15 @@ export type FloorPlanGenerationRequest = {
   prepareQuotationData: boolean;
   prepareProposalContent: boolean;
   perspectiveStyle: FloorPlanPerspectiveStyle;
+};
+
+export type FloorPlanCommercialSnapshot = {
+  designBriefId: string | null;
+  designConceptId: string | null;
+  boqId: string | null;
+  quotationId: string | null;
+  quotationProjectId: string | null;
+  proposalId: string | null;
 };
 
 export type PersistedFloorPlanSnapshot = {
@@ -103,6 +112,73 @@ export async function getPersistedFloorPlanSnapshot(id: string) {
   });
 
   return upload ? toPersistedFloorPlanSnapshot(upload) : null;
+}
+
+export function buildFloorPlanCommercialRef(floorPlanId: string) {
+  return `FP-${floorPlanId}`;
+}
+
+export function buildFloorPlanCommercialBriefTitle(
+  plan: Pick<FloorPlanRecord, "projectName">,
+  floorPlanId: string,
+) {
+  return `${plan.projectName} Commercial Brief · ${buildFloorPlanCommercialRef(floorPlanId)}`;
+}
+
+export function buildFloorPlanCommercialRequirementsRef(floorPlanId: string) {
+  return `Source floor plan reference: ${buildFloorPlanCommercialRef(floorPlanId)}`;
+}
+
+export async function getFloorPlanCommercialSnapshot(
+  floorPlanId: string,
+): Promise<FloorPlanCommercialSnapshot> {
+  const floorPlanRef = buildFloorPlanCommercialRequirementsRef(floorPlanId);
+
+  const brief = await prisma.designBrief.findFirst({
+    where: {
+      OR: [
+        { requirements: { contains: floorPlanRef } },
+        { title: { contains: buildFloorPlanCommercialRef(floorPlanId) } },
+      ],
+    },
+    orderBy: [{ updatedAt: "desc" }],
+    select: {
+      id: true,
+      concepts: {
+        orderBy: [{ createdAt: "desc" }],
+        take: 1,
+        select: { id: true },
+      },
+      boqs: {
+        orderBy: [{ createdAt: "desc" }],
+        take: 1,
+        select: { id: true },
+      },
+      quotations: {
+        where: { isLatest: true },
+        orderBy: [{ createdAt: "desc" }],
+        take: 1,
+        select: {
+          id: true,
+          projectId: true,
+          proposal: {
+            select: { id: true },
+          },
+        },
+      },
+    },
+  });
+
+  const quotation = brief?.quotations[0] ?? null;
+
+  return {
+    designBriefId: brief?.id ?? null,
+    designConceptId: brief?.concepts[0]?.id ?? null,
+    boqId: brief?.boqs[0]?.id ?? null,
+    quotationId: quotation?.id ?? null,
+    quotationProjectId: quotation?.projectId ?? null,
+    proposalId: quotation?.proposal?.id ?? null,
+  };
 }
 
 export function hasFloorPlanGenerationRequest(request: FloorPlanGenerationRequest) {
@@ -278,7 +354,7 @@ export async function persistFloorPlanRequestedOutputs(
     );
     const renderImages =
       request.generateFullDesign || request.generateRenderImages
-        ? generateMockPerspectiveRenderImages(perspectivePackage)
+        ? await generateFloorPlanPerspectiveRenderImages(perspectivePackage)
         : [];
 
     await prisma.designPerspectives.create({

@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import type { ReactNode } from "react";
 import { requireUser } from "@/lib/auth/session";
 import {
   FLOOR_PLAN_PERSPECTIVE_STYLES,
@@ -24,6 +25,7 @@ import {
   type FloorPlanWorkflowStep,
 } from "@/lib/design-ai/floor-plan-engine";
 import {
+  getFloorPlanCommercialSnapshot,
   getPersistedFloorPlanSnapshot,
   hasFloorPlanGenerationRequest,
   isPersistedFullDesignComplete,
@@ -33,9 +35,13 @@ import {
   parsePersistedRenovationWorkflow,
   persistFloorPlanRequestedOutputs,
 } from "@/app/(platform)/design-ai/floor-plans/data";
+import { createQuotationFromDesignBOQ } from "@/app/(platform)/design-ai/actions";
+import { PendingSubmitButton } from "@/app/(platform)/components/pending-submit-button";
+import { generateProposalFromQuotation } from "@/app/(platform)/proposals/actions";
 import { PageHeader } from "@/app/components/ui/page-header";
 import { SectionCard } from "@/app/components/ui/section-card";
 import { StatusPill } from "@/app/components/ui/status-pill";
+import { createCommercialBoqFromFloorPlan } from "@/app/(platform)/design-ai/floor-plans/actions";
 import { FullDesignPipeline } from "@/app/(platform)/design-ai/floor-plans/[id]/_components/full-design-pipeline";
 import { LinkButton } from "@/app/(platform)/design-ai/floor-plans/_components/link-button";
 
@@ -103,6 +109,7 @@ export default async function FloorPlanDetailPage({
     persistedPerspectivePayload?.perspectivePackage.style,
   );
   const plan = mockPlan ?? persistedSnapshot!.plan;
+  const commercialSnapshot = await getFloorPlanCommercialSnapshot(plan.id);
   const generatedFurnitureLayout = isPersistedPlan
     ? null
     : generateMockFurnitureLayout(plan);
@@ -235,6 +242,16 @@ export default async function FloorPlanDetailPage({
     isPersistedPlan && showFullDesignPipeline
       ? `/design-ai/floor-plans/${plan.id}#proposal-content`
       : `${fullDesignHref}#proposal-content`;
+  const currentBoqHref = commercialSnapshot.boqId
+    ? `/design-ai/boq/${commercialSnapshot.boqId}`
+    : null;
+  const currentQuotationHref =
+    commercialSnapshot.quotationId && commercialSnapshot.quotationProjectId
+      ? `/projects/${commercialSnapshot.quotationProjectId}/quotations/${commercialSnapshot.quotationId}`
+      : null;
+  const currentProposalHref = commercialSnapshot.proposalId
+    ? `/proposals/${commercialSnapshot.proposalId}`
+    : null;
 
   return (
     <main className="space-y-6">
@@ -291,6 +308,126 @@ export default async function FloorPlanDetailPage({
           initialCompleted={showFullDesignPipeline}
           persistsOutputs={isPersistedPlan}
         />
+      </SectionCard>
+
+      <SectionCard
+        title="Commercial Module Handoff"
+        description="Push this floor plan into the live BOQ, quotation, and proposal modules using the existing commercial actions."
+      >
+        <div className="grid gap-4 xl:grid-cols-3">
+          <CommercialActionCard
+            kicker="Step 1"
+            title="Design BOQ"
+            status={
+              <StatusPill tone={commercialSnapshot.boqId ? "success" : "warning"}>
+                {commercialSnapshot.boqId ? "Live BOQ Ready" : "Create BOQ"}
+              </StatusPill>
+            }
+            description="Create or refresh the commercial BOQ generated from the linked floor plan brief and concept."
+            action={
+              <form action={createCommercialBoqFromFloorPlan}>
+                <input type="hidden" name="floorPlanId" value={plan.id} />
+                <PendingSubmitButton
+                  pendingText="Creating..."
+                  className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Create BOQ from Floor Plan
+                </PendingSubmitButton>
+              </form>
+            }
+            footer={
+              currentBoqHref ? (
+                <LinkButton href={currentBoqHref} variant="secondary" className="w-full">
+                  Open Current BOQ
+                </LinkButton>
+              ) : (
+                <MutedActionNote text="No commercial BOQ has been created from this floor plan yet." />
+              )
+            }
+          />
+
+          <CommercialActionCard
+            kicker="Step 2"
+            title="Quotation"
+            status={
+              <StatusPill tone={commercialSnapshot.quotationId ? "success" : commercialSnapshot.boqId ? "info" : "warning"}>
+                {commercialSnapshot.quotationId
+                  ? "Live Quotation Ready"
+                  : commercialSnapshot.boqId
+                    ? "BOQ Linked"
+                    : "Waiting for BOQ"}
+              </StatusPill>
+            }
+            description="Convert the latest linked design BOQ into the project quotation module and follow the standard commercial flow."
+            action={
+              commercialSnapshot.boqId ? (
+                <form action={createQuotationFromDesignBOQ}>
+                  <input type="hidden" name="boqId" value={commercialSnapshot.boqId} />
+                  <PendingSubmitButton
+                    pendingText="Creating..."
+                    className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Create Quotation
+                  </PendingSubmitButton>
+                </form>
+              ) : (
+                <DisabledCommercialButton label="Create Quotation" />
+              )
+            }
+            footer={
+              currentQuotationHref ? (
+                <LinkButton href={currentQuotationHref} variant="secondary" className="w-full">
+                  Open Current Quotation
+                </LinkButton>
+              ) : (
+                <MutedActionNote text="Create the BOQ first so the quotation can be generated from a live commercial record." />
+              )
+            }
+          />
+
+          <CommercialActionCard
+            kicker="Step 3"
+            title="Proposal"
+            status={
+              <StatusPill tone={commercialSnapshot.proposalId ? "success" : commercialSnapshot.quotationId ? "info" : "warning"}>
+                {commercialSnapshot.proposalId
+                  ? "Live Proposal Ready"
+                  : commercialSnapshot.quotationId
+                    ? "Quotation Linked"
+                    : "Waiting for Quotation"}
+              </StatusPill>
+            }
+            description="Generate or refresh the client-facing proposal from the latest quotation generated out of this floor plan pipeline."
+            action={
+              commercialSnapshot.quotationId ? (
+                <form
+                  action={generateProposalFromQuotation.bind(
+                    null,
+                    commercialSnapshot.quotationId,
+                  )}
+                >
+                  <PendingSubmitButton
+                    pendingText="Generating..."
+                    className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Generate Proposal
+                  </PendingSubmitButton>
+                </form>
+              ) : (
+                <DisabledCommercialButton label="Generate Proposal" />
+              )
+            }
+            footer={
+              currentProposalHref ? (
+                <LinkButton href={currentProposalHref} variant="secondary" className="w-full">
+                  Open Current Proposal
+                </LinkButton>
+              ) : (
+                <MutedActionNote text="Create the quotation first so proposal generation has a live commercial source." />
+              )
+            }
+          />
+        </div>
       </SectionCard>
 
       <section id="layout">
@@ -825,25 +962,25 @@ export default async function FloorPlanDetailPage({
                       Render Image Output
                     </p>
                     <h3 className="mt-1 text-lg font-semibold text-neutral-950">
-                      Prompt-Driven Render Preview Grid
+                      Perspective Render Preview Grid
                     </h3>
                   </div>
                   <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600">
                     {perspectiveRenderImages.length > 0
                       ? `${perspectiveRenderImages.length} image${perspectiveRenderImages.length === 1 ? "" : "s"}`
-                      : "Placeholder-ready"}
+                      : "Ready for generation"}
                   </span>
                 </div>
 
                 {perspectiveRenderImages.length === 0 ? (
                   <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6">
                     <p className="text-sm font-medium text-neutral-900">
-                      Use Generate Render Images to create placeholder image URLs from the current
-                      entrance, living or dining, kitchen, bedroom, and bathroom prompts.
+                      Use Generate Render Images to create 3 to 5 perspective render previews from
+                      the current entrance, living or dining, kitchen, bedroom, and bathroom prompts.
                     </p>
                     <p className="mt-2 text-sm leading-6 text-neutral-600">
                       {isPersistedPlan
-                        ? "When you save render images, the latest perspective record stores the generated placeholder URLs."
+                        ? "When OPENAI_API_KEY is configured, saved runs store generated image URLs in the latest perspective record. Without it, the same record keeps placeholder URLs."
                         : "The image URLs stay in temporary page state only and are not written to the database."}
                     </p>
                   </div>
@@ -1421,6 +1558,50 @@ function MetricCard(props: { title: string; value: string; subtitle: string }) {
   );
 }
 
+function CommercialActionCard(props: {
+  kicker: string;
+  title: string;
+  status: ReactNode;
+  description: string;
+  action: ReactNode;
+  footer: ReactNode;
+}) {
+  return (
+    <article className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+            {props.kicker}
+          </p>
+          <h3 className="mt-1 text-lg font-semibold text-neutral-950">{props.title}</h3>
+        </div>
+        {props.status}
+      </div>
+
+      <p className="mt-4 text-sm leading-6 text-neutral-700">{props.description}</p>
+
+      <div className="mt-5">{props.action}</div>
+      <div className="mt-3">{props.footer}</div>
+    </article>
+  );
+}
+
+function DisabledCommercialButton(props: { label: string }) {
+  return (
+    <button
+      type="button"
+      disabled
+      className="inline-flex h-11 w-full cursor-not-allowed items-center justify-center rounded-xl bg-neutral-200 px-4 text-sm font-semibold text-neutral-600"
+    >
+      {props.label}
+    </button>
+  );
+}
+
+function MutedActionNote(props: { text: string }) {
+  return <p className="text-sm leading-6 text-neutral-500">{props.text}</p>;
+}
+
 function InfoLine(props: { label: string; value: string; className?: string }) {
   return (
     <div className={props.className}>
@@ -1600,7 +1781,7 @@ function RenderImageCard(props: { image: FloorPlanPerspectiveRenderImage }) {
     <article className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm shadow-black/5">
       <img
         src={image.imageUrl}
-        alt={`${image.viewTitle} render placeholder`}
+        alt={`${image.viewTitle} render preview`}
         className="aspect-[4/3] w-full border-b border-slate-200 object-cover"
       />
       <div className="space-y-3 px-4 py-4">

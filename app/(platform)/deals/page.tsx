@@ -370,7 +370,8 @@ function buildLastActivity(row: DealSourceRow): { label: string; at: Date | null
             ? "Proposal sent"
             : activity.type === ProposalActivityType.VIEWED
               ? "Proposal viewed"
-              : activity.type === ProposalActivityType.REMINDER
+              : activity.type === ProposalActivityType.REMINDER_1 ||
+                  activity.type === ProposalActivityType.REMINDER_2
                 ? "WhatsApp follow-up sent"
                 : "Proposal approved",
         at: activity.createdAt,

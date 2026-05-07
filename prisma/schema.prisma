@@ -36,7 +36,8 @@ enum ProposalStatus {
 enum ProposalActivityType {
   SENT
   VIEWED
-  REMINDER
+  REMINDER_1
+  REMINDER_2
   APPROVED
 }
 

@@ -108,13 +108,13 @@ export function FullDesignPipeline(props: {
           {isComplete ? (
             <>
               <LinkButton href={props.conceptHref} variant="secondary">
-                Generate Concept Package
+                Review Concept Package
               </LinkButton>
               <LinkButton href={props.quotationHref} variant="secondary">
-                Create Quotation
+                Review Pricing Summary
               </LinkButton>
               <LinkButton href={props.proposalHref} variant="secondary">
-                Generate Proposal
+                Review Proposal Content
               </LinkButton>
             </>
           ) : null}

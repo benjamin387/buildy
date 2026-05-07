@@ -406,7 +406,8 @@ function buildLastActivity(row: RevenueQuotationRow): { label: string; at: Date 
             ? "Proposal sent"
             : activity.type === ProposalActivityType.VIEWED
               ? "Proposal viewed"
-              : activity.type === ProposalActivityType.REMINDER
+              : activity.type === ProposalActivityType.REMINDER_1 ||
+                  activity.type === ProposalActivityType.REMINDER_2
                 ? "Follow-up sent"
                 : "Proposal approved",
         at: activity.createdAt,
@@ -612,10 +613,10 @@ function buildUrgentFollowUpInsight(rows: RevenueQuotationRow[], now: Date): Ins
         row,
         followUp: null,
         detail:
-          proposalFollowUp.kind === "UNVIEWED_REMINDER"
+          proposalFollowUp.kind === "REMINDER_1"
             ? `${buildClientName(row)} has not viewed ${row.quotationNumber} and needs an immediate first reminder.`
             : `${buildClientName(row)} viewed ${row.quotationNumber} but has been idle for ${dueDays} day${dueDays === 1 ? "" : "s"}.`,
-        badge: proposalFollowUp.kind === "UNVIEWED_REMINDER" ? "Unviewed" : `Idle ${dueDays}d`,
+        badge: proposalFollowUp.kind === "REMINDER_1" ? "Unviewed" : `Idle ${dueDays}d`,
         href: buildDealHref(row),
       };
     }
