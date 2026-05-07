@@ -9,6 +9,7 @@ import { SectionCard } from "@/app/components/ui/section-card";
 import { ActionButton } from "@/app/components/ui/action-button";
 import { ProposalCoverPage } from "@/app/components/proposal/proposal-cover-page";
 import { updateCompanyProfileAction } from "@/app/(platform)/settings/company/actions";
+import { LogoUploadField } from "@/app/(platform)/settings/company/logo-upload-field";
 
 export const dynamic = "force-dynamic";
 
@@ -85,7 +86,7 @@ export default async function CompanySettingsPage() {
           title="Profile & Branding"
           description="These values are stored in the database and used immediately in client-facing documents."
         >
-          <form action={updateCompanyProfileAction} className="space-y-6">
+          <form action={updateCompanyProfileAction} className="space-y-6" encType="multipart/form-data">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Company Name" hint="Shown on proposal covers and client portal.">
                 <Input name="companyName" defaultValue={company.companyName} required />
@@ -98,9 +99,6 @@ export default async function CompanySettingsPage() {
               </Field>
               <Field label="UEN" hint="Optional. Printed on invoices/contract headers if present.">
                 <Input name="uen" defaultValue={company.uen ?? ""} placeholder="2019XXXXXXZ" />
-              </Field>
-              <Field label="Logo URL" hint="Optional. Use a publicly accessible image URL.">
-                <Input name="logoUrl" defaultValue={company.logoUrl ?? ""} placeholder="https://..." />
               </Field>
               <Field label="Registered Address" hint="Optional. Used on invoices/contract headers.">
                 <Input name="registeredAddress" defaultValue={company.registeredAddress ?? ""} placeholder="Singapore" />
@@ -118,6 +116,13 @@ export default async function CompanySettingsPage() {
                 <Input name="contactPhone" defaultValue={company.contactPhone} placeholder="+65 ..." required />
               </Field>
             </div>
+
+            <Field
+              label="Company Logo"
+              hint="Upload a logo file to replace the old hardcoded brand asset. A text fallback is used automatically if no logo is saved."
+            >
+              <LogoUploadField companyName={company.companyName} currentLogoUrl={company.logoUrl ?? null} />
+            </Field>
 
             <div className="grid gap-4">
               <Field label="Company Intro" hint="Short editorial paragraph used in proposals and cover contact card.">
