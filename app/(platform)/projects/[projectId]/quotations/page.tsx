@@ -100,9 +100,9 @@ export default async function ProjectQuotationsListPage(props: { params: Promise
               ))}
             </div>
 
-            <div className="hidden overflow-x-auto md:block">
-              <div className="min-w-[1100px] overflow-hidden rounded-2xl border border-slate-200">
-                <table className="min-w-full text-sm">
+            <div className="hidden md:block">
+              <div className="w-full max-w-full overflow-x-auto rounded-2xl border border-slate-200">
+                <table className="min-w-[1100px] w-full text-sm">
                   <thead className="bg-stone-50 text-neutral-700">
                     <tr>
                       <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em]">Quotation</th>
@@ -115,7 +115,9 @@ export default async function ProjectQuotationsListPage(props: { params: Promise
                       <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-[0.18em]">Est. Cost</th>
                       <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-[0.18em]">Profit</th>
                       <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-[0.18em]">Margin</th>
-                      <th className="px-4 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em]">Action</th>
+                      <th className="sticky right-0 z-10 border-l border-slate-200 bg-stone-50 px-4 py-4 text-left text-xs font-semibold uppercase tracking-[0.18em]">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -154,7 +156,7 @@ export default async function ProjectQuotationsListPage(props: { params: Promise
                           <td className="px-4 py-4 text-right text-neutral-900 tabular-nums">
                             {marginPct.toFixed(1)}%
                           </td>
-                          <td className="px-4 py-4">
+                          <td className="sticky right-0 z-10 border-l border-slate-200 bg-white px-4 py-4">
                             <Link href={`/projects/${projectId}/quotations/${q.id}`}>
                               <ActionButton variant="secondary" size="sm">
                                 View
@@ -183,4 +185,3 @@ function Tile(props: { label: string; value: string }) {
     </div>
   );
 }
-
