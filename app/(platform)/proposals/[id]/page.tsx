@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Permission, ProposalActivityType, ProposalStatus } from "@prisma/client";
 import { PendingSubmitButton } from "@/app/(platform)/components/pending-submit-button";
 import { initializeProjectKickoff } from "@/app/(platform)/projects/[projectId]/kickoff/actions";
-import { sendProposalWhatsApp } from "@/app/(platform)/proposals/actions";
+import { sendProposalReminder, sendProposalWhatsApp } from "@/app/(platform)/proposals/actions";
 import { ClientProposalDocument } from "@/app/components/proposal/client-proposal-document";
 import { CopyLinkButton } from "@/app/components/ui/copy-link-button";
 import { PageHeader } from "@/app/components/ui/page-header";
@@ -45,7 +45,7 @@ function statusTone(status: ProposalStatus) {
 
 function activityTone(type: ProposalActivityType) {
   if (type === ProposalActivityType.APPROVED) return "success";
-  if (type === ProposalActivityType.REMINDER) return "warning";
+  if (type === ProposalActivityType.REMINDER_1 || type === ProposalActivityType.REMINDER_2) return "warning";
   if (type === ProposalActivityType.VIEWED) return "info";
   return "neutral";
 }
@@ -53,7 +53,8 @@ function activityTone(type: ProposalActivityType) {
 function activityLabel(type: ProposalActivityType) {
   if (type === ProposalActivityType.SENT) return "Proposal sent";
   if (type === ProposalActivityType.VIEWED) return "Link viewed";
-  if (type === ProposalActivityType.REMINDER) return "Follow-up sent";
+  if (type === ProposalActivityType.REMINDER_1) return "Reminder 1 sent";
+  if (type === ProposalActivityType.REMINDER_2) return "Reminder 2 sent";
   return "Proposal approved";
 }
 
@@ -64,8 +65,11 @@ function activityDescription(type: ProposalActivityType) {
   if (type === ProposalActivityType.VIEWED) {
     return "The secure public proposal link was opened.";
   }
-  if (type === ProposalActivityType.REMINDER) {
-    return "Automated WhatsApp reminder or follow-up sent.";
+  if (type === ProposalActivityType.REMINDER_1) {
+    return "A WhatsApp reminder was sent because the proposal had not been viewed yet.";
+  }
+  if (type === ProposalActivityType.REMINDER_2) {
+    return "A WhatsApp follow-up was sent after the client viewed the proposal.";
   }
   return "Client approval was recorded from the public proposal page.";
 }
@@ -139,6 +143,16 @@ export default async function ProposalDetailPage(props: {
   const latestSignature = proposal.signatures[0] ?? null;
   const latestActivity = proposal.activities[0] ?? null;
   const canSendWhatsApp = permissions.has(Permission.QUOTE_WRITE);
+  const hasShareActivity = proposal.activities.some(
+    (activity) =>
+      activity.type === ProposalActivityType.SENT ||
+      activity.type === ProposalActivityType.VIEWED,
+  );
+  const canSendReminder =
+    canSendWhatsApp &&
+    proposal.status !== ProposalStatus.APPROVED &&
+    proposal.status !== ProposalStatus.REJECTED &&
+    hasShareActivity;
   const canStartKickoff =
     permissions.has(Permission.PROJECT_WRITE) &&
     (proposal.status === ProposalStatus.APPROVED || Boolean(latestSignature));
@@ -189,6 +203,16 @@ export default async function ProposalDetailPage(props: {
                 </PendingSubmitButton>
               </form>
             ) : null}
+            {canSendReminder ? (
+              <form action={sendProposalReminder.bind(null, proposal.id)}>
+                <PendingSubmitButton
+                  pendingText="Sending..."
+                  className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Send Reminder
+                </PendingSubmitButton>
+              </form>
+            ) : null}
             <Link
               href={sharePath}
               target="_blank"
@@ -204,7 +228,7 @@ export default async function ProposalDetailPage(props: {
       {whatsappState ? (
         <section
           className={
-            whatsappState === "sent"
+            whatsappState === "sent" || whatsappState === "reminder-sent"
               ? "rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-900"
               : "rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-900"
           }
@@ -212,6 +236,8 @@ export default async function ProposalDetailPage(props: {
           <p className="font-semibold">
             {whatsappState === "sent"
               ? "Proposal sent via WhatsApp."
+              : whatsappState === "reminder-sent"
+                ? "Proposal reminder sent via WhatsApp."
               : "Unable to send proposal via WhatsApp."}
           </p>
           {whatsappState !== "sent" && whatsappMessage ? (

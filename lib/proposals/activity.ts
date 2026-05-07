@@ -10,8 +10,10 @@ type ProposalActivityDbClient = Prisma.TransactionClient | typeof prisma;
 
 export type ProposalWhatsAppMessageKind =
   | "INITIAL"
-  | "UNVIEWED_REMINDER"
-  | "VIEWED_FOLLOW_UP";
+  | "REMINDER_1"
+  | "REMINDER_2";
+
+export type ProposalReminderKind = Exclude<ProposalWhatsAppMessageKind, "INITIAL">;
 
 export type ProposalWhatsAppContext = {
   proposalId: string;
@@ -48,14 +50,20 @@ export function buildProposalWhatsAppMessage(params: {
   const url = buildProposalWhatsAppUrl(params.token);
 
   if (params.kind === "INITIAL") {
-    return `Hi ${clientName},\nYour renovation proposal is ready.\nView here:\n${url}`;
+    return `Hi ${clientName},\nYour renovation proposal is ready:\n${url}`;
   }
 
-  if (params.kind === "UNVIEWED_REMINDER") {
-    return `Hi ${clientName},\nJust following up on your renovation proposal.\nView here:\n${url}`;
+  if (params.kind === "REMINDER_1") {
+    return `Hi ${clientName},\nJust following up on your renovation proposal:\n${url}`;
   }
 
-  return `Hi ${clientName},\nChecking in on your renovation proposal. Let us know if you have any questions.\nView here:\n${url}`;
+  return `Hi ${clientName},\nChecking in on your renovation proposal. Let us know if you have any questions:\n${url}`;
+}
+
+export function getProposalReminderActivityType(kind: ProposalReminderKind): ProposalActivityType {
+  return kind === "REMINDER_1"
+    ? ProposalActivityType.REMINDER_1
+    : ProposalActivityType.REMINDER_2;
 }
 
 export async function createProposalActivity(

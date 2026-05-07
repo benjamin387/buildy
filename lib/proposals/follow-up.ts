@@ -4,18 +4,24 @@ import { ProposalActivityType, ProposalStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   createProposalActivity,
+  getProposalReminderActivityType,
   getProposalWhatsAppContext,
   sendProposalWhatsAppMessage,
-  type ProposalWhatsAppMessageKind,
+  type ProposalReminderKind,
 } from "@/lib/proposals/activity";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+type ProposalActivityRow = {
+  type: ProposalActivityType;
+  createdAt: Date;
+};
+
 function getLatestActivity(
-  activities: Array<{ type: ProposalActivityType; createdAt: Date }>,
+  activities: ProposalActivityRow[],
   type: ProposalActivityType,
 ) {
-  let latest: { type: ProposalActivityType; createdAt: Date } | null = null;
+  let latest: ProposalActivityRow | null = null;
 
   for (const activity of activities) {
     if (activity.type !== type) continue;
@@ -28,23 +34,49 @@ function getLatestActivity(
 }
 
 function hasReminderAfter(
-  activities: Array<{ type: ProposalActivityType; createdAt: Date }>,
+  activities: ProposalActivityRow[],
   since: Date,
+  type: ProposalActivityType,
 ) {
   return activities.some(
     (activity) =>
-      activity.type === ProposalActivityType.REMINDER &&
+      activity.type === type &&
       activity.createdAt.getTime() > since.getTime(),
   );
 }
 
+export function getManualProposalReminderKind(params: {
+  status: ProposalStatus;
+  activities: ProposalActivityRow[];
+}): ProposalReminderKind | null {
+  if (
+    params.status === ProposalStatus.DRAFT ||
+    params.status === ProposalStatus.APPROVED ||
+    params.status === ProposalStatus.REJECTED
+  ) {
+    return null;
+  }
+
+  const latestViewed = getLatestActivity(params.activities, ProposalActivityType.VIEWED);
+  const latestApproved = getLatestActivity(params.activities, ProposalActivityType.APPROVED);
+  if (
+    latestViewed &&
+    (!latestApproved || latestApproved.createdAt.getTime() < latestViewed.createdAt.getTime())
+  ) {
+    return "REMINDER_2";
+  }
+
+  const latestSent = getLatestActivity(params.activities, ProposalActivityType.SENT);
+  return latestSent ? "REMINDER_1" : null;
+}
+
 export function getProposalFollowUpState(params: {
   status: ProposalStatus;
-  activities: Array<{ type: ProposalActivityType; createdAt: Date }>;
+  activities: ProposalActivityRow[];
   now?: Date;
 }): {
   due: boolean;
-  kind: Exclude<ProposalWhatsAppMessageKind, "INITIAL"> | null;
+  kind: ProposalReminderKind | null;
   dueSince: Date | null;
 } {
   if (params.status !== ProposalStatus.SENT && params.status !== ProposalStatus.VIEWED) {
@@ -60,25 +92,18 @@ export function getProposalFollowUpState(params: {
   const latestViewed = getLatestActivity(params.activities, ProposalActivityType.VIEWED);
   const latestApproved = getLatestActivity(params.activities, ProposalActivityType.APPROVED);
 
-  if (!latestSent) {
-    return {
-      due: false,
-      kind: null,
-      dueSince: null,
-    };
-  }
-
-  const needsInitialReminder =
-    (!latestViewed ||
-      latestViewed.createdAt.getTime() < latestSent.createdAt.getTime()) &&
-    now.getTime() - latestSent.createdAt.getTime() >= DAY_MS &&
-    !hasReminderAfter(params.activities, latestSent.createdAt);
+  const needsInitialReminder = latestSent
+    ? (!latestViewed ||
+        latestViewed.createdAt.getTime() < latestSent.createdAt.getTime()) &&
+      now.getTime() - latestSent.createdAt.getTime() >= DAY_MS &&
+      !hasReminderAfter(params.activities, latestSent.createdAt, ProposalActivityType.REMINDER_1)
+    : false;
 
   if (needsInitialReminder) {
     return {
       due: true,
-      kind: "UNVIEWED_REMINDER",
-      dueSince: latestSent.createdAt,
+      kind: "REMINDER_1",
+      dueSince: latestSent?.createdAt ?? null,
     };
   }
 
@@ -86,13 +111,13 @@ export function getProposalFollowUpState(params: {
     ? (!latestApproved ||
         latestApproved.createdAt.getTime() < latestViewed.createdAt.getTime()) &&
       now.getTime() - latestViewed.createdAt.getTime() >= 2 * DAY_MS &&
-      !hasReminderAfter(params.activities, latestViewed.createdAt)
+      !hasReminderAfter(params.activities, latestViewed.createdAt, ProposalActivityType.REMINDER_2)
     : false;
 
   if (needsViewedFollowUp) {
     return {
       due: true,
-      kind: "VIEWED_FOLLOW_UP",
+      kind: "REMINDER_2",
       dueSince: latestViewed?.createdAt ?? null,
     };
   }
@@ -157,10 +182,10 @@ export async function runProposalFollowupCron() {
 
       await createProposalActivity(prisma, {
         proposalId: proposal.id,
-        type: ProposalActivityType.REMINDER,
+        type: getProposalReminderActivityType(followUp.kind),
       });
 
-      if (followUp.kind === "UNVIEWED_REMINDER") {
+      if (followUp.kind === "REMINDER_1") {
         initialRemindersSent += 1;
       } else {
         viewedFollowUpsSent += 1;

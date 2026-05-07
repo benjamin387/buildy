@@ -36,7 +36,8 @@ enum ProposalStatus {
 enum ProposalActivityType {
   SENT
   VIEWED
-  REMINDER
+  REMINDER_1
+  REMINDER_2
   APPROVED
 }
 
@@ -5968,4 +5969,81 @@ model TemplateLibraryItem {
   @@index([code])
   @@index([isActive])
   @@index([createdAt])
+}
+
+model FloorPlanUpload {
+  id        String   @id @default(cuid())
+  name      String
+  fileUrl   String
+  createdAt DateTime @default(now())
+
+  analyses             FloorPlanAnalysis[]
+  furnitureLayouts     FurnitureLayout[]
+  designPerspectives   DesignPerspectives[]
+  cabinetDesigns       CabinetDesign[]
+  renovationWorkflows  RenovationWorkflow[]
+
+  @@index([createdAt])
+}
+
+model FloorPlanAnalysis {
+  id          String   @id @default(cuid())
+  floorPlanId String
+  roomsJson   Json
+  notesJson   Json
+  createdAt   DateTime @default(now())
+
+  floorPlan FloorPlanUpload @relation(fields: [floorPlanId], references: [id], onDelete: Cascade)
+
+  @@index([floorPlanId])
+  @@index([floorPlanId, createdAt])
+}
+
+model FurnitureLayout {
+  id          String   @id @default(cuid())
+  floorPlanId String
+  layoutJson  Json
+  createdAt   DateTime @default(now())
+
+  floorPlan FloorPlanUpload @relation(fields: [floorPlanId], references: [id], onDelete: Cascade)
+
+  @@index([floorPlanId])
+  @@index([floorPlanId, createdAt])
+}
+
+model DesignPerspectives {
+  id               String   @id @default(cuid())
+  floorPlanId      String
+  perspectivesJson Json
+  createdAt        DateTime @default(now())
+
+  floorPlan FloorPlanUpload @relation(fields: [floorPlanId], references: [id], onDelete: Cascade)
+
+  @@index([floorPlanId])
+  @@index([floorPlanId, createdAt])
+}
+
+model CabinetDesign {
+  id             String   @id @default(cuid())
+  floorPlanId    String
+  cabinetsJson   Json
+  productionJson Json
+  createdAt      DateTime @default(now())
+
+  floorPlan FloorPlanUpload @relation(fields: [floorPlanId], references: [id], onDelete: Cascade)
+
+  @@index([floorPlanId])
+  @@index([floorPlanId, createdAt])
+}
+
+model RenovationWorkflow {
+  id          String   @id @default(cuid())
+  floorPlanId String
+  stepsJson   Json
+  createdAt   DateTime @default(now())
+
+  floorPlan FloorPlanUpload @relation(fields: [floorPlanId], references: [id], onDelete: Cascade)
+
+  @@index([floorPlanId])
+  @@index([floorPlanId, createdAt])
 }

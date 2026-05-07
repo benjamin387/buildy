@@ -1,25 +1,48 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import type { ReactNode } from "react";
 import { requireUser } from "@/lib/auth/session";
 import {
   FLOOR_PLAN_PERSPECTIVE_STYLES,
+  generateMockBoqSummary,
   generateMockCabinetDesignPackage,
   generateMockFurnitureLayout,
   generateMockPerspectiveConceptPackage,
   generateMockPerspectiveRenderImages,
+  generateMockProposalContent,
+  generateMockQuotationData,
   generateMockRenovationWorkflow,
   getMockFloorPlanById,
+  type FloorPlanBoqRiskLevel,
   type FloorPlanCabinetDesign,
   type FloorPlanCabinetInstallationNote,
   type FloorPlanCabinetMaterialSummaryItem,
   type FloorPlanPerspectiveConcept,
   type FloorPlanPerspectiveRenderImage,
   type FloorPlanPerspectiveStyle,
+  type FloorPlanProposalContentSection,
+  type FloorPlanQuotationPaymentMilestone,
   type FloorPlanStatus,
   type FloorPlanWorkflowStep,
 } from "@/lib/design-ai/floor-plan-engine";
+import {
+  getFloorPlanCommercialSnapshot,
+  getPersistedFloorPlanSnapshot,
+  hasFloorPlanGenerationRequest,
+  isPersistedFullDesignComplete,
+  parsePersistedCabinetDesign,
+  parsePersistedDesignPerspectives,
+  parsePersistedFurnitureLayout,
+  parsePersistedRenovationWorkflow,
+  persistFloorPlanRequestedOutputs,
+} from "@/app/(platform)/design-ai/floor-plans/data";
+import { createQuotationFromDesignBOQ } from "@/app/(platform)/design-ai/actions";
+import { PendingSubmitButton } from "@/app/(platform)/components/pending-submit-button";
+import { generateProposalFromQuotation } from "@/app/(platform)/proposals/actions";
 import { PageHeader } from "@/app/components/ui/page-header";
 import { SectionCard } from "@/app/components/ui/section-card";
 import { StatusPill } from "@/app/components/ui/status-pill";
+import { createCommercialBoqFromFloorPlan } from "@/app/(platform)/design-ai/floor-plans/actions";
+import { FullDesignPipeline } from "@/app/(platform)/design-ai/floor-plans/[id]/_components/full-design-pipeline";
 import { LinkButton } from "@/app/(platform)/design-ai/floor-plans/_components/link-button";
 
 export default async function FloorPlanDetailPage({
@@ -32,45 +55,203 @@ export default async function FloorPlanDetailPage({
   await requireUser();
   const { id } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-
-  const plan = getMockFloorPlanById(id);
-
-  if (!plan) notFound();
-
+  const generateFullDesignParam = resolvedSearchParams?.generateFullDesign;
   const generateFurnitureLayoutParam = resolvedSearchParams?.generateFurnitureLayout;
-  const showFurnitureLayout = hasEnabledFlag(generateFurnitureLayoutParam);
-  const furnitureLayout = showFurnitureLayout ? generateMockFurnitureLayout(plan) : null;
-  const totalFurnitureLayoutItems =
-    furnitureLayout?.sections.reduce((total, section) => total + section.items.length, 0) ?? 0;
   const generateCabinetDesignParam = resolvedSearchParams?.generateCabinetDesign;
-  const showCabinetDesign = hasEnabledFlag(generateCabinetDesignParam);
-  const cabinetDesignPackage = showCabinetDesign ? generateMockCabinetDesignPackage(plan) : null;
-  const totalCabinetProductionQuantity =
-    cabinetDesignPackage?.productionList.reduce((total, item) => total + item.quantity, 0) ?? 0;
   const generatePerspectivePackageParam = resolvedSearchParams?.generate3dPerspectives;
-  const showPerspectivePackage = hasEnabledFlag(generatePerspectivePackageParam);
-  const selectedPerspectiveStyle = resolvePerspectiveStyle(
-    resolvedSearchParams?.perspectiveStyle,
-  );
-  const perspectivePackage = showPerspectivePackage
-    ? generateMockPerspectiveConceptPackage(plan, selectedPerspectiveStyle)
-    : null;
   const generateRenderImagesParam = resolvedSearchParams?.generateRenderImages;
-  const showPerspectiveRenderImages =
-    showPerspectivePackage && hasEnabledFlag(generateRenderImagesParam);
-  const perspectiveRenderImages =
-    showPerspectiveRenderImages && perspectivePackage
-      ? generateMockPerspectiveRenderImages(perspectivePackage)
-      : [];
   const generateRenovationWorkflowParam =
     resolvedSearchParams?.generateRenovationWorkflow;
-  const showRenovationWorkflow = hasEnabledFlag(generateRenovationWorkflowParam);
-  const renovationWorkflow = showRenovationWorkflow
-    ? generateMockRenovationWorkflow(plan)
-    : null;
+  const generateBoqParam = resolvedSearchParams?.generateBoq;
+  const prepareQuotationDataParam = resolvedSearchParams?.prepareQuotationData;
+  const prepareProposalContentParam =
+    resolvedSearchParams?.prepareProposalContent;
+  const requestedPerspectiveStyle = resolvePerspectiveStyle(
+    resolvedSearchParams?.perspectiveStyle,
+  );
+  const generationRequest = {
+    generateFullDesign: hasEnabledFlag(generateFullDesignParam),
+    generateFurnitureLayout: hasEnabledFlag(generateFurnitureLayoutParam),
+    generateCabinetDesign: hasEnabledFlag(generateCabinetDesignParam),
+    generate3dPerspectives: hasEnabledFlag(generatePerspectivePackageParam),
+    generateRenderImages: hasEnabledFlag(generateRenderImagesParam),
+    generateRenovationWorkflow: hasEnabledFlag(generateRenovationWorkflowParam),
+    generateBoq: hasEnabledFlag(generateBoqParam),
+    prepareQuotationData: hasEnabledFlag(prepareQuotationDataParam),
+    prepareProposalContent: hasEnabledFlag(prepareProposalContentParam),
+    perspectiveStyle: requestedPerspectiveStyle,
+  };
+  const mockPlan = getMockFloorPlanById(id);
+  const persistedSnapshot = mockPlan ? null : await getPersistedFloorPlanSnapshot(id);
+
+  if (!mockPlan && !persistedSnapshot) notFound();
+
+  if (persistedSnapshot && hasFloorPlanGenerationRequest(generationRequest)) {
+    await persistFloorPlanRequestedOutputs(persistedSnapshot.upload, generationRequest);
+    redirect(`/design-ai/floor-plans/${id}`);
+  }
+
+  const persistedFurnitureLayout = parsePersistedFurnitureLayout(
+    persistedSnapshot?.furnitureLayout ?? null,
+  );
+  const persistedPerspectivePayload = parsePersistedDesignPerspectives(
+    persistedSnapshot?.designPerspectives ?? null,
+  );
+  const persistedCabinetDesignPackage = parsePersistedCabinetDesign(
+    persistedSnapshot?.cabinetDesign ?? null,
+  );
+  const persistedRenovationWorkflow = parsePersistedRenovationWorkflow(
+    persistedSnapshot?.renovationWorkflow ?? null,
+  );
+  const isPersistedPlan = Boolean(persistedSnapshot);
+  const selectedPerspectiveStyle = resolvePerspectiveStyle(
+    resolvedSearchParams?.perspectiveStyle,
+    persistedPerspectivePayload?.perspectivePackage.style,
+  );
+  const plan = mockPlan ?? persistedSnapshot!.plan;
+  const commercialSnapshot = await getFloorPlanCommercialSnapshot(plan.id);
+  const generatedFurnitureLayout = isPersistedPlan
+    ? null
+    : generateMockFurnitureLayout(plan);
+  const generatedCabinetDesignPackage = isPersistedPlan
+    ? null
+    : generateMockCabinetDesignPackage(plan);
+  const generatedPerspectivePackage = isPersistedPlan
+    ? null
+    : generateMockPerspectiveConceptPackage(plan, selectedPerspectiveStyle);
+  const generatedPerspectiveRenderImages = generatedPerspectivePackage
+    ? generateMockPerspectiveRenderImages(generatedPerspectivePackage)
+    : [];
+  const generatedRenovationWorkflow = isPersistedPlan
+    ? null
+    : generateMockRenovationWorkflow(plan);
+  const showFullDesignPipeline = isPersistedPlan
+    ? isPersistedFullDesignComplete(persistedSnapshot!)
+    : generationRequest.generateFullDesign;
+  const showFurnitureLayout = isPersistedPlan
+    ? Boolean(persistedFurnitureLayout)
+    : showFullDesignPipeline || generationRequest.generateFurnitureLayout;
+  const furnitureLayout = isPersistedPlan
+    ? persistedFurnitureLayout
+    : showFurnitureLayout
+      ? generatedFurnitureLayout
+      : null;
+  const totalFurnitureLayoutItems =
+    furnitureLayout?.sections.reduce((total, section) => total + section.items.length, 0) ?? 0;
+  const showCabinetDesign = isPersistedPlan
+    ? Boolean(persistedCabinetDesignPackage)
+    : showFullDesignPipeline || generationRequest.generateCabinetDesign;
+  const cabinetDesignPackage = isPersistedPlan
+    ? persistedCabinetDesignPackage
+    : showCabinetDesign
+      ? generatedCabinetDesignPackage
+      : null;
+  const totalCabinetProductionQuantity =
+    cabinetDesignPackage?.productionList.reduce((total, item) => total + item.quantity, 0) ?? 0;
+  const showPerspectivePackage = isPersistedPlan
+    ? Boolean(persistedPerspectivePayload?.perspectivePackage)
+    : showFullDesignPipeline || generationRequest.generate3dPerspectives;
+  const perspectivePackage = isPersistedPlan
+    ? persistedPerspectivePayload?.perspectivePackage ?? null
+    : showPerspectivePackage
+      ? generatedPerspectivePackage
+      : null;
+  const perspectiveRenderImages = isPersistedPlan
+    ? persistedPerspectivePayload?.renderImages ?? []
+    : showPerspectivePackage &&
+        (showFullDesignPipeline || generationRequest.generateRenderImages)
+      ? generatedPerspectiveRenderImages
+      : [];
+  const showPerspectiveRenderImages = perspectiveRenderImages.length > 0;
+  const showRenovationWorkflow = isPersistedPlan
+    ? Boolean(persistedRenovationWorkflow)
+    : showFullDesignPipeline || generationRequest.generateRenovationWorkflow;
+  const renovationWorkflow = isPersistedPlan
+    ? persistedRenovationWorkflow
+    : showRenovationWorkflow
+      ? generatedRenovationWorkflow
+      : null;
   const workflowTradeGroups = renovationWorkflow
     ? groupWorkflowStepsByTrade(renovationWorkflow)
     : [];
+  const commercialCabinetDesignPackage = isPersistedPlan
+    ? cabinetDesignPackage
+    : generatedCabinetDesignPackage;
+  const commercialWorkflow = isPersistedPlan
+    ? renovationWorkflow
+    : generatedRenovationWorkflow;
+  const showBoqSummary = isPersistedPlan
+    ? Boolean(commercialCabinetDesignPackage && commercialWorkflow)
+    : showFullDesignPipeline || generationRequest.generateBoq;
+  const boqSummary =
+    showBoqSummary && commercialCabinetDesignPackage && commercialWorkflow
+      ? generateMockBoqSummary(
+          plan,
+          commercialCabinetDesignPackage,
+          commercialWorkflow,
+        )
+      : null;
+  const showQuotationData = isPersistedPlan
+    ? Boolean(boqSummary)
+    : showFullDesignPipeline || generationRequest.prepareQuotationData;
+  const quotationData =
+    showQuotationData && boqSummary
+      ? generateMockQuotationData(plan, boqSummary)
+      : null;
+  const showProposalContent = isPersistedPlan
+    ? Boolean(
+        furnitureLayout &&
+          perspectivePackage &&
+          cabinetDesignPackage &&
+          renovationWorkflow &&
+          boqSummary &&
+          quotationData,
+      )
+    : showFullDesignPipeline || generationRequest.prepareProposalContent;
+  const proposalContent =
+    showProposalContent &&
+    furnitureLayout &&
+    perspectivePackage &&
+    cabinetDesignPackage &&
+    renovationWorkflow &&
+    boqSummary &&
+    quotationData
+      ? generateMockProposalContent({
+          plan,
+          furnitureLayout,
+          perspectivePackage,
+          cabinetDesignPackage,
+          workflow: renovationWorkflow,
+          boqSummary,
+          quotationData,
+        })
+      : null;
+  const fullDesignHref = buildFullDesignHref({
+    id: plan.id,
+    perspectiveStyle: selectedPerspectiveStyle,
+  });
+  const conceptSectionHref =
+    isPersistedPlan && showFullDesignPipeline
+      ? `/design-ai/floor-plans/${plan.id}#concept-package`
+      : `${fullDesignHref}#concept-package`;
+  const quotationSectionHref =
+    isPersistedPlan && showFullDesignPipeline
+      ? `/design-ai/floor-plans/${plan.id}#pricing-summary`
+      : `${fullDesignHref}#pricing-summary`;
+  const proposalSectionHref =
+    isPersistedPlan && showFullDesignPipeline
+      ? `/design-ai/floor-plans/${plan.id}#proposal-content`
+      : `${fullDesignHref}#proposal-content`;
+  const currentBoqHref = commercialSnapshot.boqId
+    ? `/design-ai/boq/${commercialSnapshot.boqId}`
+    : null;
+  const currentQuotationHref =
+    commercialSnapshot.quotationId && commercialSnapshot.quotationProjectId
+      ? `/projects/${commercialSnapshot.quotationProjectId}/quotations/${commercialSnapshot.quotationId}`
+      : null;
+  const currentProposalHref = commercialSnapshot.proposalId
+    ? `/proposals/${commercialSnapshot.proposalId}`
+    : null;
 
   return (
     <main className="space-y-6">
@@ -96,7 +277,14 @@ export default async function FloorPlanDetailPage({
         <MetricCard title="Workflow Steps" value={String(plan.workflowSteps.length)} subtitle="Renovation sequencing" />
       </section>
 
-      <SectionCard title="Plan Overview" description="Mock project metadata and readiness summary for the current floor plan.">
+      <SectionCard
+        title="Plan Overview"
+        description={
+          isPersistedPlan
+            ? "Saved floor plan metadata and the latest persisted analysis summary for this upload."
+            : "Mock project metadata and readiness summary for the current floor plan."
+        }
+      >
         <div className="grid gap-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
           <InfoLine label="Client" value={plan.clientName} />
           <InfoLine label="Property Type" value={plan.propertyType} />
@@ -109,24 +297,160 @@ export default async function FloorPlanDetailPage({
       </SectionCard>
 
       <SectionCard
-        title="Furniture Placement Engine"
-        description="Generate a mock concept-package furniture layout with numbered legend items, room grouping, clearance guidance, and handoff notes."
-        actions={
-          <LinkButton
-            href={buildFloorPlanDetailHref({
-              id: plan.id,
-              showFurnitureLayout: true,
-              showCabinetDesign,
-              showPerspectivePackage,
-              showPerspectiveRenderImages,
-              showRenovationWorkflow,
-              perspectiveStyle: selectedPerspectiveStyle,
-            })}
-          >
-            {showFurnitureLayout ? "Regenerate Furniture Layout" : "Generate Furniture Layout"}
-          </LinkButton>
-        }
+        title="One-Click Full AI Design Pipeline"
+        description="Run the entire mock floor plan workflow from analysis through quotation and proposal preparation."
       >
+        <FullDesignPipeline
+          completionHref={fullDesignHref}
+          conceptHref={conceptSectionHref}
+          quotationHref={quotationSectionHref}
+          proposalHref={proposalSectionHref}
+          initialCompleted={showFullDesignPipeline}
+          persistsOutputs={isPersistedPlan}
+        />
+      </SectionCard>
+
+      <SectionCard
+        title="Commercial Module Handoff"
+        description="Push this floor plan into the live BOQ, quotation, and proposal modules using the existing commercial actions."
+      >
+        <div className="grid gap-4 xl:grid-cols-3">
+          <CommercialActionCard
+            kicker="Step 1"
+            title="Design BOQ"
+            status={
+              <StatusPill tone={commercialSnapshot.boqId ? "success" : "warning"}>
+                {commercialSnapshot.boqId ? "Live BOQ Ready" : "Create BOQ"}
+              </StatusPill>
+            }
+            description="Create or refresh the commercial BOQ generated from the linked floor plan brief and concept."
+            action={
+              <form action={createCommercialBoqFromFloorPlan}>
+                <input type="hidden" name="floorPlanId" value={plan.id} />
+                <PendingSubmitButton
+                  pendingText="Creating..."
+                  className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Create BOQ from Floor Plan
+                </PendingSubmitButton>
+              </form>
+            }
+            footer={
+              currentBoqHref ? (
+                <LinkButton href={currentBoqHref} variant="secondary" className="w-full">
+                  Open Current BOQ
+                </LinkButton>
+              ) : (
+                <MutedActionNote text="No commercial BOQ has been created from this floor plan yet." />
+              )
+            }
+          />
+
+          <CommercialActionCard
+            kicker="Step 2"
+            title="Quotation"
+            status={
+              <StatusPill tone={commercialSnapshot.quotationId ? "success" : commercialSnapshot.boqId ? "info" : "warning"}>
+                {commercialSnapshot.quotationId
+                  ? "Live Quotation Ready"
+                  : commercialSnapshot.boqId
+                    ? "BOQ Linked"
+                    : "Waiting for BOQ"}
+              </StatusPill>
+            }
+            description="Convert the latest linked design BOQ into the project quotation module and follow the standard commercial flow."
+            action={
+              commercialSnapshot.boqId ? (
+                <form action={createQuotationFromDesignBOQ}>
+                  <input type="hidden" name="boqId" value={commercialSnapshot.boqId} />
+                  <PendingSubmitButton
+                    pendingText="Creating..."
+                    className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Create Quotation
+                  </PendingSubmitButton>
+                </form>
+              ) : (
+                <DisabledCommercialButton label="Create Quotation" />
+              )
+            }
+            footer={
+              currentQuotationHref ? (
+                <LinkButton href={currentQuotationHref} variant="secondary" className="w-full">
+                  Open Current Quotation
+                </LinkButton>
+              ) : (
+                <MutedActionNote text="Create the BOQ first so the quotation can be generated from a live commercial record." />
+              )
+            }
+          />
+
+          <CommercialActionCard
+            kicker="Step 3"
+            title="Proposal"
+            status={
+              <StatusPill tone={commercialSnapshot.proposalId ? "success" : commercialSnapshot.quotationId ? "info" : "warning"}>
+                {commercialSnapshot.proposalId
+                  ? "Live Proposal Ready"
+                  : commercialSnapshot.quotationId
+                    ? "Quotation Linked"
+                    : "Waiting for Quotation"}
+              </StatusPill>
+            }
+            description="Generate or refresh the client-facing proposal from the latest quotation generated out of this floor plan pipeline."
+            action={
+              commercialSnapshot.quotationId ? (
+                <form
+                  action={generateProposalFromQuotation.bind(
+                    null,
+                    commercialSnapshot.quotationId,
+                  )}
+                >
+                  <PendingSubmitButton
+                    pendingText="Generating..."
+                    className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Generate Proposal
+                  </PendingSubmitButton>
+                </form>
+              ) : (
+                <DisabledCommercialButton label="Generate Proposal" />
+              )
+            }
+            footer={
+              currentProposalHref ? (
+                <LinkButton href={currentProposalHref} variant="secondary" className="w-full">
+                  Open Current Proposal
+                </LinkButton>
+              ) : (
+                <MutedActionNote text="Create the quotation first so proposal generation has a live commercial source." />
+              )
+            }
+          />
+        </div>
+      </SectionCard>
+
+      <section id="layout">
+        <SectionCard
+          title="Furniture Placement Engine"
+          description="Generate a mock concept-package furniture layout with numbered legend items, room grouping, clearance guidance, and handoff notes."
+          actions={
+            <LinkButton
+              href={buildFloorPlanDetailHref({
+                id: plan.id,
+                showFullDesign: showFullDesignPipeline,
+                showFurnitureLayout: true,
+                showCabinetDesign,
+                showPerspectivePackage,
+                showPerspectiveRenderImages,
+                showRenovationWorkflow,
+                perspectiveStyle: selectedPerspectiveStyle,
+              })}
+            >
+              {showFurnitureLayout ? "Regenerate Furniture Layout" : "Generate Furniture Layout"}
+            </LinkButton>
+          }
+        >
         {!furnitureLayout ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6">
             <p className="text-sm font-medium text-neutral-900">
@@ -134,8 +458,9 @@ export default async function FloorPlanDetailPage({
               placement reasoning, clearance checks, and designer or QS notes.
             </p>
             <p className="mt-2 text-sm leading-6 text-neutral-600">
-              The output is mock-only and stays within the current floor plan module for UI and workflow
-              validation.
+              {isPersistedPlan
+                ? "The generated layout is saved to the floor plan module and can be regenerated from this detail page."
+                : "The output is mock-only and stays within the current floor plan module for UI and workflow validation."}
             </p>
           </div>
         ) : (
@@ -238,27 +563,30 @@ export default async function FloorPlanDetailPage({
             </div>
           </div>
         )}
-      </SectionCard>
+        </SectionCard>
+      </section>
 
-      <SectionCard
-        title="Cabinet Design + Production Engine"
-        description="Generate mock cabinet zoning, production rows, material usage, and installation notes for designer-to-workshop coordination."
-        actions={
-          <LinkButton
-            href={buildFloorPlanDetailHref({
-              id: plan.id,
-              showFurnitureLayout,
-              showCabinetDesign: true,
-              showPerspectivePackage,
-              showPerspectiveRenderImages,
-              showRenovationWorkflow,
-              perspectiveStyle: selectedPerspectiveStyle,
-            })}
-          >
-            {showCabinetDesign ? "Regenerate Cabinet Design" : "Generate Cabinet Design"}
-          </LinkButton>
-        }
-      >
+      <section id="cabinet-design">
+        <SectionCard
+          title="Cabinet Design + Production Engine"
+          description="Generate mock cabinet zoning, production rows, material usage, and installation notes for designer-to-workshop coordination."
+          actions={
+            <LinkButton
+              href={buildFloorPlanDetailHref({
+                id: plan.id,
+                showFullDesign: showFullDesignPipeline,
+                showFurnitureLayout,
+                showCabinetDesign: true,
+                showPerspectivePackage,
+                showPerspectiveRenderImages,
+                showRenovationWorkflow,
+                perspectiveStyle: selectedPerspectiveStyle,
+              })}
+            >
+              {showCabinetDesign ? "Regenerate Cabinet Design" : "Generate Cabinet Design"}
+            </LinkButton>
+          }
+        >
         {!cabinetDesignPackage ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6">
             <p className="text-sm font-medium text-neutral-900">
@@ -266,9 +594,9 @@ export default async function FloorPlanDetailPage({
               wardrobe, storage cabinets, and bathroom vanity.
             </p>
             <p className="mt-2 text-sm leading-6 text-neutral-600">
-              The output stays mock-only and focuses on production-ready fields: location, purpose,
-              dimensions, materials, finish color, internal layout, panel lists, and installation
-              tolerances.
+              {isPersistedPlan
+                ? "The cabinet package is saved after each run and focuses on production-ready fields: location, purpose, dimensions, materials, finish color, internal layout, panel lists, and installation tolerances."
+                : "The output stays mock-only and focuses on production-ready fields: location, purpose, dimensions, materials, finish color, internal layout, panel lists, and installation tolerances."}
             </p>
           </div>
         ) : (
@@ -403,7 +731,8 @@ export default async function FloorPlanDetailPage({
             </div>
           </div>
         )}
-      </SectionCard>
+        </SectionCard>
+      </section>
 
       <SectionCard
         title="Room Detection Summary"
@@ -492,41 +821,44 @@ export default async function FloorPlanDetailPage({
         </div>
       </SectionCard>
 
-      <SectionCard
-        title="3D Perspective / Artist Illustration Engine"
-        description="Generate a mock concept package with room-based perspective cards, style options, illustration prompts, and designer notes."
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <LinkButton
-              href={buildFloorPlanDetailHref({
-                id: plan.id,
-                showFurnitureLayout,
-                showCabinetDesign,
-                showPerspectivePackage: true,
-                showPerspectiveRenderImages,
-                showRenovationWorkflow,
-                perspectiveStyle: selectedPerspectiveStyle,
-              })}
-            >
-              {showPerspectivePackage ? "Regenerate 3D Perspectives" : "Generate 3D Perspectives"}
-            </LinkButton>
-            <LinkButton
-              href={buildFloorPlanDetailHref({
-                id: plan.id,
-                showFurnitureLayout,
-                showCabinetDesign,
-                showPerspectivePackage: true,
-                showPerspectiveRenderImages: true,
-                showRenovationWorkflow,
-                perspectiveStyle: selectedPerspectiveStyle,
-              })}
-              variant="secondary"
-            >
-              {showPerspectiveRenderImages ? "Regenerate Render Images" : "Generate Render Images"}
-            </LinkButton>
-          </div>
-        }
-      >
+      <section id="concept-package">
+        <SectionCard
+          title="3D Perspective / Artist Illustration Engine"
+          description="Generate a mock concept package with room-based perspective cards, style options, illustration prompts, and designer notes."
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <LinkButton
+                href={buildFloorPlanDetailHref({
+                  id: plan.id,
+                  showFullDesign: showFullDesignPipeline,
+                  showFurnitureLayout,
+                  showCabinetDesign,
+                  showPerspectivePackage: true,
+                  showPerspectiveRenderImages,
+                  showRenovationWorkflow,
+                  perspectiveStyle: selectedPerspectiveStyle,
+                })}
+              >
+                {showPerspectivePackage ? "Regenerate 3D Perspectives" : "Generate 3D Perspectives"}
+              </LinkButton>
+              <LinkButton
+                href={buildFloorPlanDetailHref({
+                  id: plan.id,
+                  showFullDesign: showFullDesignPipeline,
+                  showFurnitureLayout,
+                  showCabinetDesign,
+                  showPerspectivePackage: true,
+                  showPerspectiveRenderImages: true,
+                  showRenovationWorkflow,
+                  perspectiveStyle: selectedPerspectiveStyle,
+                })}
+                variant="secondary"
+              >
+                {showPerspectiveRenderImages ? "Regenerate Render Images" : "Generate Render Images"}
+              </LinkButton>
+            </div>
+          }
+        >
         <div className="space-y-6">
           <article className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -538,6 +870,7 @@ export default async function FloorPlanDetailPage({
                   key={style}
                   href={buildFloorPlanDetailHref({
                     id: plan.id,
+                    showFullDesign: showFullDesignPipeline,
                     showFurnitureLayout,
                     showCabinetDesign,
                     showPerspectivePackage,
@@ -563,8 +896,9 @@ export default async function FloorPlanDetailPage({
               </p>
               <p className="mt-2 text-sm leading-6 text-neutral-600">
                 The selected visual style is <span className="font-semibold text-neutral-900">{selectedPerspectiveStyle}</span>.
-                The output stays mock-only and is intended for UI and workflow validation inside the
-                current floor plan module.
+                {isPersistedPlan
+                  ? " The saved perspective step writes the selected concept package back to this floor plan record."
+                  : " The output stays mock-only and is intended for UI and workflow validation inside the current floor plan module."}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {[
@@ -628,25 +962,26 @@ export default async function FloorPlanDetailPage({
                       Render Image Output
                     </p>
                     <h3 className="mt-1 text-lg font-semibold text-neutral-950">
-                      Prompt-Driven Render Preview Grid
+                      Perspective Render Preview Grid
                     </h3>
                   </div>
                   <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600">
                     {perspectiveRenderImages.length > 0
                       ? `${perspectiveRenderImages.length} image${perspectiveRenderImages.length === 1 ? "" : "s"}`
-                      : "Placeholder-ready"}
+                      : "Ready for generation"}
                   </span>
                 </div>
 
                 {perspectiveRenderImages.length === 0 ? (
                   <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6">
                     <p className="text-sm font-medium text-neutral-900">
-                      Use Generate Render Images to create placeholder image URLs from the current
-                      entrance, living or dining, kitchen, bedroom, and bathroom prompts.
+                      Use Generate Render Images to create 3 to 5 perspective render previews from
+                      the current entrance, living or dining, kitchen, bedroom, and bathroom prompts.
                     </p>
                     <p className="mt-2 text-sm leading-6 text-neutral-600">
-                      The image URLs stay in temporary page state only and are not written to the
-                      database.
+                      {isPersistedPlan
+                        ? "When OPENAI_API_KEY is configured, saved runs store generated image URLs in the latest perspective record. Without it, the same record keeps placeholder URLs."
+                        : "The image URLs stay in temporary page state only and are not written to the database."}
                     </p>
                   </div>
                 ) : (
@@ -662,7 +997,8 @@ export default async function FloorPlanDetailPage({
             </div>
           )}
         </div>
-      </SectionCard>
+        </SectionCard>
+      </section>
 
       <SectionCard
         title="Carpentry Design Notes"
@@ -679,27 +1015,29 @@ export default async function FloorPlanDetailPage({
         </div>
       </SectionCard>
 
-      <SectionCard
-        title="Renovation Workflow Engine"
-        description="Generate a renovation workflow with sequencing, trade coverage, dependencies, risk notes, and inspection checkpoints."
-        actions={
-          <LinkButton
-            href={buildFloorPlanDetailHref({
-              id: plan.id,
-              showFurnitureLayout,
-              showCabinetDesign,
-              showPerspectivePackage,
-              showPerspectiveRenderImages,
-              showRenovationWorkflow: true,
-              perspectiveStyle: selectedPerspectiveStyle,
-            })}
-          >
-            {showRenovationWorkflow
-              ? "Regenerate Renovation Workflow"
-              : "Generate Renovation Workflow"}
-          </LinkButton>
-        }
-      >
+      <section id="workflow">
+        <SectionCard
+          title="Renovation Workflow Engine"
+          description="Generate a renovation workflow with sequencing, trade coverage, dependencies, risk notes, and inspection checkpoints."
+          actions={
+            <LinkButton
+              href={buildFloorPlanDetailHref({
+                id: plan.id,
+                showFullDesign: showFullDesignPipeline,
+                showFurnitureLayout,
+                showCabinetDesign,
+                showPerspectivePackage,
+                showPerspectiveRenderImages,
+                showRenovationWorkflow: true,
+                perspectiveStyle: selectedPerspectiveStyle,
+              })}
+            >
+              {showRenovationWorkflow
+                ? "Regenerate Renovation Workflow"
+                : "Generate Renovation Workflow"}
+            </LinkButton>
+          }
+        >
         {!renovationWorkflow ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-6">
             <p className="text-sm font-medium text-neutral-900">
@@ -951,7 +1289,261 @@ export default async function FloorPlanDetailPage({
             </article>
           </div>
         )}
-      </SectionCard>
+        </SectionCard>
+      </section>
+
+      {boqSummary ? (
+        <section id="boq-summary">
+          <SectionCard
+            title="BOQ Summary"
+            description="Mock BOQ coverage derived from the generated layout, carpentry package, and renovation workflow."
+          >
+            <div className="space-y-6">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <MetricCard
+                  title="BOQ Rows"
+                  value={String(boqSummary.items.length)}
+                  subtitle="Planning-level trade packages"
+                />
+                <MetricCard
+                  title="Subtotal"
+                  value={formatCurrency(boqSummary.subtotal)}
+                  subtitle="Before contingency"
+                />
+                <MetricCard
+                  title="Contingency"
+                  value={formatCurrency(boqSummary.contingencyAmount)}
+                  subtitle={`${boqSummary.contingencyRate}% allowance`}
+                />
+                <MetricCard
+                  title="Estimated Total"
+                  value={formatCurrency(boqSummary.totalEstimate)}
+                  subtitle="Mock commercial envelope"
+                />
+              </div>
+
+              <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                      Trade Breakdown
+                    </p>
+                    <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                      Quantity and Cost Planning
+                    </h3>
+                  </div>
+                  <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600">
+                    {boqSummary.title}
+                  </span>
+                </div>
+
+                <div className="mt-5 overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-200 text-sm">
+                    <thead>
+                      <tr className="text-left text-xs uppercase tracking-[0.16em] text-neutral-500">
+                        <th className="py-3 pr-4">Category</th>
+                        <th className="py-3 pr-4">Scope</th>
+                        <th className="py-3 pr-4">Qty</th>
+                        <th className="py-3 pr-4">Unit</th>
+                        <th className="py-3 pr-4">Unit Rate</th>
+                        <th className="py-3 pr-4">Amount</th>
+                        <th className="py-3">Risk</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {boqSummary.items.map((item) => (
+                        <tr key={`${item.category}-${item.scope}`}>
+                          <td className="py-3 pr-4 font-medium text-neutral-900">
+                            {item.category}
+                          </td>
+                          <td className="py-3 pr-4 text-neutral-700">
+                            <p>{item.scope}</p>
+                            <p className="mt-1 text-xs leading-5 text-neutral-500">
+                              {item.description}
+                            </p>
+                          </td>
+                          <td className="py-3 pr-4 text-neutral-700">{item.quantity}</td>
+                          <td className="py-3 pr-4 text-neutral-700">{item.unit}</td>
+                          <td className="py-3 pr-4 text-neutral-700">
+                            {formatCurrency(item.unitRate)}
+                          </td>
+                          <td className="py-3 pr-4 font-medium text-neutral-900">
+                            {formatCurrency(item.amount)}
+                          </td>
+                          <td className="py-3">
+                            <BoqRiskPill riskLevel={item.riskLevel} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                <NotesPanel title="BOQ Assumptions" notes={boqSummary.assumptions} />
+                <NotesPanel title="Procurement Notes" notes={boqSummary.procurementNotes} />
+              </div>
+            </div>
+          </SectionCard>
+        </section>
+      ) : null}
+
+      {quotationData ? (
+        <section id="pricing-summary">
+          <SectionCard
+            title="Pricing Summary"
+            description="Quotation-ready commercial summary prepared from the mock BOQ output."
+          >
+            <div className="space-y-6">
+              <div className="grid gap-4 xl:grid-cols-[0.8fr_1.2fr]">
+                <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                    Commercial Snapshot
+                  </p>
+                  <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
+                    <InfoLine label="Quotation No." value={quotationData.quotationNumber} />
+                    <InfoLine label="Prepared For" value={quotationData.preparedFor} />
+                    <InfoLine label="Project" value={quotationData.projectLabel} />
+                    <InfoLine label="Timeline" value={quotationData.estimatedTimeline} />
+                    <InfoLine label="Validity" value={quotationData.validityLabel} />
+                    <InfoLine label="Total Estimate" value={formatCurrency(quotationData.totalAmount)} />
+                  </div>
+                </article>
+
+                <article className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                    Package Positioning
+                  </p>
+                  <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                    {quotationData.packageName}
+                  </h3>
+                  <p className="mt-4 text-sm leading-6 text-neutral-700">
+                    This commercial summary combines spatial planning, perspective preparation,
+                    custom carpentry, renovation sequencing, and closeout support into one premium
+                    mock package for review before live costing.
+                  </p>
+                </article>
+              </div>
+
+              <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                      Pricing Breakdown
+                    </p>
+                    <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                      Quotation Line Items
+                    </h3>
+                  </div>
+                  <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-600">
+                    {quotationData.currency}
+                  </span>
+                </div>
+
+                <div className="mt-5 overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-200 text-sm">
+                    <thead>
+                      <tr className="text-left text-xs uppercase tracking-[0.16em] text-neutral-500">
+                        <th className="py-3 pr-4">Line Item</th>
+                        <th className="py-3 pr-4">Description</th>
+                        <th className="py-3">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {quotationData.lineItems.map((item) => (
+                        <tr key={`${item.title}-${item.description}`}>
+                          <td className="py-3 pr-4 font-medium text-neutral-900">{item.title}</td>
+                          <td className="py-3 pr-4 text-neutral-700">{item.description}</td>
+                          <td className="py-3 font-medium text-neutral-900">
+                            {formatCurrency(item.amount)}
+                          </td>
+                        </tr>
+                      ))}
+                      <tr className="bg-slate-50">
+                        <td className="py-3 pr-4 font-semibold text-neutral-900">Subtotal</td>
+                        <td className="py-3 pr-4 text-neutral-600">Base scope before contingency</td>
+                        <td className="py-3 font-semibold text-neutral-900">
+                          {formatCurrency(quotationData.subtotal)}
+                        </td>
+                      </tr>
+                      <tr className="bg-slate-50">
+                        <td className="py-3 pr-4 font-semibold text-neutral-900">Contingency</td>
+                        <td className="py-3 pr-4 text-neutral-600">Planning allowance for site and finish variance</td>
+                        <td className="py-3 font-semibold text-neutral-900">
+                          {formatCurrency(quotationData.contingencyAmount)}
+                        </td>
+                      </tr>
+                      <tr className="bg-neutral-950/5">
+                        <td className="py-3 pr-4 font-semibold text-neutral-950">Estimated Total</td>
+                        <td className="py-3 pr-4 text-neutral-700">Commercial planning total</td>
+                        <td className="py-3 text-lg font-semibold text-neutral-950">
+                          {formatCurrency(quotationData.totalAmount)}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                    Payment Milestones
+                  </p>
+                  <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                    Suggested Billing Schedule
+                  </h3>
+                </div>
+                <div className="grid gap-4 xl:grid-cols-4">
+                  {quotationData.paymentMilestones.map((milestone) => (
+                    <PaymentMilestoneCard key={milestone.label} milestone={milestone} />
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                <NotesPanel title="Commercial Assumptions" notes={quotationData.assumptions} />
+                <NotesPanel title="Exclusions" notes={quotationData.exclusions} />
+              </div>
+            </div>
+          </SectionCard>
+        </section>
+      ) : null}
+
+      {proposalContent ? (
+        <section id="proposal-content">
+          <SectionCard
+            title="Proposal Content"
+            description="Mock proposal copy assembled from the completed floor plan pipeline outputs."
+          >
+            <div className="space-y-6">
+              <article className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+                  Executive Summary
+                </p>
+                <h3 className="mt-1 text-lg font-semibold text-neutral-950">
+                  {proposalContent.proposalTitle}
+                </h3>
+                <p className="mt-4 text-sm leading-6 text-neutral-700">
+                  {proposalContent.executiveSummary}
+                </p>
+              </article>
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                {proposalContent.sections.map((section) => (
+                  <ProposalSectionCard key={section.title} section={section} />
+                ))}
+              </div>
+
+              <div className="grid gap-4 xl:grid-cols-2">
+                <NotesPanel title="Proposal Deliverables" notes={proposalContent.deliverables} />
+                <NotesPanel title="Recommended Next Steps" notes={proposalContent.nextSteps} />
+              </div>
+            </div>
+          </SectionCard>
+        </section>
+      ) : null}
     </main>
   );
 }
@@ -964,6 +1556,50 @@ function MetricCard(props: { title: string; value: string; subtitle: string }) {
       <p className="mt-1 text-sm text-neutral-600">{props.subtitle}</p>
     </div>
   );
+}
+
+function CommercialActionCard(props: {
+  kicker: string;
+  title: string;
+  status: ReactNode;
+  description: string;
+  action: ReactNode;
+  footer: ReactNode;
+}) {
+  return (
+    <article className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+            {props.kicker}
+          </p>
+          <h3 className="mt-1 text-lg font-semibold text-neutral-950">{props.title}</h3>
+        </div>
+        {props.status}
+      </div>
+
+      <p className="mt-4 text-sm leading-6 text-neutral-700">{props.description}</p>
+
+      <div className="mt-5">{props.action}</div>
+      <div className="mt-3">{props.footer}</div>
+    </article>
+  );
+}
+
+function DisabledCommercialButton(props: { label: string }) {
+  return (
+    <button
+      type="button"
+      disabled
+      className="inline-flex h-11 w-full cursor-not-allowed items-center justify-center rounded-xl bg-neutral-200 px-4 text-sm font-semibold text-neutral-600"
+    >
+      {props.label}
+    </button>
+  );
+}
+
+function MutedActionNote(props: { text: string }) {
+  return <p className="text-sm leading-6 text-neutral-500">{props.text}</p>;
 }
 
 function InfoLine(props: { label: string; value: string; className?: string }) {
@@ -1145,7 +1781,7 @@ function RenderImageCard(props: { image: FloorPlanPerspectiveRenderImage }) {
     <article className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm shadow-black/5">
       <img
         src={image.imageUrl}
-        alt={`${image.viewTitle} render placeholder`}
+        alt={`${image.viewTitle} render preview`}
         className="aspect-[4/3] w-full border-b border-slate-200 object-cover"
       />
       <div className="space-y-3 px-4 py-4">
@@ -1189,6 +1825,52 @@ function NotesPanel(props: { title: string; notes: string[] }) {
   );
 }
 
+function BoqRiskPill(props: { riskLevel: FloorPlanBoqRiskLevel }) {
+  const toneClass =
+    props.riskLevel === "High"
+      ? "border-rose-200 bg-rose-50 text-rose-700"
+      : props.riskLevel === "Medium"
+        ? "border-amber-200 bg-amber-50 text-amber-700"
+        : "border-emerald-200 bg-emerald-50 text-emerald-700";
+
+  return (
+    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${toneClass}`}>
+      {props.riskLevel}
+    </span>
+  );
+}
+
+function PaymentMilestoneCard(props: { milestone: FloorPlanQuotationPaymentMilestone }) {
+  const { milestone } = props;
+
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+        {milestone.label}
+      </p>
+      <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">
+        {milestone.percentage}%
+      </p>
+      <p className="mt-1 text-sm font-medium text-neutral-900">
+        {formatCurrency(milestone.amount)}
+      </p>
+      <p className="mt-3 text-sm leading-6 text-neutral-600">{milestone.description}</p>
+    </article>
+  );
+}
+
+function ProposalSectionCard(props: { section: FloorPlanProposalContentSection }) {
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm shadow-black/5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+        Proposal Section
+      </p>
+      <h3 className="mt-1 text-lg font-semibold text-neutral-950">{props.section.title}</h3>
+      <p className="mt-4 text-sm leading-6 text-neutral-700">{props.section.body}</p>
+    </article>
+  );
+}
+
 function groupWorkflowStepsByTrade(steps: FloorPlanWorkflowStep[]) {
   const tradeMap = new Map<string, FloorPlanWorkflowStep[]>();
 
@@ -1216,6 +1898,14 @@ function formatStatus(status: FloorPlanStatus) {
   return status.replaceAll("_", " ");
 }
 
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-SG", {
+    style: "currency",
+    currency: "SGD",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 function statusTone(status: FloorPlanStatus): "success" | "warning" | "info" {
   if (status === "AI_READY") return "success";
   if (status === "REVIEW_PENDING") return "warning";
@@ -1228,17 +1918,20 @@ function hasEnabledFlag(value: string | string[] | undefined) {
 
 function resolvePerspectiveStyle(
   value: string | string[] | undefined,
+  fallback?: FloorPlanPerspectiveStyle,
 ): FloorPlanPerspectiveStyle {
   const candidate = Array.isArray(value) ? value[0] : value;
 
   return (
     FLOOR_PLAN_PERSPECTIVE_STYLES.find((style) => style === candidate) ??
+    fallback ??
     FLOOR_PLAN_PERSPECTIVE_STYLES[0]
   );
 }
 
 function buildFloorPlanDetailHref(args: {
   id: string;
+  showFullDesign?: boolean;
   showFurnitureLayout: boolean;
   showCabinetDesign: boolean;
   showPerspectivePackage: boolean;
@@ -1247,6 +1940,10 @@ function buildFloorPlanDetailHref(args: {
   perspectiveStyle: FloorPlanPerspectiveStyle;
 }) {
   const searchParams = new URLSearchParams();
+
+  if (args.showFullDesign) {
+    searchParams.set("generateFullDesign", "1");
+  }
 
   if (args.showFurnitureLayout) {
     searchParams.set("generateFurnitureLayout", "1");
@@ -1272,4 +1969,20 @@ function buildFloorPlanDetailHref(args: {
 
   const query = searchParams.toString();
   return query ? `/design-ai/floor-plans/${args.id}?${query}` : `/design-ai/floor-plans/${args.id}`;
+}
+
+function buildFullDesignHref(args: {
+  id: string;
+  perspectiveStyle: FloorPlanPerspectiveStyle;
+}) {
+  return buildFloorPlanDetailHref({
+    id: args.id,
+    showFullDesign: true,
+    showFurnitureLayout: true,
+    showCabinetDesign: true,
+    showPerspectivePackage: true,
+    showPerspectiveRenderImages: true,
+    showRenovationWorkflow: true,
+    perspectiveStyle: args.perspectiveStyle,
+  });
 }
