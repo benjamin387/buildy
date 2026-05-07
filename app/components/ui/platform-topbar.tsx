@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { SessionUser } from "@/lib/auth/session";
 import { SignOutButton } from "@/app/(platform)/sign-out-button";
+import { CompanyLogo } from "@/app/components/ui/company-logo";
 import { NotificationBell } from "@/app/components/ui/notification-bell";
 import type { PermissionMatrix } from "@/lib/auth/permissions-shared";
 import { can as canDo } from "@/lib/auth/permissions-shared";
@@ -11,7 +12,6 @@ import type { PermissionModuleKey } from "@/lib/auth/permission-keys";
 import {
   ChevronDown,
   Command,
-  LayoutGrid,
   Menu,
   Plus,
   Search,
@@ -34,6 +34,10 @@ function initials(nameOrEmail: string): string {
 
 export function PlatformTopbar(props: {
   user: SessionUser;
+  companyBranding: {
+    companyName: string;
+    logoUrl: string | null;
+  };
   permissions?: PermissionMatrix | null;
   sidebarCollapsed: boolean;
   onToggleSidebarCollapsed: () => void;
@@ -73,8 +77,15 @@ export function PlatformTopbar(props: {
           href="/dashboard"
           className="inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-semibold tracking-tight text-neutral-950 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
         >
-          <LayoutGrid className="h-4 w-4 text-neutral-700" />
-          <span>Buildy</span>
+          <CompanyLogo
+            src={props.companyBranding.logoUrl}
+            companyName={props.companyBranding.companyName}
+            className="h-7 w-7 overflow-hidden rounded-lg border border-slate-200 bg-white p-1"
+            fallbackClassName="rounded-lg"
+            fallbackMode="initial"
+            fallbackTextClassName="text-[10px]"
+          />
+          <span className="truncate">{props.companyBranding.companyName}</span>
         </Link>
 
         <div className="mx-2 hidden h-6 w-px bg-slate-200 lg:block" />

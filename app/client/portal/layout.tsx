@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireClientPortalAccount } from "@/lib/client-portal/auth";
 import { getCompanyBranding } from "@/lib/branding";
 import { clientPortalSignOutAction } from "@/app/client/portal/actions";
+import { CompanyLogo } from "@/app/components/ui/company-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -18,17 +19,14 @@ export default async function ClientPortalLayout({ children }: { children: React
               href="/client/portal"
               className="inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-semibold tracking-tight text-neutral-950 transition hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
             >
-              {branding.logoUrl ? (
-                <img
-                  src={branding.logoUrl}
-                  alt={branding.companyName}
-                  className="h-9 w-auto max-w-[160px] object-contain"
-                />
-              ) : (
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-950 text-xs font-bold text-white">
-                  {branding.companyName.slice(0, 1).toUpperCase()}
-                </span>
-              )}
+              <CompanyLogo
+                src={branding.logoUrl}
+                companyName={branding.companyName}
+                className="h-9 w-9 shrink-0 rounded-xl border border-slate-200 bg-white p-1.5"
+                fallbackClassName="rounded-xl"
+                fallbackMode="initial"
+                fallbackTextClassName="text-xs font-bold"
+              />
               <span className="truncate">{branding.companyName} Client Portal</span>
             </Link>
           </div>

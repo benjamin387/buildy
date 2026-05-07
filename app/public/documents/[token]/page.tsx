@@ -6,6 +6,7 @@ import type { PublicDocumentType } from "@prisma/client";
 import { PrintButton } from "@/app/public/documents/[token]/print-button";
 import { getCompanyBranding } from "@/lib/branding";
 import { ProposalPresentation, type ProposalPresentationData } from "@/app/components/proposal/proposal-presentation";
+import { CompanyLogo } from "@/app/components/ui/company-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -45,12 +46,26 @@ export default async function PublicDocumentPage({
   const document = await fetchDocument(link.documentType, link.documentId);
   if (!document) notFound();
   const isPresentation = link.documentType === "DESIGN_PRESENTATION";
+  const branding = await getCompanyBranding();
 
   return (
     <main className="min-h-screen bg-stone-50 px-4 py-10 text-neutral-900 sm:px-6">
       <div className={isPresentation ? "mx-auto max-w-6xl space-y-6" : "mx-auto max-w-5xl space-y-6"}>
         <header className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-[0_1px_0_rgba(16,24,40,0.04),0_12px_28px_rgba(16,24,40,0.06)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-neutral-500">Secure document link</p>
+          <div className="flex items-center gap-3">
+            <CompanyLogo
+              src={branding.logoUrl}
+              companyName={branding.companyName}
+              className="h-11 w-11 shrink-0 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm"
+              fallbackClassName="rounded-2xl"
+              fallbackMode="initial"
+              fallbackTextClassName="text-sm font-bold"
+            />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-neutral-950">{branding.companyName}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-neutral-500">Secure document link</p>
+            </div>
+          </div>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl" style={{ fontFamily: "var(--font-display)" }}>
             {document.title}
           </h1>

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { CompanyBranding } from "@/lib/branding";
+import { CompanyLogo } from "@/app/components/ui/company-logo";
 
 function cx(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(" ");
@@ -41,17 +42,14 @@ export function ProposalCoverPage(props: {
         <div className="flex flex-col justify-between gap-10">
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              {props.branding.logoUrl ? (
-                <img
-                  src={props.branding.logoUrl}
-                  alt={props.branding.companyName}
-                  className="h-12 w-auto max-w-[220px] object-contain"
-                />
-              ) : (
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-neutral-950 text-xs font-bold text-white">
-                  {props.branding.companyName.slice(0, 1).toUpperCase()}
-                </div>
-              )}
+              <CompanyLogo
+                src={props.branding.logoUrl}
+                companyName={props.branding.companyName}
+                className="h-12 w-12 shrink-0 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm"
+                fallbackClassName="rounded-2xl"
+                fallbackMode="initial"
+                fallbackTextClassName="text-xs font-bold"
+              />
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold tracking-tight text-neutral-950">{props.branding.companyName}</p>
                 <p className="text-xs text-neutral-600">{props.branding.website}</p>

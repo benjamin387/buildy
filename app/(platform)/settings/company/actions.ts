@@ -4,12 +4,12 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireExecutive } from "@/lib/rbac/executive";
 import { revalidatePath } from "next/cache";
+import { deleteCompanyLogoUpload, saveCompanyLogoUpload } from "@/lib/settings/company-logo-upload";
 
 const Schema = z.object({
   companyName: z.string().trim().min(1),
   legalName: z.string().trim().optional(),
   uen: z.string().trim().optional(),
-  logoUrl: z.string().trim().url().optional().or(z.literal("")),
   brandColor: z.string().trim().min(1),
   accentColor: z.string().trim().min(1),
   contactEmail: z.string().trim().email(),
@@ -28,7 +28,6 @@ export async function updateCompanyProfileAction(formData: FormData) {
     companyName: formData.get("companyName"),
     legalName: formData.get("legalName"),
     uen: formData.get("uen"),
-    logoUrl: formData.get("logoUrl") ?? "",
     brandColor: formData.get("brandColor"),
     accentColor: formData.get("accentColor"),
     contactEmail: formData.get("contactEmail"),
@@ -44,6 +43,27 @@ export async function updateCompanyProfileAction(formData: FormData) {
   }
 
   const v = parsed.data;
+  const existing = await prisma.companySetting.findUnique({
+    where: { id: "default" },
+    select: { logoUrl: true },
+  });
+  const logoFile = formData.get("logoFile");
+  const removeLogo = formData.get("removeLogo") === "1";
+  let nextLogoUrl = existing?.logoUrl ?? null;
+
+  if (removeLogo) {
+    await deleteCompanyLogoUpload(existing?.logoUrl);
+    nextLogoUrl = null;
+  }
+
+  if (logoFile instanceof File && logoFile.size > 0) {
+    nextLogoUrl = await saveCompanyLogoUpload({
+      file: logoFile,
+      companyName: v.companyName,
+      previousLogoUrl: existing?.logoUrl ?? null,
+    });
+  }
+
   await prisma.companySetting.upsert({
     where: { id: "default" },
     create: {
@@ -51,7 +71,7 @@ export async function updateCompanyProfileAction(formData: FormData) {
       companyName: v.companyName,
       legalName: v.legalName?.trim() ? v.legalName.trim() : null,
       uen: v.uen?.trim() ? v.uen.trim() : null,
-      logoUrl: v.logoUrl?.trim() ? v.logoUrl.trim() : null,
+      logoUrl: nextLogoUrl,
       brandColor: v.brandColor,
       accentColor: v.accentColor,
       contactEmail: v.contactEmail,
@@ -66,7 +86,7 @@ export async function updateCompanyProfileAction(formData: FormData) {
       companyName: v.companyName,
       legalName: v.legalName?.trim() ? v.legalName.trim() : null,
       uen: v.uen?.trim() ? v.uen.trim() : null,
-      logoUrl: v.logoUrl?.trim() ? v.logoUrl.trim() : null,
+      logoUrl: nextLogoUrl,
       brandColor: v.brandColor,
       accentColor: v.accentColor,
       contactEmail: v.contactEmail,
@@ -81,5 +101,8 @@ export async function updateCompanyProfileAction(formData: FormData) {
 
   revalidatePath("/settings/company");
   revalidatePath("/settings");
+  revalidatePath("/dashboard");
+  revalidatePath("/client/portal", "layout");
+  revalidatePath("/share/proposal/[token]", "page");
+  revalidatePath("/public/documents/[token]", "page");
 }
-

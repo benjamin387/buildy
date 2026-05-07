@@ -31,6 +31,10 @@ export function PlatformShellClient(props: {
   user: SessionUser;
   permissions?: PermissionMatrix | null;
   moduleAccess?: CurrentUserAccess | null;
+  companyBranding: {
+    companyName: string;
+    logoUrl: string | null;
+  };
   children: ReactNode;
 }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -66,6 +70,7 @@ export function PlatformShellClient(props: {
       <div className="print:hidden">
         <PlatformTopbar
           user={props.user}
+          companyBranding={props.companyBranding}
           permissions={props.permissions ?? null}
           sidebarCollapsed={shell.sidebarCollapsed}
           onToggleSidebarCollapsed={() => shell.setSidebarCollapsed(!shell.sidebarCollapsed)}
@@ -78,6 +83,7 @@ export function PlatformShellClient(props: {
           <div className="print:hidden">
             <PlatformSidebar
               user={props.user}
+              companyBranding={props.companyBranding}
               permissions={props.permissions ?? null}
               moduleAccess={props.moduleAccess ?? null}
               collapsed={shell.sidebarCollapsed}

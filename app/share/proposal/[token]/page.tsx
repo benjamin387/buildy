@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ClientProposalDocument } from "@/app/components/proposal/client-proposal-document";
 import { ProposalApprovalPanel } from "@/app/share/proposal/[token]/proposal-approval-panel";
+import { CompanyLogo } from "@/app/components/ui/company-logo";
 import { getCompanyBranding } from "@/lib/branding";
 import { prisma } from "@/lib/prisma";
 import { markProposalViewedByToken } from "@/lib/proposals/approval";
@@ -62,7 +63,20 @@ export default async function SharedProposalPage(props: {
     <main className="min-h-screen bg-[linear-gradient(180deg,#f5f5f4_0%,#fafaf9_24%,#ffffff_100%)] px-4 py-8 text-neutral-900 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-6xl space-y-6">
         <header className="rounded-[28px] border border-slate-200/80 bg-white px-6 py-6 shadow-sm shadow-[0_1px_0_rgba(16,24,40,0.04),0_12px_28px_rgba(16,24,40,0.06)] sm:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-neutral-500">Shared Proposal</p>
+          <div className="flex items-center gap-3">
+            <CompanyLogo
+              src={branding.logoUrl}
+              companyName={branding.companyName}
+              className="h-11 w-11 shrink-0 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm"
+              fallbackClassName="rounded-2xl"
+              fallbackMode="initial"
+              fallbackTextClassName="text-sm font-bold"
+            />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-neutral-950">{branding.companyName}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-neutral-500">Shared Proposal</p>
+            </div>
+          </div>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight text-neutral-950 sm:text-3xl">{proposal.title}</h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-neutral-600">
             This proposal link is intended for client review. It summarizes the quoted design scope, BOQ summary, pricing, and key terms, and lets you approve or request changes with an electronic signature.

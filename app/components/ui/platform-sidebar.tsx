@@ -10,6 +10,7 @@ import type { PermissionModuleKey } from "@/lib/auth/permission-keys";
 import type { CurrentUserAccess } from "@/lib/auth/module-access-shared";
 import type { ModuleAccessKey } from "@/lib/auth/module-access-keys";
 import { SignOutButton } from "@/app/(platform)/sign-out-button";
+import { CompanyLogo } from "@/app/components/ui/company-logo";
 import {
   Activity,
   Bot,
@@ -90,6 +91,10 @@ function isActivePath(pathname: string, href: string): boolean {
 
 export function PlatformSidebar(props: {
   user: SessionUser;
+  companyBranding: {
+    companyName: string;
+    logoUrl: string | null;
+  };
   collapsed: boolean;
   mobileOpen: boolean;
   onCloseMobile: () => void;
@@ -236,12 +241,22 @@ export function PlatformSidebar(props: {
         <div className={cx("flex h-full flex-col", props.collapsed ? "px-2" : "px-3")}>
           <div className={cx("flex items-center justify-between gap-2 py-3", props.collapsed ? "px-1" : "px-2")}>
             <div className={cx("flex items-center gap-2", props.collapsed && "justify-center")}>
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-950 text-xs font-bold text-white">
-                B
-              </span>
+              <CompanyLogo
+                src={props.companyBranding.logoUrl}
+                companyName={props.companyBranding.companyName}
+                className={cx(
+                  "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white",
+                  props.collapsed ? "h-10 w-10 p-1.5" : "h-10 w-10 p-1.5 sm:h-11 sm:w-11",
+                )}
+                fallbackClassName="rounded-xl"
+                fallbackMode="initial"
+                fallbackTextClassName={props.collapsed ? "text-[10px]" : "text-xs"}
+              />
               {!props.collapsed ? (
                 <div>
-                  <p className="text-sm font-semibold text-neutral-950">Buildy</p>
+                  <p className="max-w-[180px] truncate text-sm font-semibold text-neutral-950">
+                    {props.companyBranding.companyName}
+                  </p>
                   <p className="text-xs text-neutral-500">Studio OS</p>
                 </div>
               ) : null}
